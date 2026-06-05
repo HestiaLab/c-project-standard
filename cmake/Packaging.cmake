@@ -1,0 +1,17 @@
+include(GNUInstallDirs)
+
+install(TARGETS cproject_core
+    EXPORT CProjectStandardTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT CProjectStandardTargets
+    NAMESPACE CProjectStandard::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CProjectStandard
+)

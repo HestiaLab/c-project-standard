@@ -1,0 +1,12 @@
+build/
+dist/
+install/
+out/
+*.user
+*.swp
+*.swo
+.cache/
+.vs/
+.vscode/
+compile_commands.json
+Testing/
