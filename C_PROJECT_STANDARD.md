@@ -33,10 +33,25 @@ Use a small top-level `CMakeLists.txt` that delegates to modules:
 - `cmake/Tests.cmake` for test targets.
 - `cmake/Packaging.cmake` for install and packaging rules.
 
+Installable libraries should generate CMake package config files so downstream
+projects can use `find_package(<Project> CONFIG REQUIRED)`.
+
+Libraries should support `BUILD_SHARED_LIBS` unless the project has a reason to
+ship only static or only shared artifacts. Public headers should expose a small
+export macro and be usable from C++ callers with `extern "C"` guards.
+
+Top-level-only conveniences such as examples, tests, and install rules should
+default to on for normal repository builds and off when the project is included
+as a subproject.
+
+Projects that support both installation and subproject consumption should keep
+small smoke tests for both paths.
+
 Recommended presets:
 
 - `debug`
 - `release`
+- `shared`
 - `asan`
 - `coverage`
 
@@ -47,6 +62,8 @@ Recommended presets:
 - Keep test helpers in `tests/support/`.
 - Do not test implementation details unless the detail is a documented internal contract.
 - Bug fixes should include a regression test unless the behavior is only observable manually.
+- Installable libraries should include a package smoke test that builds a small
+  downstream project with `find_package`.
 
 ## Header Boundary Standard
 
@@ -74,9 +91,19 @@ Every project should have:
 
 - Debug build and tests.
 - Release build and tests.
+- Shared-library build and tests when `BUILD_SHARED_LIBS` is supported.
 - Sanitizer build where supported.
 - Static analysis using at least `cppcheck`.
-- Optional coverage job for projects with meaningful test volume.
+- clang-tidy when a project provides a `.clang-tidy` configuration.
+- YAML linting for workflow and automation files.
+- Coverage preset validation for projects that provide a coverage preset.
+- Package smoke test for installable libraries.
+
+## Repository Maintenance Standard
+
+Templates should include lightweight PR and issue templates when the repository
+expects external or AI-assisted contributions. GitHub Actions dependencies
+should be covered by Dependabot or an equivalent documented update process.
 
 ## Documentation Standard
 
@@ -85,9 +112,12 @@ Keep local docs short:
 - `README.md` for overview and quick start.
 - `CONTRIBUTING.md` for workflow and PR expectations.
 - `SECURITY.md` for vulnerability handling.
+- `doc/cmake-guide.md` for CMake workflows, presets, package consumption, and
+  troubleshooting.
 - `doc/build.md` for build details.
 - `doc/testing.md` for test layers and expectations.
 - `doc/release.md` for release steps.
+- `doc/template.md` for rename and trim guidance.
 - `doc/adr/README.md` for architecture decisions.
 - `AGENTS.md` for AI-agent instructions.
 

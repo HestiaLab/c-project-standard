@@ -7,7 +7,12 @@ project(CProjectStandard
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-enable_testing()
+
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(CPROJECT_IS_TOP_LEVEL_DEFAULT ON)
+else()
+    set(CPROJECT_IS_TOP_LEVEL_DEFAULT OFF)
+endif()
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
@@ -22,16 +27,39 @@ set(CMAKE_C_EXTENSIONS OFF)
 option(CPROJECT_ENABLE_ASAN "Enable AddressSanitizer where supported" OFF)
 option(CPROJECT_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer where supported" OFF)
 option(CPROJECT_ENABLE_COVERAGE "Enable coverage flags where supported" OFF)
-option(CPROJECT_BUILD_EXAMPLE "Build the example executable" ON)
+option(CPROJECT_BUILD_EXAMPLE "Build the example executable" ${CPROJECT_IS_TOP_LEVEL_DEFAULT})
+option(CPROJECT_BUILD_TESTING "Build CTest tests" ${CPROJECT_IS_TOP_LEVEL_DEFAULT})
+option(CPROJECT_INSTALL "Generate install rules" ${CPROJECT_IS_TOP_LEVEL_DEFAULT})
+
+set(CPROJECT_GENERATED_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/include")
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cproject_version.h.in"
+    "${CPROJECT_GENERATED_INCLUDE_DIR}/cproject/version.h"
+    @ONLY
+)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompilerOptions.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Dependencies.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Sources.cmake")
 
-add_library(cproject_core STATIC ${CPROJECT_CORE_SOURCES})
+add_library(cproject_core ${CPROJECT_CORE_SOURCES})
+add_library(CProjectStandard::cproject_core ALIAS cproject_core)
+
+target_compile_definitions(cproject_core
+    PRIVATE
+        CPROJECT_BUILDING_LIBRARY
+)
+if(BUILD_SHARED_LIBS)
+    target_compile_definitions(cproject_core PUBLIC CPROJECT_SHARED)
+endif()
+set_target_properties(cproject_core PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
 target_include_directories(cproject_core
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CPROJECT_GENERATED_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>
 )
 cproject_target_defaults(cproject_core)
@@ -40,7 +68,16 @@ if(CPROJECT_BUILD_EXAMPLE)
     add_executable(cproject_example ${CPROJECT_EXAMPLE_SOURCES})
     target_link_libraries(cproject_example PRIVATE cproject_core)
     cproject_target_defaults(cproject_example)
+    set_target_properties(cproject_example PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
 endif()
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Tests.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Packaging.cmake")
+if(CPROJECT_BUILD_TESTING)
+    enable_testing()
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Tests.cmake")
+endif()
+
+if(CPROJECT_INSTALL)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Packaging.cmake")
+endif()

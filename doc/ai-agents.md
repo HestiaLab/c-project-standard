@@ -10,6 +10,7 @@ Before editing, agents should read:
 - `AGENTS.md`
 - `CONTRIBUTING.md`
 - `doc/testing.md`
+- `doc/cmake-guide.md` for build, package, or CMake changes.
 - This document
 
 ## Appropriate Uses

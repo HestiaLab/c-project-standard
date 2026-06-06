@@ -4,6 +4,9 @@ This project uses focused, reviewable changes.
 
 ## Local Checks
 
+See `doc/cmake-guide.md` for a detailed explanation of configure, build, test,
+install, presets, and common CMake troubleshooting.
+
 ```sh
 ./scripts/check.sh
 ```
@@ -45,9 +48,15 @@ refactor(build): share test target helper
 Before opening a PR:
 
 - Run the smallest local checks that cover the change.
+- Fill in the PR template sections that apply to the change.
 - Explain behavioral, compatibility, or release impact.
 - Add tests for behavior changes.
+- Link to updated docs when the change affects build, test, install, release,
+  security, or public API behavior.
 - Keep unrelated cleanup out of feature or fix PRs.
+
+Use the issue templates for bug reports, feature proposals, and infrastructure
+maintenance requests.
 
 ## Architecture
 
