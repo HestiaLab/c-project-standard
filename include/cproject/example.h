@@ -20,7 +20,7 @@ CPROJECT_API CProjectVersion cproject_version(void);
  * Adds two integers and writes the result to out_value.
  * Returns 1 on success and 0 when out_value is NULL or the sum would overflow.
  */
-CPROJECT_API int cproject_add_checked(int left, int right, int* out_value);
+CPROJECT_API int cproject_add_checked(int left, int right, int *out_value);
 
 #ifdef __cplusplus
 }

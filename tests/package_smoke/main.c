@@ -1,7 +1,6 @@
 #include <cproject/example.h>
 
-int main(void)
-{
+int main(void) {
     CProjectVersion version = cproject_version();
     int value = 0;
 
