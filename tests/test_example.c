@@ -7,7 +7,7 @@
 #define EXPECT_TRUE(expr)                                                                          \
     do {                                                                                           \
         if (!(expr)) {                                                                             \
-            fprintf(stderr, "EXPECT_TRUE failed: %s:%d: %s\n", __FILE__, __LINE__, #expr);         \
+            fputs("EXPECT_TRUE failed: " #expr "\n", stderr);                                      \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
@@ -17,8 +17,7 @@
         int actual_value = (actual);                                                               \
         int expected_value = (expected);                                                           \
         if (actual_value != expected_value) {                                                      \
-            fprintf(stderr, "EXPECT_INT_EQ failed: %s:%d: %d != %d\n", __FILE__, __LINE__,         \
-                    actual_value, expected_value);                                                 \
+            fputs("EXPECT_INT_EQ failed: " #actual " != " #expected "\n", stderr);                 \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
