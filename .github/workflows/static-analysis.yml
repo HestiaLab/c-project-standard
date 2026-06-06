@@ -20,7 +20,7 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y cppcheck clang-format
+          sudo apt-get install -y cppcheck clang-format clang-tidy
 
       - name: Format check
         run: |
@@ -28,6 +28,16 @@ jobs:
             | sort > format-files.txt
           if [ -s format-files.txt ]; then
             xargs clang-format --dry-run --Werror < format-files.txt
+          fi
+
+      - name: Configure clang-tidy database
+        run: cmake --preset debug
+
+      - name: Clang-tidy
+        run: |
+          find src tests -type f -name '*.c' | sort > clang-tidy-files.txt
+          if [ -s clang-tidy-files.txt ]; then
+            xargs clang-tidy --warnings-as-errors='*' -p build/debug < clang-tidy-files.txt
           fi
 
       - name: Cppcheck

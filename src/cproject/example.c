@@ -1,10 +1,15 @@
 #include <cproject/example.h>
+#include <cproject/version.h>
 
 #include <limits.h>
 
 CProjectVersion cproject_version(void)
 {
-    CProjectVersion version = {0, 1, 0};
+    CProjectVersion version = {
+        CPROJECT_VERSION_MAJOR,
+        CPROJECT_VERSION_MINOR,
+        CPROJECT_VERSION_PATCH,
+    };
     return version;
 }
 

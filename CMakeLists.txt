@@ -24,6 +24,13 @@ option(CPROJECT_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer where supported"
 option(CPROJECT_ENABLE_COVERAGE "Enable coverage flags where supported" OFF)
 option(CPROJECT_BUILD_EXAMPLE "Build the example executable" ON)
 
+set(CPROJECT_GENERATED_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/include")
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cproject_version.h.in"
+    "${CPROJECT_GENERATED_INCLUDE_DIR}/cproject/version.h"
+    @ONLY
+)
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompilerOptions.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Dependencies.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Sources.cmake")
@@ -32,6 +39,7 @@ add_library(cproject_core STATIC ${CPROJECT_CORE_SOURCES})
 target_include_directories(cproject_core
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CPROJECT_GENERATED_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>
 )
 cproject_target_defaults(cproject_core)

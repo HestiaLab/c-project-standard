@@ -33,6 +33,9 @@ Use a small top-level `CMakeLists.txt` that delegates to modules:
 - `cmake/Tests.cmake` for test targets.
 - `cmake/Packaging.cmake` for install and packaging rules.
 
+Installable libraries should generate CMake package config files so downstream
+projects can use `find_package(<Project> CONFIG REQUIRED)`.
+
 Recommended presets:
 
 - `debug`
@@ -76,6 +79,7 @@ Every project should have:
 - Release build and tests.
 - Sanitizer build where supported.
 - Static analysis using at least `cppcheck`.
+- clang-tidy when a project provides a `.clang-tidy` configuration.
 - Optional coverage job for projects with meaningful test volume.
 
 ## Documentation Standard

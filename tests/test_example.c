@@ -1,4 +1,5 @@
 #include <cproject/example.h>
+#include <cproject/version.h>
 
 #include <limits.h>
 #include <stdio.h>
@@ -26,9 +27,9 @@
 static int test_version(void)
 {
     CProjectVersion version = cproject_version();
-    EXPECT_INT_EQ(version.major, 0);
-    EXPECT_INT_EQ(version.minor, 1);
-    EXPECT_INT_EQ(version.patch, 0);
+    EXPECT_INT_EQ(version.major, CPROJECT_VERSION_MAJOR);
+    EXPECT_INT_EQ(version.minor, CPROJECT_VERSION_MINOR);
+    EXPECT_INT_EQ(version.patch, CPROJECT_VERSION_PATCH);
     return 0;
 }
 
@@ -39,6 +40,7 @@ static int test_checked_add(void)
     EXPECT_TRUE(cproject_add_checked(2, 3, &value));
     EXPECT_INT_EQ(value, 5);
     EXPECT_TRUE(!cproject_add_checked(INT_MAX, 1, &value));
+    EXPECT_TRUE(!cproject_add_checked(INT_MIN, -1, &value));
     EXPECT_TRUE(!cproject_add_checked(1, 1, NULL));
     return 0;
 }
