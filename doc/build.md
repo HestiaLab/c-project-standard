@@ -18,8 +18,19 @@ Available presets:
 
 - `debug`
 - `release`
+- `shared`
 - `asan`
 - `coverage`
+
+Common options:
+
+- `BUILD_SHARED_LIBS` controls static or shared library output.
+- `CPROJECT_BUILD_EXAMPLE` builds the example executable.
+- `CPROJECT_BUILD_TESTING` builds CTest test targets.
+- `CPROJECT_INSTALL` generates install rules.
+
+The example, tests, and install rules default to on for top-level builds and
+off when this project is included as a subproject.
 
 ## Local Check Scripts
 
@@ -58,3 +69,13 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 
 Project version metadata is generated from the top-level
 `project(... VERSION ...)` value into `cproject/version.h`.
+
+The package smoke test under `tests/package_smoke/` demonstrates downstream
+usage:
+
+```sh
+cmake --install build/release --prefix install
+cmake -S tests/package_smoke -B build/package-smoke -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/install"
+cmake --build build/package-smoke --config Release
+ctest --test-dir build/package-smoke -C Release --output-on-failure
+```

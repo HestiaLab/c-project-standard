@@ -6,7 +6,9 @@ This repository captures reusable infrastructure patterns:
 
 - CMake modules split by responsibility.
 - CMake presets for debug, release, sanitizer, and coverage builds.
+- Static and shared library builds through `BUILD_SHARED_LIBS`.
 - CTest based unit tests.
+- Installable CMake package config with downstream smoke tests.
 - GitHub Actions for build, test, and static analysis.
 - Short contributor, testing, release, security, and AI-agent guidance.
 - A small example library and executable showing the expected layout.
@@ -62,6 +64,8 @@ Optional clang-tidy checks:
 5. Keep generated version metadata wired to the CMake `project(... VERSION ...)` value.
 6. Keep project docs short and update them when build, test, release, or API rules change.
 
+See [doc/template.md](doc/template.md) for a rename checklist.
+
 ## Installed Package Use
 
 The install rules generate a CMake package config:
@@ -70,5 +74,7 @@ The install rules generate a CMake package config:
 find_package(CProjectStandard CONFIG REQUIRED)
 target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 ```
+
+The `tests/package_smoke/` project validates installed C and C++ consumers.
 
 See [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md) for the full guidance.

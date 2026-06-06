@@ -23,6 +23,15 @@
       }
     },
     {
+      "name": "shared",
+      "displayName": "Shared Library",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/build/shared",
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": "ON"
+      }
+    },
+    {
       "name": "asan",
       "displayName": "AddressSanitizer",
       "inherits": "debug",
@@ -54,6 +63,11 @@
       "configuration": "Release"
     },
     {
+      "name": "shared",
+      "configurePreset": "shared",
+      "configuration": "Debug"
+    },
+    {
       "name": "asan",
       "configurePreset": "asan",
       "configuration": "Debug"
@@ -77,6 +91,14 @@
       "name": "release",
       "configurePreset": "release",
       "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "shared",
+      "configurePreset": "shared",
+      "configuration": "Debug",
       "output": {
         "outputOnFailure": true
       }

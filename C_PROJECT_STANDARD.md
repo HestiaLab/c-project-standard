@@ -36,10 +36,19 @@ Use a small top-level `CMakeLists.txt` that delegates to modules:
 Installable libraries should generate CMake package config files so downstream
 projects can use `find_package(<Project> CONFIG REQUIRED)`.
 
+Libraries should support `BUILD_SHARED_LIBS` unless the project has a reason to
+ship only static or only shared artifacts. Public headers should expose a small
+export macro and be usable from C++ callers with `extern "C"` guards.
+
+Top-level-only conveniences such as examples, tests, and install rules should
+default to on for normal repository builds and off when the project is included
+as a subproject.
+
 Recommended presets:
 
 - `debug`
 - `release`
+- `shared`
 - `asan`
 - `coverage`
 
@@ -50,6 +59,8 @@ Recommended presets:
 - Keep test helpers in `tests/support/`.
 - Do not test implementation details unless the detail is a documented internal contract.
 - Bug fixes should include a regression test unless the behavior is only observable manually.
+- Installable libraries should include a package smoke test that builds a small
+  downstream project with `find_package`.
 
 ## Header Boundary Standard
 
@@ -77,10 +88,12 @@ Every project should have:
 
 - Debug build and tests.
 - Release build and tests.
+- Shared-library build and tests when `BUILD_SHARED_LIBS` is supported.
 - Sanitizer build where supported.
 - Static analysis using at least `cppcheck`.
 - clang-tidy when a project provides a `.clang-tidy` configuration.
-- Optional coverage job for projects with meaningful test volume.
+- Coverage preset validation for projects that provide a coverage preset.
+- Package smoke test for installable libraries.
 
 ## Documentation Standard
 

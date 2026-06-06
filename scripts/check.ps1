@@ -23,7 +23,7 @@ function Invoke-CheckedCommand {
 }
 
 if (-not $SkipFormat -and (Get-Command clang-format -ErrorAction SilentlyContinue)) {
-    $files = Get-ChildItem -Path include,src,tests -Recurse -File -Include *.c,*.h |
+    $files = Get-ChildItem -Path include,src,tests -Recurse -File -Include *.c,*.h,*.cpp |
         Sort-Object FullName
     if ($files.Count -gt 0) {
         Invoke-CheckedCommand -Command "clang-format" -Arguments @(
@@ -45,6 +45,7 @@ if ($EnableTidy) {
         $compileCommands = Join-Path $buildDirectory "compile_commands.json"
         $generatedIncludeDirectory = Join-Path $buildDirectory "generated\include"
         $files = Get-ChildItem -Path src,tests -Recurse -File -Include *.c |
+            Where-Object { $_.FullName -notlike "*\tests\package_smoke\*" } |
             Sort-Object FullName
         foreach ($file in $files) {
             if (Test-Path $compileCommands) {

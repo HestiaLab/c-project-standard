@@ -13,6 +13,7 @@ ctest --preset debug --output-on-failure
 - Numeric APIs should cover relevant boundary and overflow cases.
 - Tests should assert behavior, not line coverage.
 - Prefer focused test programs over broad integration tests for small modules.
+- Installable libraries should keep a small downstream package smoke test.
 
 ## Static Analysis
 
@@ -26,6 +27,12 @@ optional because tool availability varies by platform:
 ```powershell
 ./scripts/check.ps1 -EnableTidy
 ```
+
+## Package Smoke
+
+`tests/package_smoke/` is a downstream consumer used to verify installed package
+metadata. It should stay small and only assert that installed headers, exported
+targets, C linkage, and basic library calls work through `find_package`.
 
 ## Manual Checks
 
