@@ -45,9 +45,13 @@ refactor(build): share test target helper
 Before opening a PR:
 
 - Run the smallest local checks that cover the change.
+- Fill in the PR template sections that apply to the change.
 - Explain behavioral, compatibility, or release impact.
 - Add tests for behavior changes.
 - Keep unrelated cleanup out of feature or fix PRs.
+
+Use the issue templates for bug reports, feature proposals, and infrastructure
+maintenance requests.
 
 ## Architecture
 

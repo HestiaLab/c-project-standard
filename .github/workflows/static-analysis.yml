@@ -20,7 +20,10 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y cppcheck clang-format clang-tidy
+          sudo apt-get install -y cppcheck clang-format clang-tidy yamllint
+
+      - name: YAML lint
+        run: yamllint .github .yamllint.yml
 
       - name: Format check
         run: |
@@ -35,7 +38,8 @@ jobs:
 
       - name: Clang-tidy
         run: |
-          find src tests -path tests/package_smoke -prune -o -type f -name '*.c' -print \
+          find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke \) \
+            -prune -o -type f -name '*.c' -print \
             | sort > clang-tidy-files.txt
           if [ -s clang-tidy-files.txt ]; then
             xargs clang-tidy --warnings-as-errors='*' -p build/debug < clang-tidy-files.txt

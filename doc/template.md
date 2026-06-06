@@ -43,3 +43,20 @@ ctest --preset shared --output-on-failure
 
 If the project remains installable, also run a package smoke test using
 `tests/package_smoke/` as the downstream consumer pattern.
+
+## Trim Optional Pieces
+
+Keep the template small after renaming. Remove pieces that do not match the new
+project:
+
+- Remove `src/main.c` and `CPROJECT_BUILD_EXAMPLE` if the project has no CLI or
+  runnable example.
+- Remove `tests/package_smoke/` and package install docs if the project is not
+  intended to be installed or consumed through CMake package config.
+- Remove `tests/subproject_smoke/` if the project will never be consumed with
+  `add_subdirectory()`.
+- Remove the `coverage` preset and CI job if coverage data will not be used.
+- Remove AI-agent docs if the downstream project does not accept AI-assisted
+  changes.
+- Keep `.gitattributes`, formatting rules, and local check scripts unless the
+  downstream project has a stronger existing policy.

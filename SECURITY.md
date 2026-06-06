@@ -14,5 +14,6 @@ publishes versioned releases with a separate support table.
 
 - Prefer small, well-maintained dependencies.
 - Document dependency sources and update procedures.
+- Use Dependabot or an equivalent process for GitHub Actions updates.
 - Do not vendor large dependencies without maintainer approval.
 - Run relevant tests after dependency updates.

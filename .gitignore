@@ -1,6 +1,7 @@
 build/
 dist/
 install/
+install-*/
 out/
 *.user
 *.swp

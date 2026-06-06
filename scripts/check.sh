@@ -19,10 +19,10 @@ if [ "$ENABLE_TIDY" = "tidy" ] || [ "$ENABLE_TIDY" = "--tidy" ]; then
     BUILD_DIR="build/$PRESET"
     GENERATED_INCLUDE_DIR="$BUILD_DIR/generated/include"
     if [ -f "$BUILD_DIR/compile_commands.json" ]; then
-      find src tests -path tests/package_smoke -prune -o -type f -name '*.c' \
+      find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke \) -prune -o -type f -name '*.c' \
         -exec clang-tidy --warnings-as-errors='*' -p "$BUILD_DIR" {} \;
     else
-      find src tests -path tests/package_smoke -prune -o -type f -name '*.c' \
+      find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke \) -prune -o -type f -name '*.c' \
         -exec clang-tidy --warnings-as-errors='*' --extra-arg=-std=c11 {} -- -Iinclude -I"$GENERATED_INCLUDE_DIR" \;
     fi
   else

@@ -71,11 +71,30 @@ Project version metadata is generated from the top-level
 `project(... VERSION ...)` value into `cproject/version.h`.
 
 The package smoke test under `tests/package_smoke/` demonstrates downstream
-usage:
+usage for an installed package:
 
 ```sh
 cmake --install build/release --prefix install
 cmake -S tests/package_smoke -B build/package-smoke -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/install"
 cmake --build build/package-smoke --config Release
 ctest --test-dir build/package-smoke -C Release --output-on-failure
+```
+
+The shared install path should also remain consumable:
+
+```sh
+cmake --preset shared
+cmake --build --preset shared
+cmake --install build/shared --config Debug --prefix install-shared
+cmake -S tests/package_smoke -B build/package-smoke-shared -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/install-shared"
+cmake --build build/package-smoke-shared --config Debug
+ctest --test-dir build/package-smoke-shared -C Debug --output-on-failure
+```
+
+`tests/subproject_smoke/` verifies `add_subdirectory()` usage:
+
+```sh
+cmake -S tests/subproject_smoke -B build/subproject-smoke -DCPROJECT_SOURCE_DIR="$PWD"
+cmake --build build/subproject-smoke --config Debug
+ctest --test-dir build/subproject-smoke -C Debug --output-on-failure
 ```

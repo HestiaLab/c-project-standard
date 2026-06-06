@@ -46,6 +46,7 @@ if ($EnableTidy) {
         $generatedIncludeDirectory = Join-Path $buildDirectory "generated\include"
         $files = Get-ChildItem -Path src,tests -Recurse -File -Include *.c |
             Where-Object { $_.FullName -notlike "*\tests\package_smoke\*" } |
+            Where-Object { $_.FullName -notlike "*\tests\subproject_smoke\*" } |
             Sort-Object FullName
         foreach ($file in $files) {
             if (Test-Path $compileCommands) {

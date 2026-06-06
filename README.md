@@ -9,7 +9,9 @@ This repository captures reusable infrastructure patterns:
 - Static and shared library builds through `BUILD_SHARED_LIBS`.
 - CTest based unit tests.
 - Installable CMake package config with downstream smoke tests.
+- `add_subdirectory()` smoke tests for subproject consumers.
 - GitHub Actions for build, test, and static analysis.
+- GitHub PR, issue, and Dependabot templates for repository maintenance.
 - Short contributor, testing, release, security, and AI-agent guidance.
 - A small example library and executable showing the expected layout.
 

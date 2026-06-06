@@ -17,8 +17,8 @@ ctest --preset debug --output-on-failure
 
 ## Static Analysis
 
-CI runs clang-format, clang-tidy, and cppcheck. Local clang-tidy checks are
-optional because tool availability varies by platform:
+CI runs clang-format, clang-tidy, cppcheck, and YAML linting. Local clang-tidy
+checks are optional because tool availability varies by platform:
 
 ```sh
 ./scripts/check.sh debug tidy
@@ -33,6 +33,15 @@ optional because tool availability varies by platform:
 `tests/package_smoke/` is a downstream consumer used to verify installed package
 metadata. It should stay small and only assert that installed headers, exported
 targets, C linkage, and basic library calls work through `find_package`.
+
+Run package smoke tests for both static and shared installs when shared
+libraries are supported.
+
+## Subproject Smoke
+
+`tests/subproject_smoke/` verifies that the project can be consumed with
+`add_subdirectory()` without enabling top-level examples, tests, or install
+rules by default.
 
 ## Manual Checks
 
