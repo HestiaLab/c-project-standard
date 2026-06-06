@@ -112,9 +112,12 @@ Keep local docs short:
 - `README.md` for overview and quick start.
 - `CONTRIBUTING.md` for workflow and PR expectations.
 - `SECURITY.md` for vulnerability handling.
+- `doc/cmake-guide.md` for CMake workflows, presets, package consumption, and
+  troubleshooting.
 - `doc/build.md` for build details.
 - `doc/testing.md` for test layers and expectations.
 - `doc/release.md` for release steps.
+- `doc/template.md` for rename and trim guidance.
 - `doc/adr/README.md` for architecture decisions.
 - `AGENTS.md` for AI-agent instructions.
 

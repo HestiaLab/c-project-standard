@@ -17,3 +17,7 @@ publishes versioned releases with a separate support table.
 - Use Dependabot or an equivalent process for GitHub Actions updates.
 - Do not vendor large dependencies without maintainer approval.
 - Run relevant tests after dependency updates.
+
+For GitHub Actions updates, validate the affected workflow in CI. For build or
+toolchain dependency changes, run the relevant preset and smoke tests described
+in `doc/cmake-guide.md`.

@@ -57,6 +57,19 @@ Optional clang-tidy checks:
 ./scripts/check.sh debug tidy
 ```
 
+For a fuller explanation of configure, build, test, install, presets, and common
+errors, see [doc/cmake-guide.md](doc/cmake-guide.md).
+
+## Documentation Map
+
+- [doc/cmake-guide.md](doc/cmake-guide.md) explains day-to-day CMake usage.
+- [doc/build.md](doc/build.md) lists supported presets, options, and smoke commands.
+- [doc/testing.md](doc/testing.md) describes test and static-analysis expectations.
+- [doc/template.md](doc/template.md) explains how to rename and trim this template.
+- [CONTRIBUTING.md](CONTRIBUTING.md) describes branch, commit, and PR workflow.
+- [SECURITY.md](SECURITY.md) describes vulnerability and dependency handling.
+- [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md) defines the reusable project standard.
+
 ## How To Use This Template
 
 1. Rename the project in `CMakeLists.txt`.
@@ -78,5 +91,8 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 ```
 
 The `tests/package_smoke/` project validates installed C and C++ consumers.
+
+Direct source-tree consumption through `add_subdirectory()` is validated by
+`tests/subproject_smoke/`.
 
 See [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md) for the full guidance.

@@ -11,3 +11,21 @@ This template does not prescribe a release tool. A typical release should:
 7. Publish artifacts through CI or a documented local packaging command.
 
 Do not publish releases from AI-assisted changes without maintainer approval.
+
+## Suggested Verification
+
+Use `cmake-guide.md` for detailed command explanations. A release-oriented local
+check usually includes:
+
+```sh
+./scripts/check.sh release
+cmake --preset shared
+cmake --build --preset shared
+ctest --preset shared --output-on-failure
+cmake --preset asan
+cmake --build --preset asan
+ctest --preset asan --output-on-failure
+```
+
+For installable libraries, also run static and shared package smoke tests before
+tagging.

@@ -19,6 +19,7 @@ For architecture-sensitive changes, also read:
 For build, CI, packaging, release, dependency, or security work, also read:
 
 - `doc/build.md`
+- `doc/cmake-guide.md`
 - `doc/release.md`
 - `SECURITY.md`
 
@@ -66,5 +67,5 @@ On Linux/macOS:
 
 ## Documentation
 
-Update local docs when build commands, dependencies, testing policy, release policy,
-security policy, or public API expectations change.
+Update local docs when build commands, CMake usage, dependencies, testing policy,
+release policy, security policy, or public API expectations change.

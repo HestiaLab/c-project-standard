@@ -6,6 +6,8 @@ Use CTest for automated tests.
 ctest --preset debug --output-on-failure
 ```
 
+For command details and generator-specific flags, see `cmake-guide.md`.
+
 ## Expectations
 
 - Bug fixes should include regression tests.
@@ -28,6 +30,17 @@ checks are optional because tool availability varies by platform:
 ./scripts/check.ps1 -EnableTidy
 ```
 
+## What To Run
+
+| Change type | Minimum useful checks |
+| --- | --- |
+| C source or public header | `./scripts/check.ps1` or `./scripts/check.sh` |
+| Shared-library or export macro change | `shared` preset and shared package smoke |
+| Install/package metadata change | static and shared package smoke |
+| Subproject behavior change | `tests/subproject_smoke/` |
+| CI or YAML change | `git diff --check` and CI static analysis |
+| Release-sensitive change | `release`, `shared`, `asan`, and package smoke |
+
 ## Package Smoke
 
 `tests/package_smoke/` is a downstream consumer used to verify installed package
@@ -46,3 +59,4 @@ rules by default.
 ## Manual Checks
 
 Document manual checks in PRs when behavior cannot be exercised by CTest.
+Manual checks should include the command, platform, and observed result.

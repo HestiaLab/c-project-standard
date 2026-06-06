@@ -8,6 +8,9 @@
 4. Run relevant checks.
 5. Summarize changed files, validation, and residual risk.
 
+For CMake, package, install, or subproject work, use `doc/cmake-guide.md` to
+select the relevant smoke checks.
+
 ## Bug Fix
 
 1. Reproduce or identify the failing behavior.

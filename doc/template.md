@@ -2,6 +2,15 @@
 
 Use this checklist when starting a new project from this repository.
 
+## Recommended Flow
+
+1. Rename project identity.
+2. Replace the example API, implementation, executable, and tests.
+3. Decide whether the project should support install, package config,
+   `add_subdirectory()`, shared libraries, coverage, and AI-agent docs.
+4. Trim optional pieces that are out of scope.
+5. Run the validation commands in this document and `cmake-guide.md`.
+
 ## Rename Project Identity
 
 Update these names together:
@@ -44,6 +53,9 @@ ctest --preset shared --output-on-failure
 If the project remains installable, also run a package smoke test using
 `tests/package_smoke/` as the downstream consumer pattern.
 
+If the project remains consumable through `add_subdirectory()`, keep and run
+`tests/subproject_smoke/`.
+
 ## Trim Optional Pieces
 
 Keep the template small after renaming. Remove pieces that do not match the new
@@ -60,3 +72,14 @@ project:
   changes.
 - Keep `.gitattributes`, formatting rules, and local check scripts unless the
   downstream project has a stronger existing policy.
+
+## Documentation To Update
+
+After renaming, update:
+
+- `README.md` for the new project overview and quick start.
+- `doc/cmake-guide.md` for project-specific targets, options, and smoke tests.
+- `doc/build.md` for supported presets and local tool requirements.
+- `doc/testing.md` for test layers and required checks.
+- `doc/release.md` if the project publishes artifacts.
+- `SECURITY.md` if support windows or vulnerability reporting differ.

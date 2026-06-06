@@ -1,5 +1,8 @@
 # Build
 
+For detailed CMake workflow explanations, see `cmake-guide.md`. This page is a
+quick reference for supported commands and options.
+
 ## Requirements
 
 - CMake 3.20 or newer
@@ -31,6 +34,9 @@ Common options:
 
 The example, tests, and install rules default to on for top-level builds and
 off when this project is included as a subproject.
+
+Use `cmake -LAH -S . -B build/debug` after configuring if you need to inspect
+available cache options.
 
 ## Local Check Scripts
 
@@ -98,3 +104,6 @@ cmake -S tests/subproject_smoke -B build/subproject-smoke -DCPROJECT_SOURCE_DIR=
 cmake --build build/subproject-smoke --config Debug
 ctest --test-dir build/subproject-smoke -C Debug --output-on-failure
 ```
+
+See `cmake-guide.md` for troubleshooting older CMake caches, missing package
+configs, Windows DLL lookup, and multi-config generator issues.
