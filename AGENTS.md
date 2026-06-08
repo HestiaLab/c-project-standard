@@ -7,9 +7,8 @@ Repository-specific instructions for AI agents.
 Before changing files, read:
 
 - `CONTRIBUTING.md`
-- `doc/testing.md`
-- `doc/ai-agents.md`
-- `doc/agent-playbooks.md`
+- `doc/guides/testing.md`
+- `doc/guides/ai-agent.md`
 
 For architecture-sensitive changes, also read:
 
@@ -18,9 +17,8 @@ For architecture-sensitive changes, also read:
 
 For build, CI, packaging, release, dependency, or security work, also read:
 
-- `doc/build.md`
-- `doc/cmake-guide.md`
-- `doc/release.md`
+- `doc/guides/cmake.md`
+- `doc/guides/release.md`
 - `SECURITY.md`
 
 ## Project Shape
@@ -34,6 +32,7 @@ tests/          CTest tests
 cmake/          Build modules
 scripts/        Local check wrappers
 doc/            Contributor documentation
+doc/guides/     Topic guides
 ```
 
 ## Build And Verification

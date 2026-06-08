@@ -14,7 +14,7 @@ Do not publish releases from AI-assisted changes without maintainer approval.
 
 ## Suggested Verification
 
-Use `cmake-guide.md` for detailed command explanations. A release-oriented local
+Use `cmake.md` for detailed command explanations. A release-oriented local
 check usually includes:
 
 ```sh

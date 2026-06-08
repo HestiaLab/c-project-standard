@@ -20,6 +20,7 @@ tests/               Focused CTest tests
 cmake/               CMake modules
 scripts/             Local check wrappers
 doc/                 Short documentation
+doc/guides/          Topic guides
 .github/workflows/   CI
 ```
 
@@ -46,6 +47,25 @@ as a subproject.
 
 Projects that support both installation and subproject consumption should keep
 small smoke tests for both paths.
+
+Language and toolchain policy should be explicit:
+
+- Set the project language standard in CMake as a target-level requirement, such
+  as `target_compile_features(<library> PUBLIC c_std_11)`.
+- Use C11 as the default baseline for portable C libraries unless the project
+  documents a reason to require a newer standard.
+- Support compiler families rather than one exact local compiler path: MSVC,
+  GCC, Clang, and AppleClang are the normal baseline.
+- Keep committed presets generator-neutral unless a preset exists specifically
+  to document a generator-dependent workflow.
+- Keep compiler installation paths, SDK paths, and developer-specific CMake kits
+  in user presets or local IDE configuration, not in shared project files.
+- Document which tools users must install and which tools are optional editor
+  conveniences. A repository should not assume CMake, a compiler, Ninja, VS Code
+  extensions, clangd, or static-analysis tools are already present.
+- Commit only portable editor template files. VS Code recommendations, generic
+  CMake tasks, generic include-path fallbacks, and `.clangd` fallback flags are
+  useful; absolute compiler paths and personal workspace settings are not.
 
 Recommended presets:
 
@@ -112,12 +132,13 @@ Keep local docs short:
 - `README.md` for overview and quick start.
 - `CONTRIBUTING.md` for workflow and PR expectations.
 - `SECURITY.md` for vulnerability handling.
-- `doc/cmake-guide.md` for CMake workflows, presets, package consumption, and
+- `doc/README.md` for the documentation map and source-of-truth index.
+- `doc/guides/cmake.md` for CMake workflows, presets, package consumption, and
   troubleshooting.
-- `doc/build.md` for build details.
-- `doc/testing.md` for test layers and expectations.
-- `doc/release.md` for release steps.
-- `doc/template.md` for rename and trim guidance.
+- `doc/guides/testing.md` for test layers and expectations.
+- `doc/guides/release.md` for release steps.
+- `doc/guides/template.md` for rename and trim guidance.
+- `doc/guides/ai-agent.md` for AI-assisted contribution rules.
 - `doc/adr/README.md` for architecture decisions.
 - `AGENTS.md` for AI-agent instructions.
 

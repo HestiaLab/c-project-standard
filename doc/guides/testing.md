@@ -6,7 +6,7 @@ Use CTest for automated tests.
 ctest --preset debug --output-on-failure
 ```
 
-For command details and generator-specific flags, see `cmake-guide.md`.
+For command details and generator-specific flags, see `cmake.md`.
 
 ## Expectations
 

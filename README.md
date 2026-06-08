@@ -5,6 +5,8 @@ A compact C11 project template and engineering standard for new C projects.
 This repository captures reusable infrastructure patterns:
 
 - CMake modules split by responsibility.
+- C11 as the target-level language baseline.
+- Cross-platform compiler support for MSVC, GCC, Clang, and AppleClang.
 - CMake presets for debug, release, sanitizer, and coverage builds.
 - Static and shared library builds through `BUILD_SHARED_LIBS`.
 - CTest based unit tests.
@@ -24,10 +26,27 @@ tests/          CTest test programs
 cmake/          CMake modules
 scripts/        Local check entry points
 doc/            Short project documentation
-.github/        CI workflows
+doc/guides/     Topic guides
+.github/        CI workflows and repository templates
 ```
 
 ## Quick Start
+
+Required tools:
+
+- CMake 3.20 or newer.
+- A C11 compiler from MSVC, GCC, Clang, or AppleClang.
+- A CMake-supported generator such as Visual Studio, Xcode, Ninja, or Make.
+
+Recommended editor tools:
+
+- VS Code with the CMake Tools extension.
+- Microsoft C/C++ extension or clangd for code navigation.
+- Ninja when using clangd, because it can generate `compile_commands.json`.
+
+The repository includes portable VS Code recommendations, CMake tasks, C/C++
+fallback include paths, and a small `.clangd` fallback. Compiler installation
+paths and per-user kits stay in local user configuration.
 
 ```sh
 cmake --preset debug
@@ -58,14 +77,16 @@ Optional clang-tidy checks:
 ```
 
 For a fuller explanation of configure, build, test, install, presets, and common
-errors, see [doc/cmake-guide.md](doc/cmake-guide.md).
+errors, see [doc/guides/cmake.md](doc/guides/cmake.md).
 
 ## Documentation Map
 
-- [doc/cmake-guide.md](doc/cmake-guide.md) explains day-to-day CMake usage.
-- [doc/build.md](doc/build.md) lists supported presets, options, and smoke commands.
-- [doc/testing.md](doc/testing.md) describes test and static-analysis expectations.
-- [doc/template.md](doc/template.md) explains how to rename and trim this template.
+- [doc/README.md](doc/README.md) maps each topic to its source of truth.
+- [doc/guides/cmake.md](doc/guides/cmake.md) explains day-to-day CMake usage.
+- [doc/guides/testing.md](doc/guides/testing.md) describes test and static-analysis
+  expectations.
+- [doc/guides/template.md](doc/guides/template.md) explains how to rename and
+  trim this template.
 - [CONTRIBUTING.md](CONTRIBUTING.md) describes branch, commit, and PR workflow.
 - [SECURITY.md](SECURITY.md) describes vulnerability and dependency handling.
 - [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md) defines the reusable project standard.
@@ -79,7 +100,7 @@ errors, see [doc/cmake-guide.md](doc/cmake-guide.md).
 5. Keep generated version metadata wired to the CMake `project(... VERSION ...)` value.
 6. Keep project docs short and update them when build, test, release, or API rules change.
 
-See [doc/template.md](doc/template.md) for a rename checklist.
+See [doc/guides/template.md](doc/guides/template.md) for a rename checklist.
 
 ## Installed Package Use
 

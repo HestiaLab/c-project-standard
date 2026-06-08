@@ -45,6 +45,8 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Sources.cmake")
 add_library(cproject_core ${CPROJECT_CORE_SOURCES})
 add_library(CProjectStandard::cproject_core ALIAS cproject_core)
 
+target_compile_features(cproject_core PUBLIC c_std_11)
+
 target_compile_definitions(cproject_core
     PRIVATE
         CPROJECT_BUILDING_LIBRARY
