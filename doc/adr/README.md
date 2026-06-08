@@ -21,3 +21,7 @@ Use filenames like:
 0001-use-cmake-presets.md
 0002-support-shared-library-builds.md
 ```
+
+## Records
+
+- [0001 C11 CMake Toolchain Policy](0001-c11-cmake-toolchain-policy.md)

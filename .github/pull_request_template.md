@@ -1,17 +1,23 @@
 ## Summary
 
-- TODO
+- What changed:
+- Why:
 
 ## Validation
 
 - [ ] `./scripts/check.sh` or `./scripts/check.ps1`
-- [ ] Relevant preset or package smoke checks
+- [ ] Additional relevant preset, smoke, or manual checks:
+- [ ] Not run; reason:
 
-## Compatibility
+See `doc/guides/testing.md` for change-specific validation guidance.
+
+## Impact
 
 - Public API impact:
 - Build, CI, packaging, or release impact:
+- Documentation impact:
 
 ## AI Assistance
 
-- [ ] Meaningful AI assistance is disclosed, including docs read and validation run.
+- [ ] AI assistance was used and disclosed, including docs read and validation run.
+- [ ] No meaningful AI assistance was used.

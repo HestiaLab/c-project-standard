@@ -8,6 +8,11 @@ out/
 *.swo
 .cache/
 .vs/
-.vscode/
+.vscode/*
+!.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+!.vscode/tasks.json
 compile_commands.json
 Testing/

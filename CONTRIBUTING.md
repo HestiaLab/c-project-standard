@@ -4,7 +4,7 @@ This project uses focused, reviewable changes.
 
 ## Local Checks
 
-See `doc/cmake-guide.md` for a detailed explanation of configure, build, test,
+See `doc/guides/cmake.md` for a detailed explanation of configure, build, test,
 install, presets, and common CMake troubleshooting.
 
 ```sh

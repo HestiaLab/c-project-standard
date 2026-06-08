@@ -4,6 +4,55 @@ This guide explains the common CMake workflows in this template. Use it when
 you are new to CMake or when you need to add source files, tests, install rules,
 or downstream consumers.
 
+## Requirements
+
+These tools are not provided by the repository. Install them before configuring
+the project.
+
+- CMake 3.20 or newer.
+- A C11 compiler.
+- One supported compiler family:
+  - MSVC on Windows.
+  - GCC or Clang on Linux.
+  - AppleClang or Clang on macOS.
+- Ninja, Make, Visual Studio, Xcode, or another generator supported by CMake.
+
+The project requires C11 at the target level with `c_std_11`. Keep public
+headers portable across the supported compiler families and avoid compiler
+extensions unless they are isolated behind small CMake/compiler checks.
+
+## Tool Installation Notes
+
+Typical setup choices:
+
+| Platform | Compiler | Generator |
+| --- | --- | --- |
+| Windows | MSVC from Visual Studio Build Tools or Visual Studio | Visual Studio or Ninja |
+| Linux | GCC or Clang from the system package manager | Ninja or Make |
+| macOS | AppleClang from Xcode Command Line Tools or Clang | Xcode, Ninja, or Make |
+
+VS Code is optional. If you use it, install CMake Tools plus one C/C++ language
+service. Use Microsoft C/C++ for Visual Studio-style CMake integration, or use
+clangd with a generator that produces `compile_commands.json`, such as Ninja or
+Unix Makefiles. Do not enable multiple C/C++ language services for the same
+workspace unless you intentionally manage their overlap.
+
+This template commits portable editor defaults:
+
+- `.vscode/extensions.json` recommends CMake Tools and Microsoft C/C++.
+- `.vscode/settings.json` tells VS Code to use CMake presets and CMake Tools as
+  the C/C++ configuration provider.
+- `.vscode/c_cpp_properties.json` provides platform-named fallback include paths
+  without hard-coded compiler installation paths.
+- `.vscode/tasks.json` provides configure, build, and test tasks that call CMake
+  and CTest directly.
+- `.clangd` provides fallback project include paths for clangd users.
+
+Keep these files generic. Do not commit absolute compiler paths such as a local
+Visual Studio, MSYS2, Homebrew, or system SDK installation. Put those paths in
+VS Code user settings, CMake kits, `CMakeUserPresets.json`, shell environment
+setup, or a local toolchain file.
+
 ## Mental Model
 
 CMake work usually has four separate steps:
@@ -58,6 +107,28 @@ cmake --build --preset shared
 ctest --preset shared --output-on-failure
 ```
 
+Presets intentionally do not force a compiler or generator. That keeps the same
+repository usable with Visual Studio on Windows, Make or Ninja on Linux, and
+Xcode or Ninja on macOS. Select the compiler and generator with your CMake kit,
+environment, or command-line `-G`/toolchain options before configuring a build
+directory.
+
+For editor language servers that need `compile_commands.json`, prefer a
+single-config generator such as Ninja or Unix Makefiles:
+
+```sh
+cmake --preset debug -G Ninja
+```
+
+Visual Studio and Xcode builds remain supported, but they are multi-config
+generators. Use CMake Tools as the configuration provider for IDE IntelliSense
+or add editor-local include paths for generated headers when the language server
+cannot consume the generator metadata directly.
+
+All shared presets inherit a base preset that enables
+`CMAKE_EXPORT_COMPILE_COMMANDS`. Generators that support compilation databases
+write `compile_commands.json` into the preset build directory.
+
 ## Important Options
 
 These options can be passed during configure:
@@ -79,6 +150,9 @@ cmake --preset debug -DCPROJECT_BUILD_EXAMPLE=OFF
 Examples, tests, and install rules default to on for top-level builds. They
 default to off when this project is included through `add_subdirectory()`.
 
+Use `cmake -LAH -S . -B build/debug` after configuring if you need to inspect
+available cache options.
+
 ## Multi-Config Generators
 
 Visual Studio and Xcode are multi-config generators. They can produce Debug and
@@ -92,6 +166,31 @@ ctest --test-dir build/package-smoke -C Release --output-on-failure
 
 Single-config generators such as Ninja and Make use `CMAKE_BUILD_TYPE` at
 configure time instead.
+
+## Toolchain Policy
+
+The build definition is the source of truth for language mode and include
+directories:
+
+- CMake minimum version: 3.20.
+- C language standard: C11, expressed as target feature `c_std_11`.
+- Supported compiler families: MSVC, GCC, Clang, and AppleClang.
+- Supported generators: any CMake generator that works with the chosen compiler,
+  with Visual Studio, Xcode, Ninja, and Make as the normal development paths.
+
+The repository declares requirements and recommended editor extensions, but it
+does not install compilers, SDKs, CMake, Ninja, VS Code extensions, or clangd for
+users. Keep install commands in contributor docs or platform onboarding notes
+when a project needs stricter setup guidance.
+
+Do not put machine-specific compiler paths, SDK paths, or Visual Studio
+installation paths in committed presets. Use user presets, CMake kits, a
+toolchain file, or environment setup scripts for local toolchain selection.
+
+Keep generated headers under the build tree and expose them through target
+include directories. Editors should learn those paths from CMake metadata or
+from local workspace configuration; source files should not include generated
+headers by relative filesystem paths.
 
 ## Add A Source File
 

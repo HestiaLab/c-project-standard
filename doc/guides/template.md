@@ -9,7 +9,7 @@ Use this checklist when starting a new project from this repository.
 3. Decide whether the project should support install, package config,
    `add_subdirectory()`, shared libraries, coverage, and AI-agent docs.
 4. Trim optional pieces that are out of scope.
-5. Run the validation commands in this document and `cmake-guide.md`.
+5. Run the validation commands in this document and `cmake.md`.
 
 ## Rename Project Identity
 
@@ -78,8 +78,8 @@ project:
 After renaming, update:
 
 - `README.md` for the new project overview and quick start.
-- `doc/cmake-guide.md` for project-specific targets, options, and smoke tests.
-- `doc/build.md` for supported presets and local tool requirements.
-- `doc/testing.md` for test layers and required checks.
-- `doc/release.md` if the project publishes artifacts.
+- `doc/guides/cmake.md` for project-specific targets, options, and smoke tests.
+- `doc/guides/testing.md` for test layers and required checks.
+- `doc/guides/release.md` if the project publishes artifacts.
+- `doc/guides/ai-agent.md` if the project accepts AI-assisted changes.
 - `SECURITY.md` if support windows or vulnerability reporting differ.

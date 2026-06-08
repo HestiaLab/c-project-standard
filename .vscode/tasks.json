@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake: Configure Debug",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--preset",
+        "debug"
+      ],
+      "problemMatcher": [],
+      "detail": "Configure the debug preset."
+    },
+    {
+      "label": "CMake: Build Debug",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "debug"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "detail": "Build the debug preset."
+    },
+    {
+      "label": "CTest: Debug",
+      "type": "shell",
+      "command": "ctest",
+      "args": [
+        "--preset",
+        "debug",
+        "--output-on-failure"
+      ],
+      "problemMatcher": [],
+      "detail": "Run debug preset tests."
+    }
+  ]
+}
