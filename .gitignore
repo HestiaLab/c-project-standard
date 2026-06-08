@@ -8,11 +8,12 @@ out/
 *.swo
 .cache/
 .vs/
+CMakeUserPresets.json
 .vscode/*
 !.vscode/
 !.vscode/extensions.json
 !.vscode/settings.json
-!.vscode/c_cpp_properties.json
+!.vscode/c_cpp_properties.example.json
 !.vscode/tasks.json
 compile_commands.json
 Testing/

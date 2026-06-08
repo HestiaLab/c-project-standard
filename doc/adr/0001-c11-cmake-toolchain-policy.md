@@ -14,9 +14,14 @@ portable language baseline. Library targets declare that requirement with
 `target_compile_features(... c_std_11)`.
 
 The supported compiler families are MSVC, GCC, Clang, and AppleClang. Shared
-presets stay generator-neutral so developers can choose Visual Studio, Xcode,
-Ninja, Make, or another CMake-supported generator appropriate for their
+presets include generator-neutral names so developers can choose Visual Studio,
+Xcode, Ninja, Make, or another CMake-supported generator appropriate for their
 platform.
+
+The primary editor and CI workflow uses explicit `ninja-*` presets. Those
+presets are generator-dependent by design, but remain portable because they do
+not include local compiler paths, SDK paths, or IDE kit selections. They provide
+a stable `compile_commands.json` location for clangd and clang-tidy.
 
 Machine-specific compiler paths, SDK paths, and IDE kit selections belong in
 local user configuration, not in committed project files.
@@ -29,7 +34,7 @@ paths and SDK installation paths are local configuration.
 ## Consequences
 
 Consumers that link the exported CMake target inherit the C11 requirement.
-Single-config generators such as Ninja and Make can provide
-`compile_commands.json` for language servers. Multi-config IDE generators remain
-supported, but editor integration should use CMake metadata or local workspace
+The `ninja-*` presets provide `compile_commands.json` for language servers.
+Multi-config IDE generators remain supported through the generator-neutral
+presets, but editor integration should use CMake metadata or local workspace
 configuration when a language server cannot consume the generator directly.

@@ -2,43 +2,43 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "CMake: Configure Debug",
+      "label": "CMake: Configure Ninja Debug",
       "type": "shell",
       "command": "cmake",
       "args": [
         "--preset",
-        "debug"
+        "ninja-debug"
       ],
       "problemMatcher": [],
-      "detail": "Configure the debug preset."
+      "detail": "Configure the ninja-debug preset."
     },
     {
-      "label": "CMake: Build Debug",
+      "label": "CMake: Build Ninja Debug",
       "type": "shell",
       "command": "cmake",
       "args": [
         "--build",
         "--preset",
-        "debug"
+        "ninja-debug"
       ],
       "group": {
         "kind": "build",
         "isDefault": true
       },
       "problemMatcher": [],
-      "detail": "Build the debug preset."
+      "detail": "Build the ninja-debug preset."
     },
     {
-      "label": "CTest: Debug",
+      "label": "CTest: Ninja Debug",
       "type": "shell",
       "command": "ctest",
       "args": [
         "--preset",
-        "debug",
+        "ninja-debug",
         "--output-on-failure"
       ],
       "problemMatcher": [],
-      "detail": "Run debug preset tests."
+      "detail": "Run ninja-debug preset tests."
     }
   ]
 }
