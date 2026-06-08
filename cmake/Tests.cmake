@@ -17,6 +17,7 @@ function(cproject_add_test target)
     target_include_directories(${target}
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/support
     )
 
     if(CPROJECT_TEST_LIBS)
@@ -33,6 +34,8 @@ function(cproject_add_test target)
     list(APPEND CPROJECT_TEST_TARGETS ${target})
     set(CPROJECT_TEST_TARGETS "${CPROJECT_TEST_TARGETS}" PARENT_SCOPE)
 endfunction()
+
+set(CPROJECT_TEST_TARGETS "")
 
 cproject_add_test(cproject_example_tests
     SOURCES

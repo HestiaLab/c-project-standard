@@ -13,6 +13,7 @@ CMakeLists.txt text eol=lf
 *.ps1 text eol=lf
 .clang-format text eol=lf
 .clang-tidy text eol=lf
+.clangd text eol=lf
 .editorconfig text eol=lf
 .gitattributes text eol=lf
 .gitignore text eol=lf

@@ -30,7 +30,7 @@ include/        Public headers
 src/            Implementation
 tests/          CTest tests
 cmake/          Build modules
-scripts/        Local check wrappers
+scripts/        Local bootstrap and check wrappers
 doc/            Contributor documentation
 doc/guides/     Topic guides
 ```
@@ -38,9 +38,9 @@ doc/guides/     Topic guides
 ## Build And Verification
 
 ```sh
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug --output-on-failure
+cmake --preset ninja-debug
+cmake --build --preset ninja-debug
+ctest --preset ninja-debug --output-on-failure
 ```
 
 On Windows PowerShell:

@@ -42,12 +42,11 @@ header instead of duplicating literal version numbers in source files.
 Run the local checks after renaming:
 
 ```sh
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug --output-on-failure
-cmake --preset shared
-cmake --build --preset shared
-ctest --preset shared --output-on-failure
+./scripts/bootstrap.sh
+./scripts/check.sh
+cmake --preset ninja-shared
+cmake --build --preset ninja-shared
+ctest --preset ninja-shared --output-on-failure
 ```
 
 If the project remains installable, also run a package smoke test using
@@ -70,8 +69,8 @@ project:
 - Remove the `coverage` preset and CI job if coverage data will not be used.
 - Remove AI-agent docs if the downstream project does not accept AI-assisted
   changes.
-- Keep `.gitattributes`, formatting rules, and local check scripts unless the
-  downstream project has a stronger existing policy.
+- Keep `.gitattributes`, formatting rules, and local bootstrap/check scripts
+  unless the downstream project has a stronger existing policy.
 
 ## Documentation To Update
 

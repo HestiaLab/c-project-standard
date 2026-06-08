@@ -9,13 +9,14 @@ or downstream consumers.
 These tools are not provided by the repository. Install them before configuring
 the project.
 
-- CMake 3.20 or newer.
+- CMake 3.21 or newer.
 - A C11 compiler.
 - One supported compiler family:
   - MSVC on Windows.
   - GCC or Clang on Linux.
   - AppleClang or Clang on macOS.
-- Ninja, Make, Visual Studio, Xcode, or another generator supported by CMake.
+- Ninja for the default presets, or another generator supported by CMake through
+  local presets or command-line generator selection.
 
 The project requires C11 at the target level with `c_std_11`. Keep public
 headers portable across the supported compiler families and avoid compiler
@@ -27,26 +28,33 @@ Typical setup choices:
 
 | Platform | Compiler | Generator |
 | --- | --- | --- |
-| Windows | MSVC from Visual Studio Build Tools or Visual Studio | Visual Studio or Ninja |
-| Linux | GCC or Clang from the system package manager | Ninja or Make |
-| macOS | AppleClang from Xcode Command Line Tools or Clang | Xcode, Ninja, or Make |
+| Windows | MSVC from Visual Studio Build Tools or Visual Studio | Ninja |
+| Linux | GCC or Clang from the system package manager | Ninja |
+| macOS | AppleClang from Xcode Command Line Tools or Clang | Ninja |
 
-VS Code is optional. If you use it, install CMake Tools plus one C/C++ language
-service. Use Microsoft C/C++ for Visual Studio-style CMake integration, or use
-clangd with a generator that produces `compile_commands.json`, such as Ninja or
-Unix Makefiles. Do not enable multiple C/C++ language services for the same
-workspace unless you intentionally manage their overlap.
+On Windows, use the Ninja presets from a Developer PowerShell, Developer
+Command Prompt, or a VS Code CMake kit that initializes MSVC. A normal shell may
+find CMake but still fail to find `cl.exe` when Ninja is selected.
+
+VS Code is optional. If you use it, install CMake Tools plus clangd. The default
+workspace settings use the `ninja-debug` preset, and `.clangd` points clangd at
+`build/ninja-debug/compile_commands.json`. Microsoft C/C++ remains usable as a
+local fallback when paired with CMake Tools, but do not enable multiple C/C++
+language services for the same workspace unless you intentionally manage their
+overlap.
 
 This template commits portable editor defaults:
 
-- `.vscode/extensions.json` recommends CMake Tools and Microsoft C/C++.
-- `.vscode/settings.json` tells VS Code to use CMake presets and CMake Tools as
-  the C/C++ configuration provider.
-- `.vscode/c_cpp_properties.json` provides platform-named fallback include paths
-  without hard-coded compiler installation paths.
+- `.vscode/extensions.json` recommends CMake Tools and clangd.
+- `.vscode/settings.json` tells VS Code to use the `ninja-debug` CMake preset,
+  and disables Microsoft C/C++ IntelliSense so clangd is the active language
+  service.
+- `.vscode/c_cpp_properties.example.json` provides optional Microsoft C/C++
+  fallback include paths without hard-coded compiler installation paths.
 - `.vscode/tasks.json` provides configure, build, and test tasks that call CMake
   and CTest directly.
-- `.clangd` provides fallback project include paths for clangd users.
+- `.clangd` points clangd at the Ninja compile database and provides fallback
+  project include paths.
 
 Keep these files generic. Do not commit absolute compiler paths such as a local
 Visual Studio, MSYS2, Homebrew, or system SDK installation. Put those paths in
@@ -67,24 +75,33 @@ not reliable. If build fails, tests and install are not meaningful.
 
 ## Quick Commands
 
-Use the debug preset for normal development:
+For a new checkout, start with bootstrap. It checks the required command-line
+tools and runs configure so clangd can read the compilation database:
 
-```sh
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug --output-on-failure
+```powershell
+./scripts/bootstrap.ps1
 ```
 
-On Windows PowerShell, the local wrapper runs the same flow:
+```sh
+./scripts/bootstrap.sh
+```
+
+Use the local check wrapper for daily development:
 
 ```powershell
 ./scripts/check.ps1
 ```
 
-On Linux or macOS:
-
 ```sh
 ./scripts/check.sh
+```
+
+The direct CMake commands are still available when you need one step at a time:
+
+```sh
+cmake --preset ninja-debug
+cmake --build --preset ninja-debug
+ctest --preset ninja-debug --output-on-failure
 ```
 
 ## Presets
@@ -93,6 +110,11 @@ Presets are named build configurations stored in `CMakePresets.json`.
 
 | Preset | Purpose |
 | --- | --- |
+| `ninja-debug` | Default cross-platform development build with debug symbols and `compile_commands.json`. |
+| `ninja-release` | Optimized release-style validation and install smoke tests with Ninja. |
+| `ninja-shared` | `ninja-debug` build with `BUILD_SHARED_LIBS=ON`. |
+| `ninja-asan` | Ninja debug build with AddressSanitizer and UBSan where supported. |
+| `ninja-coverage` | Ninja debug build with coverage flags where supported. |
 | `debug` | Fast local development with debug symbols. |
 | `release` | Optimized build for release-style validation and install smoke tests. |
 | `shared` | `debug` build with `BUILD_SHARED_LIBS=ON`. |
@@ -102,30 +124,38 @@ Presets are named build configurations stored in `CMakePresets.json`.
 Configure, build, and test presets share the same names:
 
 ```sh
-cmake --preset shared
-cmake --build --preset shared
-ctest --preset shared --output-on-failure
+cmake --preset ninja-shared
+cmake --build --preset ninja-shared
+ctest --preset ninja-shared --output-on-failure
 ```
 
-Presets intentionally do not force a compiler or generator. That keeps the same
-repository usable with Visual Studio on Windows, Make or Ninja on Linux, and
-Xcode or Ninja on macOS. Select the compiler and generator with your CMake kit,
-environment, or command-line `-G`/toolchain options before configuring a build
-directory.
+The `ninja-*` presets are the default editor and CI path. They force the Ninja
+generator so CMake writes `compile_commands.json` into the preset build
+directory. Keep Ninja installed on every development platform that uses these
+defaults.
 
-For editor language servers that need `compile_commands.json`, prefer a
-single-config generator such as Ninja or Unix Makefiles:
+The `debug`, `release`, `shared`, `asan`, and `coverage` presets remain
+generator-neutral compatibility entries. Use them from a `CMakeUserPresets.json`
+file, a CMake kit, or explicit command-line generator selection when you need
+Visual Studio, Xcode, Make, or another generator:
 
 ```sh
-cmake --preset debug -G Ninja
+cmake --preset debug -G "<your generator>"
 ```
+
+To create local presets, copy `CMakeUserPresets.example.json` to
+`CMakeUserPresets.json` and edit the generator names for your machine. The real
+`CMakeUserPresets.json` file is ignored by Git.
+For Visual Studio workflows, add a local preset that inherits from `debug` and
+sets your installed generator, such as `Visual Studio 17 2022` or a newer local
+version.
 
 Visual Studio and Xcode builds remain supported, but they are multi-config
 generators. Use CMake Tools as the configuration provider for IDE IntelliSense
 or add editor-local include paths for generated headers when the language server
 cannot consume the generator metadata directly.
 
-All shared presets inherit a base preset that enables
+All project presets inherit a base preset that enables
 `CMAKE_EXPORT_COMPILE_COMMANDS`. Generators that support compilation databases
 write `compile_commands.json` into the preset build directory.
 
@@ -134,7 +164,7 @@ write `compile_commands.json` into the preset build directory.
 These options can be passed during configure:
 
 ```sh
-cmake --preset debug -DCPROJECT_BUILD_EXAMPLE=OFF
+cmake --preset ninja-debug -DCPROJECT_BUILD_EXAMPLE=OFF
 ```
 
 | Option | Meaning |
@@ -150,8 +180,8 @@ cmake --preset debug -DCPROJECT_BUILD_EXAMPLE=OFF
 Examples, tests, and install rules default to on for top-level builds. They
 default to off when this project is included through `add_subdirectory()`.
 
-Use `cmake -LAH -S . -B build/debug` after configuring if you need to inspect
-available cache options.
+Use `cmake -LAH -S . -B build/ninja-debug` after configuring if you need to
+inspect available cache options.
 
 ## Multi-Config Generators
 
@@ -172,11 +202,13 @@ configure time instead.
 The build definition is the source of truth for language mode and include
 directories:
 
-- CMake minimum version: 3.20.
+- CMake minimum version: 3.21.
 - C language standard: C11, expressed as target feature `c_std_11`.
 - Supported compiler families: MSVC, GCC, Clang, and AppleClang.
-- Supported generators: any CMake generator that works with the chosen compiler,
-  with Visual Studio, Xcode, Ninja, and Make as the normal development paths.
+- Default generator: Ninja through the `ninja-*` presets.
+- Supported compatibility generators: any CMake generator that works with the
+  chosen compiler, including Visual Studio, Xcode, Ninja, and Make through the
+  generator-neutral presets or user presets.
 
 The repository declares requirements and recommended editor extensions, but it
 does not install compilers, SDKs, CMake, Ninja, VS Code extensions, or clangd for
@@ -222,9 +254,9 @@ cproject_add_test(cproject_feature_tests
 Then run:
 
 ```sh
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug --output-on-failure
+cmake --preset ninja-debug
+cmake --build --preset ninja-debug
+ctest --preset ninja-debug --output-on-failure
 ```
 
 Tests should assert public behavior. Keep implementation-detail tests rare and
@@ -235,9 +267,9 @@ document the internal contract they protect.
 Configure and build a release package:
 
 ```sh
-cmake --preset release
-cmake --build --preset release
-cmake --install build/release --config Release --prefix install
+cmake --preset ninja-release
+cmake --build --preset ninja-release
+cmake --install build/ninja-release --config Release --prefix install
 ```
 
 A downstream CMake project can then consume it:
@@ -250,19 +282,19 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 The package smoke project validates this path:
 
 ```sh
-cmake -S tests/package_smoke -B build/package-smoke -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/install"
+cmake -G Ninja -S tests/package_smoke -B build/package-smoke -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/install"
 cmake --build build/package-smoke --config Release
 ctest --test-dir build/package-smoke -C Release --output-on-failure
 ```
 
-For a shared-library install, use the `shared` preset and a separate install
+For a shared-library install, use the `ninja-shared` preset and a separate install
 prefix:
 
 ```sh
-cmake --preset shared
-cmake --build --preset shared
-cmake --install build/shared --config Debug --prefix install-shared
-cmake -S tests/package_smoke -B build/package-smoke-shared -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/install-shared"
+cmake --preset ninja-shared
+cmake --build --preset ninja-shared
+cmake --install build/ninja-shared --config Debug --prefix install-shared
+cmake -G Ninja -S tests/package_smoke -B build/package-smoke-shared -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/install-shared"
 cmake --build build/package-smoke-shared --config Debug
 ctest --test-dir build/package-smoke-shared -C Debug --output-on-failure
 ```
@@ -283,7 +315,7 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 The subproject smoke test validates this mode:
 
 ```sh
-cmake -S tests/subproject_smoke -B build/subproject-smoke -DCPROJECT_SOURCE_DIR="$PWD"
+cmake -G Ninja -S tests/subproject_smoke -B build/subproject-smoke -DCPROJECT_SOURCE_DIR="$PWD"
 cmake --build build/subproject-smoke --config Debug
 ctest --test-dir build/subproject-smoke -C Debug --output-on-failure
 ```
@@ -304,6 +336,17 @@ generated macros instead of duplicating literal version numbers.
 
 ## Local Quality Checks
 
+Run bootstrap after cloning, after installing tools, or after switching to a new
+machine:
+
+```powershell
+./scripts/bootstrap.ps1
+```
+
+```sh
+./scripts/bootstrap.sh
+```
+
 The check scripts run configure, build, and tests. They also run optional tools
 when available:
 
@@ -312,7 +355,7 @@ when available:
 ```
 
 ```sh
-./scripts/check.sh debug tidy
+./scripts/check.sh --enable-tidy
 ```
 
 If `clang-format`, `clang-tidy`, or `yamllint` is not installed locally, use CI
@@ -323,8 +366,24 @@ as the authoritative check for those tools.
 Old CMake cache points at another path:
 
 - Symptom: configure mentions a different source directory.
-- Fix: delete the affected build directory, such as `build/release`, and run
-  `cmake --preset release` again.
+- Fix: delete the affected build directory, such as `build/ninja-release`, and
+  run `cmake --preset ninja-release` again.
+
+Ninja or the C compiler is missing:
+
+- Symptom: configure says it cannot find the Ninja build program or
+  `CMAKE_C_COMPILER` is not set.
+- Fix: run `./scripts/bootstrap.ps1` or `./scripts/bootstrap.sh` for a clearer
+  diagnostic. On Windows, open Developer PowerShell, Developer Command Prompt,
+  or select an MSVC CMake kit in VS Code before configuring a Ninja preset.
+
+VS Code builds `ALL_BUILD` with Ninja:
+
+- Symptom: CMake Tools runs `cmake --build ... --target ALL_BUILD` and Ninja
+  reports `unknown target 'ALL_BUILD'`.
+- Fix: run `CMake: Set Build Target` and select `all`. If the old target is
+  still cached, run `CMake: Reset CMake Tools Extension State`, then
+  `CMake: Delete Cache and Reconfigure`.
 
 `find_package(CProjectStandard)` cannot find the package:
 

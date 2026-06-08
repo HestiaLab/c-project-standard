@@ -24,7 +24,7 @@ include/        Public headers
 src/            Implementation files
 tests/          CTest test programs
 cmake/          CMake modules
-scripts/        Local check entry points
+scripts/        Local bootstrap and check entry points
 doc/            Short project documentation
 doc/guides/     Topic guides
 .github/        CI workflows and repository templates
@@ -34,25 +34,43 @@ doc/guides/     Topic guides
 
 Required tools:
 
-- CMake 3.20 or newer.
+- CMake 3.21 or newer.
 - A C11 compiler from MSVC, GCC, Clang, or AppleClang.
-- A CMake-supported generator such as Visual Studio, Xcode, Ninja, or Make.
+- Ninja for the default cross-platform presets, or another CMake-supported
+  generator through local presets.
+
+On Windows, run the Ninja presets from a Developer PowerShell, Developer
+Command Prompt, or VS Code CMake kit that initializes MSVC.
 
 Recommended editor tools:
 
-- VS Code with the CMake Tools extension.
-- Microsoft C/C++ extension or clangd for code navigation.
-- Ninja when using clangd, because it can generate `compile_commands.json`.
+- VS Code with the CMake Tools and clangd extensions.
+- Ninja, because it generates `compile_commands.json` for clangd.
+- Microsoft C/C++ remains usable as a local fallback; see
+  `.vscode/c_cpp_properties.example.json`.
 
-The repository includes portable VS Code recommendations, CMake tasks, C/C++
-fallback include paths, and a small `.clangd` fallback. Compiler installation
-paths and per-user kits stay in local user configuration.
+The repository includes portable VS Code recommendations, CMake tasks, clangd
+defaults, an optional C/C++ fallback example, and Ninja presets. Compiler
+installation paths and per-user kits stay in local user configuration.
+
+First-time setup:
+
+```powershell
+./scripts/bootstrap.ps1
+```
 
 ```sh
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug --output-on-failure
+./scripts/bootstrap.sh
 ```
+
+The bootstrap script checks required tools and runs configure so editors can
+load `build/ninja-debug/compile_commands.json`.
+
+For a local Visual Studio, Xcode, or Make workflow, copy
+`CMakeUserPresets.example.json` to `CMakeUserPresets.json` and edit it for your
+machine. The real user preset file is ignored by Git.
+
+Daily check:
 
 On Windows PowerShell:
 
@@ -73,7 +91,7 @@ Optional clang-tidy checks:
 ```
 
 ```sh
-./scripts/check.sh debug tidy
+./scripts/check.sh --enable-tidy
 ```
 
 For a fuller explanation of configure, build, test, install, presets, and common

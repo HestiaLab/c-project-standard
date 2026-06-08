@@ -7,6 +7,18 @@ This project uses focused, reviewable changes.
 See `doc/guides/cmake.md` for a detailed explanation of configure, build, test,
 install, presets, and common CMake troubleshooting.
 
+For a new checkout or a new machine, run bootstrap first:
+
+```sh
+./scripts/bootstrap.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+./scripts/bootstrap.ps1
+```
+
 ```sh
 ./scripts/check.sh
 ```
@@ -20,9 +32,9 @@ On Windows PowerShell:
 Or run CMake directly:
 
 ```sh
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug --output-on-failure
+cmake --preset ninja-debug
+cmake --build --preset ninja-debug
+ctest --preset ninja-debug --output-on-failure
 ```
 
 ## Branches

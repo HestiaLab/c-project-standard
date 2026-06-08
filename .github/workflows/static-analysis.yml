@@ -20,7 +20,7 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y cppcheck clang-format clang-tidy yamllint
+          sudo apt-get install -y cppcheck clang-format clang-tidy ninja-build yamllint
 
       - name: YAML lint
         run: yamllint .github .yamllint.yml
@@ -34,7 +34,7 @@ jobs:
           fi
 
       - name: Configure clang-tidy database
-        run: cmake --preset debug
+        run: cmake --preset ninja-debug
 
       - name: Clang-tidy
         run: |
@@ -42,7 +42,7 @@ jobs:
             -prune -o -type f -name '*.c' -print \
             | sort > clang-tidy-files.txt
           if [ -s clang-tidy-files.txt ]; then
-            xargs clang-tidy --warnings-as-errors='*' -p build/debug < clang-tidy-files.txt
+            xargs clang-tidy --warnings-as-errors='*' -p build/ninja-debug < clang-tidy-files.txt
           fi
 
       - name: Cppcheck
@@ -55,4 +55,5 @@ jobs:
             --quiet \
             --error-exitcode=1 \
             --file-list=cppcheck-files.txt \
-            -I include
+            -I include \
+            -I build/ninja-debug/generated/include

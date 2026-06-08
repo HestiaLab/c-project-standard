@@ -1,11 +1,15 @@
 [CmdletBinding()]
 param(
-    [string]$Preset = "debug",
+    [string]$Preset = "ninja-debug",
     [switch]$SkipFormat,
     [switch]$EnableTidy
 )
 
 $ErrorActionPreference = "Stop"
+$RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
+
+Push-Location $RepoRoot
+try {
 
 function Invoke-CheckedCommand {
     param(
@@ -73,3 +77,6 @@ if ($EnableTidy) {
 }
 
 Invoke-CheckedCommand -Command "ctest" -Arguments @("--preset", $Preset, "--output-on-failure")
+} finally {
+    Pop-Location
+}

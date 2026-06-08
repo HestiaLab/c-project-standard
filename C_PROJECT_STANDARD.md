@@ -18,7 +18,7 @@ src/<project>/       Library implementation
 src/main.c           Optional CLI or app entry point
 tests/               Focused CTest tests
 cmake/               CMake modules
-scripts/             Local check wrappers
+scripts/             Local bootstrap and check wrappers
 doc/                 Short documentation
 doc/guides/          Topic guides
 .github/workflows/   CI
@@ -58,16 +58,30 @@ Language and toolchain policy should be explicit:
   GCC, Clang, and AppleClang are the normal baseline.
 - Keep committed presets generator-neutral unless a preset exists specifically
   to document a generator-dependent workflow.
+- Prefer explicit `ninja-*` presets for the default editor and CI workflow when
+  the project wants a stable `compile_commands.json` for clangd.
 - Keep compiler installation paths, SDK paths, and developer-specific CMake kits
   in user presets or local IDE configuration, not in shared project files.
+- Provide a `CMakeUserPresets.example.json` when the repository supports common
+  local generator alternatives.
+- Provide a bootstrap script when first-run failures are likely to be toolchain
+  or environment issues rather than source issues.
 - Document which tools users must install and which tools are optional editor
   conveniences. A repository should not assume CMake, a compiler, Ninja, VS Code
   extensions, clangd, or static-analysis tools are already present.
 - Commit only portable editor template files. VS Code recommendations, generic
-  CMake tasks, generic include-path fallbacks, and `.clangd` fallback flags are
+  CMake tasks, `.clangd` fallback flags, and optional fallback examples are
   useful; absolute compiler paths and personal workspace settings are not.
 
-Recommended presets:
+Recommended primary presets:
+
+- `ninja-debug`
+- `ninja-release`
+- `ninja-shared`
+- `ninja-asan`
+- `ninja-coverage`
+
+Recommended generator-neutral compatibility presets:
 
 - `debug`
 - `release`

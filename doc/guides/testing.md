@@ -3,7 +3,7 @@
 Use CTest for automated tests.
 
 ```sh
-ctest --preset debug --output-on-failure
+ctest --preset ninja-debug --output-on-failure
 ```
 
 For command details and generator-specific flags, see `cmake.md`.
@@ -23,7 +23,7 @@ CI runs clang-format, clang-tidy, cppcheck, and YAML linting. Local clang-tidy
 checks are optional because tool availability varies by platform:
 
 ```sh
-./scripts/check.sh debug tidy
+./scripts/check.sh --enable-tidy
 ```
 
 ```powershell
@@ -35,11 +35,11 @@ checks are optional because tool availability varies by platform:
 | Change type | Minimum useful checks |
 | --- | --- |
 | C source or public header | `./scripts/check.ps1` or `./scripts/check.sh` |
-| Shared-library or export macro change | `shared` preset and shared package smoke |
+| Shared-library or export macro change | `ninja-shared` preset and shared package smoke |
 | Install/package metadata change | static and shared package smoke |
 | Subproject behavior change | `tests/subproject_smoke/` |
 | CI or YAML change | `git diff --check` and CI static analysis |
-| Release-sensitive change | `release`, `shared`, `asan`, and package smoke |
+| Release-sensitive change | `ninja-release`, `ninja-shared`, `ninja-asan`, and package smoke |
 
 ## Package Smoke
 
