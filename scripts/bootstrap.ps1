@@ -39,12 +39,16 @@ function Test-Tool {
 function Test-Compiler {
     if ($env:CC) {
         Write-Host "OK: using compiler from CC=$env:CC"
+        $cmd = Get-Command $env:CC -ErrorAction SilentlyContinue
+        if ($cmd) { $script:CCPath = $cmd.Source }
         return
     }
 
     foreach ($compiler in @("cl", "cc", "gcc", "clang")) {
-        if (Get-Command $compiler -ErrorAction SilentlyContinue) {
+        $cmd = Get-Command $compiler -ErrorAction SilentlyContinue
+        if ($cmd) {
             Write-Host "OK: found C compiler command $compiler"
+            $script:CCPath = $cmd.Source
             return
         }
     }
@@ -84,6 +88,14 @@ if ($Preset -like "ninja-*") {
 }
 
 Test-Compiler
+
+# Ensure the compiler's directory is on PATH so CMake subprocesses can
+# locate runtime DLLs (relevant for MinGW, MSYS2, and standalone LLVM).
+if ($script:CCPath) {
+    $compilerDir = Split-Path $script:CCPath -Parent
+    $env:PATH = "$compilerDir;$env:PATH"
+    Write-Host "OK: added $compilerDir to PATH for compiler runtime"
+}
 
 Test-Tool -Name "clangd" -InstallHint "Install clangd for editor navigation." | Out-Null
 Test-Tool -Name "clang-format" -InstallHint "Install clang-format for local format checks." | Out-Null

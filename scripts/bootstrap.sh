@@ -74,11 +74,13 @@ check_tool() {
 check_compiler() {
   if [ -n "${CC:-}" ]; then
     echo "OK: using compiler from CC=$CC"
+    CC_PATH=$(command -v "$CC" 2>/dev/null || true)
     return 0
   fi
 
   for compiler in cc gcc clang cl; do
-    if command -v "$compiler" >/dev/null 2>&1; then
+    CC_PATH=$(command -v "$compiler" 2>/dev/null || true)
+    if [ -n "${CC_PATH:-}" ]; then
       echo "OK: found C compiler command $compiler"
       return 0
     fi
@@ -126,6 +128,15 @@ case "$PRESET" in
 esac
 
 check_compiler
+
+# Ensure the compiler's directory is on PATH so CMake subprocesses can
+# locate runtime DLLs (relevant for MinGW, MSYS2, and standalone LLVM).
+if [ -n "${CC_PATH:-}" ]; then
+  compiler_dir=$(dirname "$CC_PATH")
+  export PATH="$compiler_dir:$PATH"
+  echo "OK: added $compiler_dir to PATH for compiler runtime"
+fi
+
 check_tool clangd "Install clangd for editor navigation." optional
 check_tool clang-format "Install clang-format for local format checks." optional
 check_tool clang-tidy "Install clang-tidy for optional static analysis." optional
