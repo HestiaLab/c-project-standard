@@ -18,7 +18,7 @@
 #elif defined(__clang__)
 #define CPROJECT_COMPILER_CLANG 1
 #elif defined(__GNUC__)
-#define CPROJECT_COMPILER_GCC  1
+#define CPROJECT_COMPILER_GCC 1
 #else
 #warning "Unknown compiler. Portable macros may not be available."
 #endif
@@ -28,19 +28,19 @@
 #if defined(_WIN32)
 #define CPROJECT_PLATFORM_WINDOWS 1
 #elif defined(__APPLE__)
-#define CPROJECT_PLATFORM_MACOS    1
+#define CPROJECT_PLATFORM_MACOS 1
 #elif defined(__linux__)
-#define CPROJECT_PLATFORM_LINUX    1
+#define CPROJECT_PLATFORM_LINUX 1
 #endif
 
 /* ---- Portable function attributes ---- */
 
 #if CPROJECT_COMPILER_MSVC
-#define CPROJECT_NORETURN          __declspec(noreturn)
-#define CPROJECT_DEPRECATED(msg)   __declspec(deprecated(msg))
+#define CPROJECT_NORETURN __declspec(noreturn)
+#define CPROJECT_DEPRECATED(msg) __declspec(deprecated(msg))
 #else
-#define CPROJECT_NORETURN          __attribute__((__noreturn__))
-#define CPROJECT_DEPRECATED(msg)   __attribute__((__deprecated__(msg)))
+#define CPROJECT_NORETURN __attribute__((__noreturn__))
+#define CPROJECT_DEPRECATED(msg) __attribute__((__deprecated__(msg)))
 #endif
 
 #endif /* CPROJECT_COMPILER_H */
