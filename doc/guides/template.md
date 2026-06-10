@@ -4,16 +4,34 @@ Use this checklist when starting a new project from this repository.
 
 ## Recommended Flow
 
-1. Rename project identity.
-2. Replace the example API, implementation, executable, and tests.
-3. Decide whether the project should support install, package config,
+1. Run the rename script with your PascalCase project name:
+
+   **Linux/macOS**
+   ```sh
+   ./scripts/rename-project.sh MyNewLib
+   ```
+
+   **Windows PowerShell**
+   ```powershell
+   .\scripts\rename-project.ps1 MyNewLib
+   ```
+
+   The script replaces `CProjectStandard`, `cproject`, and `CPROJECT` in all
+   source, cmake, CI, and documentation files, then renames the include and
+   source directories and cmake config files to match.
+
+2. Run `./scripts/bootstrap.sh` (or `.ps1`) to verify the renamed project
+   configures and builds.
+
+3. Replace the example API, implementation, executable, and tests.
+4. Decide whether the project should support install, package config,
    `add_subdirectory()`, shared libraries, coverage, and AI-agent docs.
-4. Trim optional pieces that are out of scope.
-5. Run the validation commands in this document and `cmake.md`.
+5. Trim optional pieces that are out of scope.
+6. Run the validation commands in this document and `cmake.md`.
 
-## Rename Project Identity
+### Manual Rename (Fallback)
 
-Update these names together:
+If you prefer to rename by hand, update these names together:
 
 - `project(CProjectStandard ...)` in `CMakeLists.txt`.
 - Public include namespace under `include/cproject/`.

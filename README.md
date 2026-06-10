@@ -122,14 +122,29 @@ errors, see [doc/guides/cmake.md](doc/guides/cmake.md).
 
 ## How To Use This Template
 
-1. Rename the project in `CMakeLists.txt`.
-2. Rename the public include namespace under `include/cproject/`.
-3. Replace the example source and tests with real modules.
-4. Keep public APIs in `include/` and private helpers in `src/`.
-5. Keep generated version metadata wired to the CMake `project(... VERSION ...)` value.
-6. Keep project docs short and update them when build, test, release, or API rules change.
+1. Run the rename script to replace all project identifiers in one step:
 
-See [doc/guides/template.md](doc/guides/template.md) for a rename checklist.
+   **Linux/macOS**
+   ```sh
+   ./scripts/rename-project.sh MyNewLib
+   ```
+
+   **Windows PowerShell**
+   ```powershell
+   .\scripts\rename-project.ps1 MyNewLib
+   ```
+
+   The script renames the project in `CMakeLists.txt`, the public include
+   namespace, cmake targets, macro prefixes, config files, and all
+   references in source and documentation.
+
+2. Replace the example source and tests with real modules.
+3. Keep public APIs in `include/` and private helpers in `src/`.
+4. Keep generated version metadata wired to the CMake `project(... VERSION ...)` value.
+5. Keep project docs short and update them when build, test, release, or API rules change.
+
+See [doc/guides/template.md](doc/guides/template.md) for the full rename checklist,
+including how to trim optional pieces.
 
 ## Installed Package Use
 
