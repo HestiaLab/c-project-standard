@@ -4,6 +4,8 @@ Keep repository documentation short and useful.
 
 ## Source Of Truth
 
+- [guides/environment.md](guides/environment.md) guides first-time setup of
+  compilation tools on Windows, Linux, and macOS.
 - [guides/cmake.md](guides/cmake.md) explains configure, build, install,
   presets, package consumption, subproject consumption, and common CMake errors.
 - [guides/testing.md](guides/testing.md) describes test layers, static analysis,

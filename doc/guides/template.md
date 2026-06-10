@@ -41,9 +41,21 @@ header instead of duplicating literal version numbers in source files.
 
 Run the local checks after renaming:
 
+**Linux/macOS**
+
 ```sh
 ./scripts/bootstrap.sh
 ./scripts/check.sh
+cmake --preset ninja-shared
+cmake --build --preset ninja-shared
+ctest --preset ninja-shared --output-on-failure
+```
+
+**Windows PowerShell**
+
+```powershell
+./scripts/bootstrap.ps1
+./scripts/check.ps1
 cmake --preset ninja-shared
 cmake --build --preset ninja-shared
 ctest --preset ninja-shared --output-on-failure

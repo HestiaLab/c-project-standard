@@ -18,6 +18,9 @@ the project.
 - Ninja for the default presets, or another generator supported by CMake through
   local presets or command-line generator selection.
 
+For step-by-step installation commands per platform, see
+[environment.md](environment.md).
+
 The project requires C11 at the target level with `c_std_11`. Keep public
 headers portable across the supported compiler families and avoid compiler
 extensions unless they are isolated behind small CMake/compiler checks.
@@ -28,7 +31,8 @@ Typical setup choices:
 
 | Platform | Compiler | Generator |
 | --- | --- | --- |
-| Windows | MSVC from Visual Studio Build Tools or Visual Studio | Ninja |
+| Windows (MSVC) | MSVC from Visual Studio Build Tools or Visual Studio | Ninja |
+| Windows (MSYS2) | Clang or GCC from MSYS2 UCRT64 | Ninja |
 | Linux | GCC or Clang from the system package manager | Ninja |
 | macOS | AppleClang from Xcode Command Line Tools or Clang | Ninja |
 
@@ -78,9 +82,13 @@ not reliable. If build fails, tests and install are not meaningful.
 For a new checkout, start with bootstrap. It checks the required command-line
 tools and runs configure so clangd can read the compilation database:
 
+**Windows PowerShell**
+
 ```powershell
 ./scripts/bootstrap.ps1
 ```
+
+**Linux/macOS**
 
 ```sh
 ./scripts/bootstrap.sh
@@ -88,9 +96,13 @@ tools and runs configure so clangd can read the compilation database:
 
 Use the local check wrapper for daily development:
 
+**Windows PowerShell**
+
 ```powershell
 ./scripts/check.ps1
 ```
+
+**Linux/macOS**
 
 ```sh
 ./scripts/check.sh
@@ -281,7 +293,17 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 
 The package smoke project validates this path:
 
+**Linux/macOS**
+
 ```sh
+cmake -G Ninja -S tests/package_smoke -B build/package-smoke -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/install"
+cmake --build build/package-smoke --config Release
+ctest --test-dir build/package-smoke -C Release --output-on-failure
+```
+
+**Windows PowerShell**
+
+```powershell
 cmake -G Ninja -S tests/package_smoke -B build/package-smoke -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/install"
 cmake --build build/package-smoke --config Release
 ctest --test-dir build/package-smoke -C Release --output-on-failure
@@ -290,7 +312,20 @@ ctest --test-dir build/package-smoke -C Release --output-on-failure
 For a shared-library install, use the `ninja-shared` preset and a separate install
 prefix:
 
+**Linux/macOS**
+
 ```sh
+cmake --preset ninja-shared
+cmake --build --preset ninja-shared
+cmake --install build/ninja-shared --config Debug --prefix install-shared
+cmake -G Ninja -S tests/package_smoke -B build/package-smoke-shared -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/install-shared"
+cmake --build build/package-smoke-shared --config Debug
+ctest --test-dir build/package-smoke-shared -C Debug --output-on-failure
+```
+
+**Windows PowerShell**
+
+```powershell
 cmake --preset ninja-shared
 cmake --build --preset ninja-shared
 cmake --install build/ninja-shared --config Debug --prefix install-shared
@@ -314,7 +349,17 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 
 The subproject smoke test validates this mode:
 
+**Linux/macOS**
+
 ```sh
+cmake -G Ninja -S tests/subproject_smoke -B build/subproject-smoke -DCPROJECT_SOURCE_DIR="$PWD"
+cmake --build build/subproject-smoke --config Debug
+ctest --test-dir build/subproject-smoke -C Debug --output-on-failure
+```
+
+**Windows PowerShell**
+
+```powershell
 cmake -G Ninja -S tests/subproject_smoke -B build/subproject-smoke -DCPROJECT_SOURCE_DIR="$PWD"
 cmake --build build/subproject-smoke --config Debug
 ctest --test-dir build/subproject-smoke -C Debug --output-on-failure
@@ -339,9 +384,13 @@ generated macros instead of duplicating literal version numbers.
 Run bootstrap after cloning, after installing tools, or after switching to a new
 machine:
 
+**Windows PowerShell**
+
 ```powershell
 ./scripts/bootstrap.ps1
 ```
+
+**Linux/macOS**
 
 ```sh
 ./scripts/bootstrap.sh
@@ -350,9 +399,13 @@ machine:
 The check scripts run configure, build, and tests. They also run optional tools
 when available:
 
+**Windows PowerShell**
+
 ```powershell
 ./scripts/check.ps1 -EnableTidy
 ```
+
+**Linux/macOS**
 
 ```sh
 ./scripts/check.sh --enable-tidy

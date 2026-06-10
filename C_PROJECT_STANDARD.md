@@ -123,15 +123,17 @@ Rules:
 
 Every project should have:
 
-- Debug build and tests.
+- Debug build and tests across supported compiler families (MSVC, GCC, Clang,
+  AppleClang).
 - Release build and tests.
 - Shared-library build and tests when `BUILD_SHARED_LIBS` is supported.
-- Sanitizer build where supported.
+- Sanitizer build where supported, across all platforms and compilers that support
+  the sanitizer flags.
 - Static analysis using at least `cppcheck`.
 - clang-tidy when a project provides a `.clang-tidy` configuration.
 - YAML linting for workflow and automation files.
 - Coverage preset validation for projects that provide a coverage preset.
-- Package smoke test for installable libraries.
+- Package smoke test for installable libraries across platforms.
 
 ## Repository Maintenance Standard
 
@@ -147,6 +149,7 @@ Keep local docs short:
 - `CONTRIBUTING.md` for workflow and PR expectations.
 - `SECURITY.md` for vulnerability handling.
 - `doc/README.md` for the documentation map and source-of-truth index.
+- `doc/guides/environment.md` for tool installation and environment setup.
 - `doc/guides/cmake.md` for CMake workflows, presets, package consumption, and
   troubleshooting.
 - `doc/guides/testing.md` for test layers and expectations.

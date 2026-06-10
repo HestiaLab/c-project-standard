@@ -52,7 +52,7 @@ function Test-Compiler {
     if ($env:OS -eq "Windows_NT") {
         Write-Host "ERROR: no C compiler command found. Open Developer PowerShell, Developer Command Prompt, or select an MSVC CMake kit in VS Code."
     } else {
-        Write-Host "ERROR: no C compiler command found. Install GCC or Clang, or set CC to your C compiler."
+        Write-Host "ERROR: no C compiler command found. Install GCC or Clang (including AppleClang via Xcode Command Line Tools), or set CC to your C compiler."
     }
     $script:failed = $true
 }
