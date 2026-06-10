@@ -42,6 +42,9 @@ Required tools:
 On Windows, run the Ninja presets from a Developer PowerShell, Developer
 Command Prompt, or VS Code CMake kit that initializes MSVC.
 
+For step-by-step installation instructions per platform, see
+[doc/guides/environment.md](doc/guides/environment.md).
+
 Recommended editor tools:
 
 - VS Code with the CMake Tools and clangd extensions.
@@ -55,9 +58,13 @@ installation paths and per-user kits stay in local user configuration.
 
 First-time setup:
 
+**Windows PowerShell**
+
 ```powershell
 ./scripts/bootstrap.ps1
 ```
+
+**Linux/macOS**
 
 ```sh
 ./scripts/bootstrap.sh
@@ -72,13 +79,13 @@ machine. The real user preset file is ignored by Git.
 
 Daily check:
 
-On Windows PowerShell:
+**Windows PowerShell**
 
 ```powershell
 ./scripts/check.ps1
 ```
 
-On Linux/macOS:
+**Linux/macOS**
 
 ```sh
 ./scripts/check.sh
@@ -86,9 +93,13 @@ On Linux/macOS:
 
 Optional clang-tidy checks:
 
+**Windows PowerShell**
+
 ```powershell
 ./scripts/check.ps1 -EnableTidy
 ```
+
+**Linux/macOS**
 
 ```sh
 ./scripts/check.sh --enable-tidy

@@ -91,7 +91,7 @@ check_compiler() {
       echo "ERROR: no C compiler command found. Open Developer PowerShell, Developer Command Prompt, or select an MSVC CMake kit in VS Code."
       ;;
     *)
-      echo "ERROR: no C compiler command found. Install GCC or Clang, or set CC to your C compiler."
+      echo "ERROR: no C compiler command found. Install GCC or Clang (including AppleClang via Xcode Command Line Tools), or set CC to your C compiler."
       ;;
   esac
   FAILED=1
