@@ -1,8 +1,8 @@
 #ifndef CPROJECT_EXAMPLE_H
 #define CPROJECT_EXAMPLE_H
 
-#include <cproject/export.h>
 #include <cproject/compiler.h>
+#include <cproject/export.h>
 
 #ifdef __cplusplus
 extern "C" {
