@@ -24,3 +24,15 @@ int cproject_add_checked(int left, int right, int *out_value) {
     *out_value = left + right;
     return 1;
 }
+
+const char *cproject_platform_name(void) {
+#if CPROJECT_PLATFORM_WINDOWS
+    return "windows";
+#elif CPROJECT_PLATFORM_MACOS
+    return "macos";
+#elif CPROJECT_PLATFORM_LINUX
+    return "linux";
+#else
+    return "unknown";
+#endif
+}

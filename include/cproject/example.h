@@ -1,6 +1,7 @@
 #ifndef CPROJECT_EXAMPLE_H
 #define CPROJECT_EXAMPLE_H
 
+#include <cproject/compiler.h>
 #include <cproject/export.h>
 
 #ifdef __cplusplus
@@ -21,6 +22,9 @@ CPROJECT_API CProjectVersion cproject_version(void);
  * Returns 1 on success and 0 when out_value is NULL or the sum would overflow.
  */
 CPROJECT_API int cproject_add_checked(int left, int right, int *out_value);
+
+/* Returns a human-readable platform name for the current target. */
+CPROJECT_API const char *cproject_platform_name(void);
 
 #ifdef __cplusplus
 }
