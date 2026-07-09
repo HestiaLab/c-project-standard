@@ -2,6 +2,19 @@
 
 This document defines a pragmatic baseline for small and medium C projects.
 
+## Contents
+
+- [Core Principles](#core-principles)
+- [Required Project Shape](#required-project-shape)
+- [CMake Standard](#cmake-standard)
+- [Testing Standard](#testing-standard)
+- [Header Boundary Standard](#header-boundary-standard)
+- [CI Standard](#ci-standard)
+- [Repository Maintenance Standard](#repository-maintenance-standard)
+- [Documentation Standard](#documentation-standard)
+- [Avoid By Default](#avoid-by-default)
+
+
 ## Core Principles
 
 - Start simple and keep seams visible.

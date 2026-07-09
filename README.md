@@ -100,7 +100,7 @@ common errors, see [docs/guides/cmake.md](docs/guides/cmake.md).
 - VS Code recommendations, CMake tasks, and clangd defaults.
 - An example library and executable showing the expected layout.
 
-## Installed Package Use
+## Package Consumption
 
 ```cmake
 find_package(CProjectStandard CONFIG REQUIRED)

@@ -98,7 +98,7 @@ Linux/macOS
 - VS Code 推荐、CMake 任务和 clangd 默认配置。
 - 展示预期布局的示例库和可执行文件。
 
-## 作为安装包使用
+## 包消费
 
 ```cmake
 find_package(CProjectStandard CONFIG REQUIRED)
