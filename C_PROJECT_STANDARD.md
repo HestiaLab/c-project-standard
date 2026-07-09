@@ -19,8 +19,8 @@ src/main.c           Optional CLI or app entry point
 tests/               Focused CTest tests
 cmake/               CMake modules
 scripts/             Local bootstrap and check wrappers
-doc/                 Short documentation
-doc/guides/          Topic guides
+docs/                 Short documentation
+docs/guides/          Topic guides
 .github/workflows/   CI
 ```
 
@@ -148,15 +148,15 @@ Keep local docs short:
 - `README.md` for overview and quick start.
 - `CONTRIBUTING.md` for workflow and PR expectations.
 - `SECURITY.md` for vulnerability handling.
-- `doc/README.md` for the documentation map and source-of-truth index.
-- `doc/guides/environment.md` for tool installation and environment setup.
-- `doc/guides/cmake.md` for CMake workflows, presets, package consumption, and
+- `docs/README.md` for the documentation map and source-of-truth index.
+- `docs/guides/environment.md` for tool installation and environment setup.
+- `docs/guides/cmake.md` for CMake workflows, presets, package consumption, and
   troubleshooting.
-- `doc/guides/testing.md` for test layers and expectations.
-- `doc/guides/release.md` for release steps.
-- `doc/guides/template.md` for rename and trim guidance.
-- `doc/guides/ai-agent.md` for AI-assisted contribution rules.
-- `doc/adr/README.md` for architecture decisions.
+- `docs/guides/testing.md` for test layers and expectations.
+- `docs/guides/release.md` for release steps.
+- `docs/guides/template.md` for rename and trim guidance.
+- `docs/guides/ai-agent.md` for AI-assisted contribution rules.
+- `docs/adr/README.md` for architecture decisions.
 - `AGENTS.md` for AI-agent instructions.
 
 ## Avoid By Default

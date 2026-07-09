@@ -25,10 +25,12 @@ src/            Implementation files
 tests/          CTest test programs
 cmake/          CMake modules
 scripts/        Local bootstrap and check entry points
-doc/            Short project documentation
-doc/guides/     Topic guides
+docs/           Short project documentation
+docs/guides/    Topic guides
 .github/        CI workflows and repository templates
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch, commit, and PR conventions.
 
 ## Quick Start
 
@@ -43,7 +45,7 @@ On Windows, run the Ninja presets from a Developer PowerShell, Developer
 Command Prompt, or VS Code CMake kit that initializes MSVC.
 
 For step-by-step installation instructions per platform, see
-[doc/guides/environment.md](doc/guides/environment.md).
+[docs/guides/environment.md](docs/guides/environment.md).
 
 Recommended editor tools:
 
@@ -106,19 +108,11 @@ Optional clang-tidy checks:
 ```
 
 For a fuller explanation of configure, build, test, install, presets, and common
-errors, see [doc/guides/cmake.md](doc/guides/cmake.md).
+errors, see [docs/guides/cmake.md](docs/guides/cmake.md).
 
 ## Documentation Map
 
-- [doc/README.md](doc/README.md) maps each topic to its source of truth.
-- [doc/guides/cmake.md](doc/guides/cmake.md) explains day-to-day CMake usage.
-- [doc/guides/testing.md](doc/guides/testing.md) describes test and static-analysis
-  expectations.
-- [doc/guides/template.md](doc/guides/template.md) explains how to rename and
-  trim this template.
-- [CONTRIBUTING.md](CONTRIBUTING.md) describes branch, commit, and PR workflow.
-- [SECURITY.md](SECURITY.md) describes vulnerability and dependency handling.
-- [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md) defines the reusable project standard.
+See [docs/README.md](docs/README.md) for the complete documentation index.
 
 ## How To Use This Template
 
@@ -143,7 +137,7 @@ errors, see [doc/guides/cmake.md](doc/guides/cmake.md).
 4. Keep generated version metadata wired to the CMake `project(... VERSION ...)` value.
 5. Keep project docs short and update them when build, test, release, or API rules change.
 
-See [doc/guides/template.md](doc/guides/template.md) for the full rename checklist,
+See [docs/guides/template.md](docs/guides/template.md) for the full rename checklist,
 including how to trim optional pieces.
 
 ## Installed Package Use

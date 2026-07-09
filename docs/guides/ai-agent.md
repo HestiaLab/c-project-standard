@@ -9,8 +9,8 @@ Before editing, agents should read:
 
 - `AGENTS.md`
 - `CONTRIBUTING.md`
-- `doc/guides/testing.md`
-- `doc/guides/cmake.md` for build, package, or CMake changes.
+- `docs/guides/testing.md`
+- `docs/guides/cmake.md` for build, package, or CMake changes.
 - This document
 
 ## Appropriate Uses
@@ -45,7 +45,7 @@ was changed, and record validation.
 4. Run relevant checks.
 5. Summarize changed files, validation, and residual risk.
 
-For CMake, package, install, or subproject work, use `doc/guides/cmake.md` to
+For CMake, package, install, or subproject work, use `docs/guides/cmake.md` to
 select the relevant smoke checks.
 
 ### Bug Fix
