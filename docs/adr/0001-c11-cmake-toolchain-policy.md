@@ -1,5 +1,12 @@
 # 0001 C11 CMake Toolchain Policy
 
+## Status
+
+Accepted.
+
+**Date**: 2026-06-05
+**Last Modified**: 2026-06-05
+
 ## Context
 
 This template should work across Windows, Linux, and macOS without baking one

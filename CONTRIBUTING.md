@@ -4,12 +4,12 @@ This project uses focused, reviewable changes.
 
 ## Local Checks
 
-See [doc/guides/cmake.md](doc/guides/cmake.md) for a detailed explanation of configure, build, test,
+See [docs/guides/cmake.md](docs/guides/cmake.md) for a detailed explanation of configure, build, test,
 install, presets, and common CMake troubleshooting.
 
 For a new checkout or a new machine, run bootstrap first.
 If you have not yet installed the required tools, see
-[doc/guides/environment.md](doc/guides/environment.md) for platform-specific
+[docs/guides/environment.md](docs/guides/environment.md) for platform-specific
 instructions.
 
 **Linux/macOS**
@@ -78,6 +78,10 @@ Use the issue templates for bug reports, feature proposals, and infrastructure
 maintenance requests.
 
 ## Architecture
+
+When modifying core documentation (build, testing, template), also update the
+corresponding Chinese translation under `docs/zh-CN/` if the change affects
+user-visible instructions or policy.
 
 - Keep public headers small and stable.
 - Keep implementation details out of `include/`.
