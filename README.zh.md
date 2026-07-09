@@ -20,20 +20,28 @@ docs/guides/    主题指南
 
 ## 使用此模板
 
-1. **重命名** — 一条命令替换所有项目标识符：
+1. **构建并运行初始化向导：**
 
-   **Linux/macOS**
    ```sh
-   ./scripts/rename-project.sh MyNewLib
+   cmake --preset ninja-debug
+   cmake --build --preset ninja-debug
+   ./build/ninja-debug/bin/cproject_example
    ```
 
-   **Windows PowerShell**
-   ```powershell
-   .\scripts\rename-project.ps1 MyNewLib
+   向导交互式引导你完成项目名称、描述、特性选择，并自动执行
+   重命名和清理。
+
+   跳过交互：
+
+   ```sh
+   ./build/ninja-debug/bin/cproject_example MyLib --yes
    ```
 
-   这会更新 `CMakeLists.txt`、公共 include 命名空间、CMake 目标、宏前缀、
-   配置文件以及源码和文档中的所有引用。
+   预览变更（不实际修改）：
+
+   ```sh
+   ./build/ninja-debug/bin/cproject_example MyLib --dry-run --yes
+   ```
 
 2. **替换** 示例代码和测试为你的真实模块。
 

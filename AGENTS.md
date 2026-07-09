@@ -43,6 +43,11 @@ cmake --build --preset ninja-debug
 ctest --preset ninja-debug --output-on-failure
 ```
 
+The build produces `build/ninja-debug/bin/cproject_example` — this is the
+**interactive project setup wizard**. Run it to initialize a new project from
+this template. Use `--dry-run --yes` to preview, or `MyProject --yes` for
+non-interactive setup.
+
 On Windows PowerShell:
 
 ```powershell

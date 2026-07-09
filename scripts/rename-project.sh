@@ -1,4 +1,11 @@
 #!/usr/bin/env sh
+# Rename template project identifiers in-place.
+#
+# ** RECOMMENDED: use the interactive setup wizard instead: **
+#     cmake --preset ninja-debug && cmake --build --preset ninja-debug
+#     ./build/ninja-debug/bin/cproject_example
+#
+# This script is kept for CI, automation, and non-interactive use.
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -69,13 +76,12 @@ for file in $files; do
   count_upper=$(grep -o 'CPROJECT' "$file" 2>/dev/null | wc -l | tr -d ' ')
   count_pascal=$(grep -o 'CProject' "$file" 2>/dev/null | wc -l | tr -d ' ')
 
-  sed -i.bak \
+  sed \
     -e "s/CProjectStandard/${PASCAL}/g" \
     -e "s/cproject/${LOWER}/g" \
     -e "s/CPROJECT/${UPPER}/g" \
     -e "s/CProject/${PASCAL}/g" \
-    "$file"
-  rm -f "${file}.bak"
+    "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
 
   echo "  $file"
   if [ "$count_pascal_std" -gt 0 ]; then

@@ -20,20 +20,28 @@ docs/guides/    Topic guides
 
 ## Use This Template
 
-1. **Rename** — one command replaces every project identifier:
+1. **Build and run the setup wizard:**
 
-   **Linux/macOS**
    ```sh
-   ./scripts/rename-project.sh MyNewLib
+   cmake --preset ninja-debug
+   cmake --build --preset ninja-debug
+   ./build/ninja-debug/bin/cproject_example
    ```
 
-   **Windows PowerShell**
-   ```powershell
-   .\scripts\rename-project.ps1 MyNewLib
+   The wizard interactively guides you through project name, metadata,
+   feature selection, and automated rename + cleanup.
+
+   To skip interaction:
+
+   ```sh
+   ./build/ninja-debug/bin/cproject_example MyLib --yes
    ```
 
-   This updates `CMakeLists.txt`, the public include namespace, CMake targets,
-   macro prefixes, config files, and all references in source and documentation.
+   Preview without changes:
+
+   ```sh
+   ./build/ninja-debug/bin/cproject_example MyLib --dry-run --yes
+   ```
 
 2. **Replace** the example source and tests with your real modules.
 

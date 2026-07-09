@@ -1,3 +1,6 @@
+/* SETUP: replace with tests for your public API.
+ * Keep the test pattern: focused test functions returning 0 on success,
+ * main() calls each in sequence. */
 #include <cproject/example.h>
 #include <cproject/version.h>
 
@@ -15,6 +18,14 @@ static int test_version(void) {
         return 1;
     }
     if (!CPROJECT_EXPECT_INT_EQ(version.patch, CPROJECT_VERSION_PATCH)) {
+        return 1;
+    }
+    return 0;
+}
+
+static int test_get_version(void) {
+    CProjectVersion version = cproject_get_version();
+    if (!CPROJECT_EXPECT_INT_EQ(version.major, CPROJECT_VERSION_MAJOR)) {
         return 1;
     }
     return 0;
@@ -43,6 +54,9 @@ static int test_checked_add(void) {
 
 int main(void) {
     if (test_version()) {
+        return 1;
+    }
+    if (test_get_version()) {
         return 1;
     }
     if (test_checked_add()) {

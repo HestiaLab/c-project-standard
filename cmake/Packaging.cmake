@@ -40,3 +40,23 @@ install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/CProjectStandardConfigVersion.cmake"
     DESTINATION ${CPROJECT_INSTALL_CMAKEDIR}
 )
+
+include(CPack)
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_VENDOR "CProjectStandard contributors")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_SOURCE_IGNORE_FILES
+    "/build/"
+    "/.git/"
+    "/.vs/"
+    "/.cache/"
+    "/dist/"
+    "/install/"
+    "/out/"
+    "\\\\.swp$"
+    "\\\\.swo$"
+    "\\\\.user$"
+)
