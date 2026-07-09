@@ -112,7 +112,7 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 
 ## 文档
 
-完整文档索引见 [docs/README.md](docs/README.md)。
+完整文档索引见 [docs/zh-CN/README.md](docs/zh-CN/README.md)。
 
 ## 许可证
 

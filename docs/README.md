@@ -11,7 +11,7 @@ Keep repository documentation short and useful.
 | [testing.md](guides/testing.md) | Test layers, static analysis, and smoke tests |
 | [template.md](guides/template.md) | Project rename, trim, and reuse guidance |
 | [release.md](guides/release.md) | Release preparation |
-| [ai-agent.md](guides/ai-agent.md) | AI-assisted contribution rules and workflows |
+| [ai-agent.md](guides/ai-agent.md) | AI agent policy (redirects to AGENTS.md) |
 
 ## Architecture
 
