@@ -22,8 +22,8 @@ CPROJECT_API CProjectVersion cproject_version(void);
  * Deprecated alias for cproject_version(). Use cproject_version() instead.
  * This declaration exists to demonstrate the CPROJECT_DEPRECATED annotation.
  */
-CPROJECT_API CPROJECT_DEPRECATED("Use cproject_version() instead")
-CProjectVersion cproject_get_version(void);
+CPROJECT_API CPROJECT_DEPRECATED("Use cproject_version() instead") CProjectVersion
+    cproject_get_version(void);
 
 /*
  * Adds two integers and writes the result to out_value.

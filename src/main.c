@@ -26,8 +26,8 @@
 #include <direct.h>
 #include <io.h>
 #define mkdir(p, m) _mkdir(p)
-#define rmdir(p)    _rmdir(p)
-#define unlink(p)   _unlink(p)
+#define rmdir(p) _rmdir(p)
+#define unlink(p) _unlink(p)
 #define F_OK 0
 #define access _access
 #else
@@ -43,14 +43,14 @@
 typedef enum { LANG_EN, LANG_ZH, LANG_COUNT } Lang;
 
 #define FEAT_INSTALLABLE 0
-#define FEAT_SUBPROJECT  1
-#define FEAT_SHARED      2
-#define FEAT_SANITIZERS  3
-#define FEAT_COVERAGE    4
-#define FEAT_CI          5
-#define FEAT_AI_AGENT    6
-#define FEAT_CLI         7
-#define FEAT_COUNT       8
+#define FEAT_SUBPROJECT 1
+#define FEAT_SHARED 2
+#define FEAT_SANITIZERS 3
+#define FEAT_COVERAGE 4
+#define FEAT_CI 5
+#define FEAT_AI_AGENT 6
+#define FEAT_CLI 7
+#define FEAT_COUNT 8
 
 typedef struct {
     char pascal[64];
@@ -60,7 +60,7 @@ typedef struct {
     char author[128];
     char version[32];
     char license[64];
-    int  features[FEAT_COUNT]; /* 1 = enabled */
+    int features[FEAT_COUNT]; /* 1 = enabled */
 } Config;
 
 /* =========================================================================
@@ -70,86 +70,124 @@ typedef struct {
 enum Msg {
     M_BANNER,
     M_LANG_SELECT,
-    M_NAME_PROMPT,   M_NAME_ERROR,
-    M_DESC_PROMPT,   M_DESC_DEFAULT,
+    M_NAME_PROMPT,
+    M_NAME_ERROR,
+    M_DESC_PROMPT,
+    M_DESC_DEFAULT,
     M_AUTHOR_PROMPT,
-    M_VERSION_PROMPT, M_VERSION_DEFAULT,
-    M_LICENSE_PROMPT, M_LICENSE_DEFAULT,
+    M_VERSION_PROMPT,
+    M_VERSION_DEFAULT,
+    M_LICENSE_PROMPT,
+    M_LICENSE_DEFAULT,
     M_FEAT_HEADER,
-    M_FEAT_INSTALLABLE, M_FEAT_SUBPROJECT, M_FEAT_SHARED,
-    M_FEAT_SANITIZERS,  M_FEAT_COVERAGE,   M_FEAT_CI,
-    M_FEAT_AI_AGENT,    M_FEAT_CLI,
-    M_REVIEW_HEADER, M_REVIEW_NAME, M_REVIEW_NAMESPACE,
-    M_REVIEW_MACRO,  M_REVIEW_DESC, M_REVIEW_VERSION,
-    M_REVIEW_LICENSE, M_REVIEW_YES, M_REVIEW_NO,
-    M_REVIEW_OPS,    M_REVIEW_RENAME, M_REVIEW_DIRS,
-    M_REVIEW_STRIP,  M_REVIEW_GIT,
+    M_FEAT_INSTALLABLE,
+    M_FEAT_SUBPROJECT,
+    M_FEAT_SHARED,
+    M_FEAT_SANITIZERS,
+    M_FEAT_COVERAGE,
+    M_FEAT_CI,
+    M_FEAT_AI_AGENT,
+    M_FEAT_CLI,
+    M_REVIEW_HEADER,
+    M_REVIEW_NAME,
+    M_REVIEW_NAMESPACE,
+    M_REVIEW_MACRO,
+    M_REVIEW_DESC,
+    M_REVIEW_VERSION,
+    M_REVIEW_LICENSE,
+    M_REVIEW_YES,
+    M_REVIEW_NO,
+    M_REVIEW_OPS,
+    M_REVIEW_RENAME,
+    M_REVIEW_DIRS,
+    M_REVIEW_STRIP,
+    M_REVIEW_GIT,
     M_PROCEED,
-    M_OK_RENAME, M_OK_DIRS, M_OK_STRIP,
-    M_OK_GIT,    M_OK_STUB,
-    M_NEXT_TITLE, M_NEXT_1, M_NEXT_2,
-    M_NEXT_3,     M_NEXT_4, M_NEXT_5, M_NEXT_6,
-    M_NOT_ROOT,   M_DRYRUN_DONE, M_ABORTED,
+    M_OK_RENAME,
+    M_OK_DIRS,
+    M_OK_STRIP,
+    M_OK_GIT,
+    M_OK_STUB,
+    M_NEXT_TITLE,
+    M_NEXT_1,
+    M_NEXT_2,
+    M_NEXT_3,
+    M_NEXT_4,
+    M_NEXT_5,
+    M_NEXT_6,
+    M_NOT_ROOT,
+    M_DRYRUN_DONE,
+    M_ABORTED,
     M_MSG_COUNT
 };
 
-typedef struct { const char *en; const char *zh; } Bilingual;
+typedef struct {
+    const char *en;
+    const char *zh;
+} Bilingual;
 
 static const Bilingual M[M_MSG_COUNT] = {
-[M_BANNER]         = {"C Project Standard v%d.%d.%d — Project Setup",
-                       "C 项目工程标准 v%d.%d.%d — 项目初始化"},
-[M_LANG_SELECT]    = {"Language [EN/zh]: ", "语言 [EN/zh]: "},
-[M_NAME_PROMPT]    = {"Project name (PascalCase): ", "项目名称 (PascalCase): "},
-[M_NAME_ERROR]     = {"Must start with uppercase letter, letters and digits only.",
+    [M_BANNER] = {"C Project Standard v%d.%d.%d — Project Setup",
+                  "C 项目工程标准 v%d.%d.%d — 项目初始化"},
+    [M_LANG_SELECT] = {"Language [EN/zh]: ", "语言 [EN/zh]: "},
+    [M_NAME_PROMPT] = {"Project name (PascalCase): ", "项目名称 (PascalCase): "},
+    [M_NAME_ERROR] = {"Must start with uppercase letter, letters and digits only.",
                       "必须以大写字母开头，仅含字母和数字。"},
-[M_DESC_PROMPT]    = {"Description", "项目描述"},
-[M_DESC_DEFAULT]   = {"A C library", "一个 C 库"},
-[M_AUTHOR_PROMPT]  = {"Author/Vendor", "作者/组织"},
-[M_VERSION_PROMPT] = {"Version", "版本"},
-[M_VERSION_DEFAULT]= {"0.1.0", "0.1.0"},
-[M_LICENSE_PROMPT] = {"License", "许可证"},
-[M_LICENSE_DEFAULT]= {"MIT", "MIT"},
-[M_FEAT_HEADER]    = {"Features (y/n, Enter=default):", "可选特性 (y/n, 回车=默认):"},
-[M_FEAT_INSTALLABLE]= {"Installable library (find_package + packaging)", "可安装库 (find_package + 打包)"},
-[M_FEAT_SUBPROJECT] = {"Subproject consumer (add_subdirectory)", "子项目消费 (add_subdirectory)"},
-[M_FEAT_SHARED]     = {"Shared library support (BUILD_SHARED_LIBS)", "动态库支持 (BUILD_SHARED_LIBS)"},
-[M_FEAT_SANITIZERS] = {"Sanitizer presets (ASan + UBSan)", "Sanitizer 预设 (ASan + UBSan)"},
-[M_FEAT_COVERAGE]   = {"Code coverage preset", "代码覆盖率预设"},
-[M_FEAT_CI]         = {"GitHub Actions CI", "GitHub Actions CI"},
-[M_FEAT_AI_AGENT]   = {"AI agent policy (AGENTS.md)", "AI 代理策略 (AGENTS.md)"},
-[M_FEAT_CLI]        = {"Example CLI (stub after setup)", "示例 CLI (初始化后变为桩代码)"},
-[M_REVIEW_HEADER]   = {"Review:", "预览:"},
-[M_REVIEW_NAME]     = {"  Name         %s", "  项目名       %s"},
-[M_REVIEW_NAMESPACE]= {"  Namespace    %s", "  命名空间     %s"},
-[M_REVIEW_MACRO]    = {"  Macro prefix %s", "  宏前缀       %s"},
-[M_REVIEW_DESC]     = {"  Description  %s", "  描述         %s"},
-[M_REVIEW_VERSION]  = {"  Version      %s", "  版本         %s"},
-[M_REVIEW_LICENSE]  = {"  License      %s", "  许可证       %s"},
-[M_REVIEW_YES]      = {"yes", "是"},
-[M_REVIEW_NO]       = {"no", "否"},
-[M_REVIEW_OPS]      = {"Operations:", "操作:"},
-[M_REVIEW_RENAME]   = {"  Rename  files  (CProjectStandard -> %s)", "  重命名  文件  (CProjectStandard -> %s)"},
-[M_REVIEW_DIRS]     = {"  Rename  dirs   (cproject -> %s)",        "  重命名  目录  (cproject -> %s)"},
-[M_REVIEW_STRIP]    = {"  Strip   %s", "  移除    %s"},
-[M_REVIEW_GIT]      = {"  Clear  git remote", "  清理    git remote"},
-[M_PROCEED]         = {"Proceed? [Y/n]: ", "确认执行? [Y/n]: "},
-[M_OK_RENAME]       = {"  Renamed        %d files", "  已重命名        %d 个文件"},
-[M_OK_DIRS]         = {"  Renamed        %d directories", "  已重命名        %d 个目录"},
-[M_OK_STRIP]        = {"  Stripped       %s", "  已移除          %s"},
-[M_OK_GIT]          = {"  Removed        git remote", "  已移除          git remote"},
-[M_OK_STUB]         = {"  Wrote          src/main.c (stub)", "  已写入          src/main.c (桩代码)"},
-[M_NEXT_TITLE]      = {"Next steps:", "下一步:"},
-[M_NEXT_1]          = {"  1. cmake --build --preset ninja-debug", "  1. cmake --build --preset ninja-debug"},
-[M_NEXT_2]          = {"  2. Search for SETUP: to find placeholder code", "  2. 搜索 SETUP: 找到所有待替换的占位代码"},
-[M_NEXT_3]          = {"  3. Replace include/%s/example.h with your first API",
-                       "  3. 将 include/%s/example.h 替换为你的第一个 API"},
-[M_NEXT_4]          = {"  4. Add source files to cmake/Sources.cmake", "  4. 向 cmake/Sources.cmake 添加源文件"},
-[M_NEXT_5]          = {"  5. Add tests under tests/", "  5. 在 tests/ 下添加测试"},
-[M_NEXT_6]          = {"  6. Run ./scripts/check.sh to verify", "  6. 运行 ./scripts/check.sh 验证"},
-[M_NOT_ROOT]        = {"ERROR: Not in project root (CMakeLists.txt not found).",
-                       "错误：不在项目根目录（找不到 CMakeLists.txt）。"},
-[M_DRYRUN_DONE]     = {"No changes made (--dry-run).", "未做任何修改 (--dry-run)。"},
-[M_ABORTED]         = {"Aborted.", "已取消。"},
+    [M_DESC_PROMPT] = {"Description", "项目描述"},
+    [M_DESC_DEFAULT] = {"A C library", "一个 C 库"},
+    [M_AUTHOR_PROMPT] = {"Author/Vendor", "作者/组织"},
+    [M_VERSION_PROMPT] = {"Version", "版本"},
+    [M_VERSION_DEFAULT] = {"0.1.0", "0.1.0"},
+    [M_LICENSE_PROMPT] = {"License", "许可证"},
+    [M_LICENSE_DEFAULT] = {"MIT", "MIT"},
+    [M_FEAT_HEADER] = {"Features (y/n, Enter=default):", "可选特性 (y/n, 回车=默认):"},
+    [M_FEAT_INSTALLABLE] = {"Installable library (find_package + packaging)",
+                            "可安装库 (find_package + 打包)"},
+    [M_FEAT_SUBPROJECT] = {"Subproject consumer (add_subdirectory)",
+                           "子项目消费 (add_subdirectory)"},
+    [M_FEAT_SHARED] = {"Shared library support (BUILD_SHARED_LIBS)",
+                       "动态库支持 (BUILD_SHARED_LIBS)"},
+    [M_FEAT_SANITIZERS] = {"Sanitizer presets (ASan + UBSan)", "Sanitizer 预设 (ASan + UBSan)"},
+    [M_FEAT_COVERAGE] = {"Code coverage preset", "代码覆盖率预设"},
+    [M_FEAT_CI] = {"GitHub Actions CI", "GitHub Actions CI"},
+    [M_FEAT_AI_AGENT] = {"AI agent policy (AGENTS.md)", "AI 代理策略 (AGENTS.md)"},
+    [M_FEAT_CLI] = {"Example CLI (stub after setup)", "示例 CLI (初始化后变为桩代码)"},
+    [M_REVIEW_HEADER] = {"Review:", "预览:"},
+    [M_REVIEW_NAME] = {"  Name         %s", "  项目名       %s"},
+    [M_REVIEW_NAMESPACE] = {"  Namespace    %s", "  命名空间     %s"},
+    [M_REVIEW_MACRO] = {"  Macro prefix %s", "  宏前缀       %s"},
+    [M_REVIEW_DESC] = {"  Description  %s", "  描述         %s"},
+    [M_REVIEW_VERSION] = {"  Version      %s", "  版本         %s"},
+    [M_REVIEW_LICENSE] = {"  License      %s", "  许可证       %s"},
+    [M_REVIEW_YES] = {"yes", "是"},
+    [M_REVIEW_NO] = {"no", "否"},
+    [M_REVIEW_OPS] = {"Operations:", "操作:"},
+    [M_REVIEW_RENAME] = {"  Rename  files  (CProjectStandard -> %s)",
+                         "  重命名  文件  (CProjectStandard -> %s)"},
+    [M_REVIEW_DIRS] = {"  Rename  dirs   (cproject -> %s)", "  重命名  目录  (cproject -> %s)"},
+    [M_REVIEW_STRIP] = {"  Strip   %s", "  移除    %s"},
+    [M_REVIEW_GIT] = {"  Clear  git remote", "  清理    git remote"},
+    [M_PROCEED] = {"Proceed? [Y/n]: ", "确认执行? [Y/n]: "},
+    [M_OK_RENAME] = {"  Renamed        %d files", "  已重命名        %d 个文件"},
+    [M_OK_DIRS] = {"  Renamed        %d directories", "  已重命名        %d 个目录"},
+    [M_OK_STRIP] = {"  Stripped       %s", "  已移除          %s"},
+    [M_OK_GIT] = {"  Removed        git remote", "  已移除          git remote"},
+    [M_OK_STUB] = {"  Wrote          src/main.c (stub)", "  已写入          src/main.c (桩代码)"},
+    [M_NEXT_TITLE] = {"Next steps:", "下一步:"},
+    [M_NEXT_1] = {"  1. cmake --build --preset ninja-debug",
+                  "  1. cmake --build --preset ninja-debug"},
+    [M_NEXT_2] = {"  2. Search for SETUP: to find placeholder code",
+                  "  2. 搜索 SETUP: 找到所有待替换的占位代码"},
+    [M_NEXT_3] = {"  3. Replace include/%s/example.h with your first API",
+                  "  3. 将 include/%s/example.h 替换为你的第一个 API"},
+    [M_NEXT_4] = {"  4. Add source files to cmake/Sources.cmake",
+                  "  4. 向 cmake/Sources.cmake 添加源文件"},
+    [M_NEXT_5] = {"  5. Add tests under tests/", "  5. 在 tests/ 下添加测试"},
+    [M_NEXT_6] = {"  6. Run ./scripts/check.sh to verify", "  6. 运行 ./scripts/check.sh 验证"},
+    [M_NOT_ROOT] = {"ERROR: Not in project root (CMakeLists.txt not found).",
+                    "错误：不在项目根目录（找不到 CMakeLists.txt）。"},
+    [M_DRYRUN_DONE] = {"No changes made (--dry-run).", "未做任何修改 (--dry-run)。"},
+    [M_ABORTED] = {"Aborted.", "已取消。"},
 };
 
 /* =========================================================================
@@ -157,23 +195,28 @@ static const Bilingual M[M_MSG_COUNT] = {
  * ========================================================================= */
 
 static Lang g_lang = LANG_EN;
-static int  g_dry_run = 0;
-static int  g_yes = 0;
-static int  g_renamed_files = 0;
-static int  g_renamed_dirs = 0;
+static int g_dry_run = 0;
+static int g_yes = 0;
+static int g_renamed_files = 0;
+static int g_renamed_dirs = 0;
 
 /* ---- helpers ---- */
-static const char *T(enum Msg id) { return g_lang == LANG_ZH ? M[id].zh : M[id].en; }
-static void pln(enum Msg id)     { printf("%s\n", T(id)); }
+static const char *T(enum Msg id) {
+    return g_lang == LANG_ZH ? M[id].zh : M[id].en;
+}
+static void pln(enum Msg id) {
+    printf("%s\n", T(id));
+}
 
 /* =========================================================================
  * Utility: safe terminal I/O
  * ========================================================================= */
 
 static char *safe_gets(char *buf, int size) {
-    if (!fgets(buf, size, stdin)) return NULL;
+    if (!fgets(buf, size, stdin))
+        return NULL;
     size_t len = strlen(buf);
-    while (len > 0 && (buf[len-1] == '\n' || buf[len-1] == '\r'))
+    while (len > 0 && (buf[len - 1] == '\n' || buf[len - 1] == '\r'))
         buf[--len] = '\0';
     return buf;
 }
@@ -183,10 +226,14 @@ static int ask_yesno(enum Msg prompt, int default_yes) {
     for (;;) {
         printf("%s", T(prompt));
         fflush(stdout);
-        if (!safe_gets(buf, (int)sizeof(buf))) return default_yes;
-        if (buf[0] == '\0') return default_yes;
-        if (buf[0] == 'y' || buf[0] == 'Y') return 1;
-        if (buf[0] == 'n' || buf[0] == 'N') return 0;
+        if (!safe_gets(buf, (int)sizeof(buf)))
+            return default_yes;
+        if (buf[0] == '\0')
+            return default_yes;
+        if (buf[0] == 'y' || buf[0] == 'Y')
+            return 1;
+        if (buf[0] == 'n' || buf[0] == 'N')
+            return 0;
     }
 }
 
@@ -195,28 +242,33 @@ static void ask_string(enum Msg prompt, char *buf, size_t size, enum Msg def_msg
     printf("[%s]: ", T(def_msg));
     fflush(stdout);
     if (!safe_gets(buf, (int)size)) {
-        strncpy(buf, T(def_msg), size-1);
-        buf[size-1] = '\0';
+        strncpy(buf, T(def_msg), size - 1);
+        buf[size - 1] = '\0';
         return;
     }
     if (buf[0] == '\0') {
-        strncpy(buf, T(def_msg), size-1);
-        buf[size-1] = '\0';
+        strncpy(buf, T(def_msg), size - 1);
+        buf[size - 1] = '\0';
     }
 }
 
 static void ask_raw(enum Msg prompt, char *buf, size_t size, const char *def) {
     printf("%s", T(prompt));
-    if (def && def[0]) printf("[%s]: ", def);
-    else printf(": ");
+    if (def && def[0])
+        printf("[%s]: ", def);
+    else
+        printf(": ");
     fflush(stdout);
     if (!safe_gets(buf, (int)size)) {
-        if (def) { strncpy(buf, def, size-1); buf[size-1] = '\0'; }
+        if (def) {
+            strncpy(buf, def, size - 1);
+            buf[size - 1] = '\0';
+        }
         return;
     }
     if (buf[0] == '\0' && def) {
-        strncpy(buf, def, size-1);
-        buf[size-1] = '\0';
+        strncpy(buf, def, size - 1);
+        buf[size - 1] = '\0';
     }
 }
 
@@ -225,25 +277,33 @@ static void ask_raw(enum Msg prompt, char *buf, size_t size, const char *def) {
  * ========================================================================= */
 
 static char *strdup_safe(const char *s) {
-    if (!s) return NULL;
+    if (!s)
+        return NULL;
     size_t n = strlen(s) + 1;
     char *p = malloc(n);
-    if (p) memcpy(p, s, n);
+    if (p)
+        memcpy(p, s, n);
     return p;
 }
 
 static char *str_replace_all(const char *s, const char *from, const char *to) {
-    if (!s || !from || !to) return NULL;
+    if (!s || !from || !to)
+        return NULL;
     size_t slen = strlen(s), flen = strlen(from), tlen = strlen(to);
-    if (flen == 0) return strdup_safe(s);
+    if (flen == 0)
+        return strdup_safe(s);
 
     size_t count = 0;
     const char *p = s;
-    while ((p = strstr(p, from))) { count++; p += flen; }
+    while ((p = strstr(p, from))) {
+        count++;
+        p += flen;
+    }
 
     size_t newlen = slen + count * (tlen - flen) + 1;
     char *result = malloc(newlen);
-    if (!result) return NULL;
+    if (!result)
+        return NULL;
 
     char *wp = result;
     p = s;
@@ -271,37 +331,45 @@ static char *str_replace_all(const char *s, const char *from, const char *to) {
 
 static char *slurp(const char *path, size_t *out_len) {
     FILE *f = fopen(path, "rb");
-    if (!f) return NULL;
+    if (!f)
+        return NULL;
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
     fseek(f, 0, SEEK_SET);
-    if (len < 0) { fclose(f); return NULL; }
+    if (len < 0) {
+        fclose(f);
+        return NULL;
+    }
     char *buf = malloc((size_t)len + 1);
-    if (!buf) { fclose(f); return NULL; }
+    if (!buf) {
+        fclose(f);
+        return NULL;
+    }
     size_t n = fread(buf, 1, (size_t)len, f);
     fclose(f);
     buf[n] = '\0';
-    if (out_len) *out_len = n;
+    if (out_len)
+        *out_len = n;
     return buf;
 }
 
 static int spew(const char *path, const char *content) {
     FILE *f = fopen(path, "wb");
-    if (!f) return -1;
+    if (!f)
+        return -1;
     size_t len = strlen(content);
     size_t n = fwrite(content, 1, len, f);
     fclose(f);
     return (n == len) ? 0 : -1;
 }
 
-static int replace_in_file(const char *path,
-                           const char *s1, const char *r1,
-                           const char *s2, const char *r2,
-                           const char *s3, const char *r3,
-                           const char *s4, const char *r4) {
+static int replace_in_file(const char *path, const char *s1, const char *r1, const char *s2,
+                           const char *r2, const char *s3, const char *r3, const char *s4,
+                           const char *r4) {
     size_t len;
     char *orig = slurp(path, &len);
-    if (!orig) return 0;
+    if (!orig)
+        return 0;
 
     char *tmp = NULL;
     char *cur = orig;
@@ -309,20 +377,29 @@ static int replace_in_file(const char *path,
     const char *replaces[] = {r1, r2, r3, r4};
 
     for (int i = 0; i < 4; i++) {
-        if (!searches[i]) break;
+        if (!searches[i])
+            break;
         tmp = str_replace_all(cur, searches[i], replaces[i]);
-        if (i > 0) free(cur);
-        if (!tmp) { free(orig); return -1; }
+        if (i > 0)
+            free(cur);
+        if (!tmp) {
+            free(orig);
+            return -1;
+        }
         cur = tmp;
     }
 
     int changed = (strcmp(cur, orig) != 0);
     int ret = 0;
     if (changed) {
-        if (g_dry_run) { ret = 1; }
-        else { ret = (spew(path, cur) == 0) ? 1 : -1; }
+        if (g_dry_run) {
+            ret = 1;
+        } else {
+            ret = (spew(path, cur) == 0) ? 1 : -1;
+        }
     }
-    if (cur != orig) free(cur);
+    if (cur != orig)
+        free(cur);
     free(orig);
     return ret;
 }
@@ -330,28 +407,31 @@ static int replace_in_file(const char *path,
 static int file_has_any(const char *path) {
     size_t len;
     char *buf = slurp(path, &len);
-    if (!buf) return 0;
-    int has = (strstr(buf, "CProjectStandard") ||
-               strstr(buf, "cproject") ||
-               strstr(buf, "CPROJECT") ||
-               strstr(buf, "CProject"));
+    if (!buf)
+        return 0;
+    int has = (strstr(buf, "CProjectStandard") || strstr(buf, "cproject") ||
+               strstr(buf, "CPROJECT") || strstr(buf, "CProject"));
     free(buf);
     return has;
 }
 
 static int rmrf(const char *path) {
-    if (g_dry_run) return 0;
+    if (g_dry_run)
+        return 0;
 #ifdef _WIN32
-    if (_unlink(path) == 0) return 0;
+    if (_unlink(path) == 0)
+        return 0;
     return _rmdir(path);
 #else
-    if (unlink(path) == 0) return 0;
+    if (unlink(path) == 0)
+        return 0;
     return rmdir(path);
 #endif
 }
 
 static int rename_path(const char *old, const char *newpath) {
-    if (g_dry_run) return 1;
+    if (g_dry_run)
+        return 1;
     return rename(old, newpath) == 0 ? 1 : 0;
 }
 
@@ -360,12 +440,14 @@ static int rename_path(const char *old, const char *newpath) {
  * ========================================================================= */
 
 static int has_rename_ext(const char *name) {
-    static const char *exts[] = {".c",".h",".cmake",".txt",".json",".yml",".md",".in",
-                                 ".cpp",".ps1",".sh", NULL};
+    static const char *exts[] = {".c",  ".h",  ".cmake", ".txt", ".json", ".yml",
+                                 ".md", ".in", ".cpp",   ".ps1", ".sh",   NULL};
     const char *dot = strrchr(name, '.');
-    if (!dot) return 0;
+    if (!dot)
+        return 0;
     for (int i = 0; exts[i]; i++)
-        if (strcmp(dot, exts[i]) == 0) return 1;
+        if (strcmp(dot, exts[i]) == 0)
+            return 1;
     return 0;
 }
 
@@ -373,49 +455,58 @@ static int should_skip_dir(const char *name) {
     return (strcmp(name, "build") == 0 || strcmp(name, ".git") == 0);
 }
 
-static void walk_and_rename(const char *dir, const char *pascal,
-                             const char *lower, const char *upper) {
+static void walk_and_rename(const char *dir, const char *pascal, const char *lower,
+                            const char *upper) {
 #ifdef _WIN32
     char pattern[1024];
     snprintf(pattern, sizeof(pattern), "%s\\*", dir);
     struct _finddata_t fd;
     intptr_t h = _findfirst(pattern, &fd);
-    if (h == -1) return;
+    if (h == -1)
+        return;
     do {
-        if (strcmp(fd.name, ".") == 0 || strcmp(fd.name, "..") == 0) continue;
+        if (strcmp(fd.name, ".") == 0 || strcmp(fd.name, "..") == 0)
+            continue;
         char full[1024];
         snprintf(full, sizeof(full), "%s/%s", dir, fd.name);
         if (fd.attrib & _A_SUBDIR) {
-            if (should_skip_dir(fd.name)) continue;
+            if (should_skip_dir(fd.name))
+                continue;
             walk_and_rename(full, pascal, lower, upper);
         } else if (has_rename_ext(fd.name) && file_has_any(full)) {
-            int r = replace_in_file(full, "CProjectStandard", pascal,
-                                    "cproject", lower,
-                                    "CPROJECT", upper,
-                                    "CProject", pascal);
-            if (r > 0) { g_renamed_files++; printf("    %s\n", full); }
+            int r = replace_in_file(full, "CProjectStandard", pascal, "cproject", lower, "CPROJECT",
+                                    upper, "CProject", pascal);
+            if (r > 0) {
+                g_renamed_files++;
+                printf("    %s\n", full);
+            }
         }
     } while (_findnext(h, &fd) == 0);
     _findclose(h);
 #else
     DIR *d = opendir(dir);
-    if (!d) return;
+    if (!d)
+        return;
     struct dirent *e;
     while ((e = readdir(d))) {
-        if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0) continue;
+        if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0)
+            continue;
         char full[1024];
         snprintf(full, sizeof(full), "%s/%s", dir, e->d_name);
         struct stat st;
-        if (stat(full, &st) != 0) continue;
+        if (stat(full, &st) != 0)
+            continue;
         if (S_ISDIR(st.st_mode)) {
-            if (should_skip_dir(e->d_name)) continue;
+            if (should_skip_dir(e->d_name))
+                continue;
             walk_and_rename(full, pascal, lower, upper);
         } else if (has_rename_ext(e->d_name) && file_has_any(full)) {
-            int r = replace_in_file(full, "CProjectStandard", pascal,
-                                    "cproject", lower,
-                                    "CPROJECT", upper,
-                                    "CProject", pascal);
-            if (r > 0) { g_renamed_files++; printf("    %s\n", full); }
+            int r = replace_in_file(full, "CProjectStandard", pascal, "cproject", lower, "CPROJECT",
+                                    upper, "CProject", pascal);
+            if (r > 0) {
+                g_renamed_files++;
+                printf("    %s\n", full);
+            }
         }
     }
     closedir(d);
@@ -466,19 +557,20 @@ static void write_stub_main(const char *pascal, const char *lower, int has_cli) 
     char content[512];
     if (has_cli) {
         snprintf(content, sizeof(content),
-            "#include <%s/example.h>\n"
-            "#include <stdio.h>\n\n"
-            "int main(void) {\n"
-            "    %sVersion v = %s_version();\n"
-            "    printf(\"%s v%%d.%%d.%%d\\n\", v.major, v.minor, v.patch);\n"
-            "    return 0;\n"
-            "}\n",
-            lower, pascal, lower, pascal);
+                 "#include <%s/example.h>\n"
+                 "#include <stdio.h>\n\n"
+                 "int main(void) {\n"
+                 "    %sVersion v = %s_version();\n"
+                 "    printf(\"%s v%%d.%%d.%%d\\n\", v.major, v.minor, v.patch);\n"
+                 "    return 0;\n"
+                 "}\n",
+                 lower, pascal, lower, pascal);
     } else {
         snprintf(content, sizeof(content),
-            "/* SETUP: Your entry point goes here.\n"
-            " * Remove this file if %s is a library-only project. */\n"
-            "int main(void) { return 0; }\n", pascal);
+                 "/* SETUP: Your entry point goes here.\n"
+                 " * Remove this file if %s is a library-only project. */\n"
+                 "int main(void) { return 0; }\n",
+                 pascal);
     }
     if (g_dry_run) {
         printf("    [dry-run] src/main.c\n");
@@ -497,32 +589,37 @@ typedef struct {
 } StripItem;
 
 static const StripItem FEAT_STRIPS[FEAT_COUNT][4] = {
-    [FEAT_INSTALLABLE] = {
-        {"installable packaging", "cmake/Packaging.cmake"},
-        {"package smoke test",    "tests/package_smoke"},
-        {NULL, NULL},
-    },
-    [FEAT_SUBPROJECT] = {
-        {"subproject smoke test", "tests/subproject_smoke"},
-        {NULL, NULL},
-    },
-    [FEAT_SHARED]     = {{NULL, NULL}},
+    [FEAT_INSTALLABLE] =
+        {
+            {"installable packaging", "cmake/Packaging.cmake"},
+            {"package smoke test", "tests/package_smoke"},
+            {NULL, NULL},
+        },
+    [FEAT_SUBPROJECT] =
+        {
+            {"subproject smoke test", "tests/subproject_smoke"},
+            {NULL, NULL},
+        },
+    [FEAT_SHARED] = {{NULL, NULL}},
     [FEAT_SANITIZERS] = {{NULL, NULL}},
-    [FEAT_COVERAGE]   = {{NULL, NULL}},
-    [FEAT_CI] = {
-        {"GitHub Actions CI", ".github/workflows"},
-        {NULL, NULL},
-    },
-    [FEAT_AI_AGENT] = {
-        {"AI agent policy doc", "docs/guides/ai-agent.md"},
-        {NULL, NULL},
-    },
+    [FEAT_COVERAGE] = {{NULL, NULL}},
+    [FEAT_CI] =
+        {
+            {"GitHub Actions CI", ".github/workflows"},
+            {NULL, NULL},
+        },
+    [FEAT_AI_AGENT] =
+        {
+            {"AI agent policy doc", "docs/guides/ai-agent.md"},
+            {NULL, NULL},
+        },
     [FEAT_CLI] = {{NULL, NULL}},
 };
 
 static void strip_features(const Config *cfg) {
     for (int f = 0; f < FEAT_COUNT; f++) {
-        if (cfg->features[f]) continue;
+        if (cfg->features[f])
+            continue;
         const StripItem *items = FEAT_STRIPS[f];
         for (int i = 0; items[i].name; i++) {
             if (access(items[i].path, F_OK) == 0) {
@@ -539,7 +636,10 @@ static void strip_features(const Config *cfg) {
  * ========================================================================= */
 
 static void clear_git_remote(void) {
-    if (g_dry_run) { printf("    git remote origin ...\n"); return; }
+    if (g_dry_run) {
+        printf("    git remote origin ...\n");
+        return;
+    }
     (void)system("git remote remove origin 2>/dev/null");
 }
 
@@ -549,9 +649,15 @@ static void clear_git_remote(void) {
 
 static int detect_lang(void) {
     const char *v;
-    v = getenv("LANG");        if (v && strstr(v, "zh")) return LANG_ZH;
-    v = getenv("LC_ALL");      if (v && strstr(v, "zh")) return LANG_ZH;
-    v = getenv("LC_MESSAGES"); if (v && strstr(v, "zh")) return LANG_ZH;
+    v = getenv("LANG");
+    if (v && strstr(v, "zh"))
+        return LANG_ZH;
+    v = getenv("LC_ALL");
+    if (v && strstr(v, "zh"))
+        return LANG_ZH;
+    v = getenv("LC_MESSAGES");
+    if (v && strstr(v, "zh"))
+        return LANG_ZH;
     return LANG_EN;
 }
 
@@ -565,7 +671,8 @@ static void print_banner(void) {
     printf("\n  ");
     printf(s, v.major, v.minor, v.patch);
     printf("\n  ");
-    for (int i = 0; i < 40; i++) putchar('=');
+    for (int i = 0; i < 40; i++)
+        putchar('=');
     printf("\n\n");
 }
 
@@ -575,22 +682,26 @@ static void select_language(void) {
     g_lang = (Lang)detected;
     printf("%s", T(M_LANG_SELECT));
     fflush(stdout);
-    if (!safe_gets(buf, (int)sizeof(buf)) || buf[0] == '\0') return;
-    if (buf[0] == 'z' || buf[0] == 'Z') g_lang = LANG_ZH;
-    else g_lang = LANG_EN;
+    if (!safe_gets(buf, (int)sizeof(buf)) || buf[0] == '\0')
+        return;
+    if (buf[0] == 'z' || buf[0] == 'Z')
+        g_lang = LANG_ZH;
+    else
+        g_lang = LANG_EN;
 }
 
 static int validate_name(const char *s) {
-    if (!s[0] || !isupper((unsigned char)s[0])) return 0;
+    if (!s[0] || !isupper((unsigned char)s[0]))
+        return 0;
     for (size_t i = 0; s[i]; i++)
-        if (!isalnum((unsigned char)s[i])) return 0;
+        if (!isalnum((unsigned char)s[i]))
+            return 0;
     return 1;
 }
 
 static const enum Msg FEAT_MSGS[FEAT_COUNT] = {
-    M_FEAT_INSTALLABLE, M_FEAT_SUBPROJECT, M_FEAT_SHARED,
-    M_FEAT_SANITIZERS,  M_FEAT_COVERAGE,   M_FEAT_CI,
-    M_FEAT_AI_AGENT,    M_FEAT_CLI,
+    M_FEAT_INSTALLABLE, M_FEAT_SUBPROJECT, M_FEAT_SHARED,   M_FEAT_SANITIZERS,
+    M_FEAT_COVERAGE,    M_FEAT_CI,         M_FEAT_AI_AGENT, M_FEAT_CLI,
 };
 
 static int edit_features(Config *cfg) {
@@ -603,37 +714,49 @@ static int edit_features(Config *cfg) {
         printf("\n  All correct? [Y/n]: ");
         fflush(stdout);
         char buf[8];
-        if (!safe_gets(buf, (int)sizeof(buf))) return 1;
-        if (buf[0] == '\0' || buf[0] == 'y' || buf[0] == 'Y') return 1;
+        if (!safe_gets(buf, (int)sizeof(buf)))
+            return 1;
+        if (buf[0] == '\0' || buf[0] == 'y' || buf[0] == 'Y')
+            return 1;
         if (buf[0] == 'n' || buf[0] == 'N') {
             printf("\n  Enter number to toggle (1-%d, 0=done): ", FEAT_COUNT);
             fflush(stdout);
-            if (!safe_gets(buf, (int)sizeof(buf))) return 1;
+            if (!safe_gets(buf, (int)sizeof(buf)))
+                return 1;
             int n = atoi(buf);
             if (n >= 1 && n <= FEAT_COUNT)
-                cfg->features[n-1] = !cfg->features[n-1];
+                cfg->features[n - 1] = !cfg->features[n - 1];
         }
     }
 }
 
 static void print_review(const Config *cfg) {
     printf("\n\n  %s\n", T(M_REVIEW_HEADER));
-    printf(T(M_REVIEW_NAME),      cfg->pascal);      printf("\n");
-    printf(T(M_REVIEW_NAMESPACE), cfg->lower);       printf("\n");
-    printf(T(M_REVIEW_MACRO),     cfg->upper);       printf("\n");
-    printf(T(M_REVIEW_DESC),      cfg->description); printf("\n");
-    printf(T(M_REVIEW_VERSION),   cfg->version);     printf("\n");
-    printf(T(M_REVIEW_LICENSE),   cfg->license);     printf("\n");
+    printf(T(M_REVIEW_NAME), cfg->pascal);
+    printf("\n");
+    printf(T(M_REVIEW_NAMESPACE), cfg->lower);
+    printf("\n");
+    printf(T(M_REVIEW_MACRO), cfg->upper);
+    printf("\n");
+    printf(T(M_REVIEW_DESC), cfg->description);
+    printf("\n");
+    printf(T(M_REVIEW_VERSION), cfg->version);
+    printf("\n");
+    printf(T(M_REVIEW_LICENSE), cfg->license);
+    printf("\n");
     printf("\n");
     for (int i = 0; i < FEAT_COUNT; i++)
         printf("  %-30s %s\n", T(FEAT_MSGS[i]),
                cfg->features[i] ? T(M_REVIEW_YES) : T(M_REVIEW_NO));
 
     printf("\n  %s\n", T(M_REVIEW_OPS));
-    printf(T(M_REVIEW_RENAME), cfg->pascal); printf("\n");
-    printf(T(M_REVIEW_DIRS),   cfg->lower);  printf("\n");
+    printf(T(M_REVIEW_RENAME), cfg->pascal);
+    printf("\n");
+    printf(T(M_REVIEW_DIRS), cfg->lower);
+    printf("\n");
     for (int f = 0; f < FEAT_COUNT; f++) {
-        if (cfg->features[f]) continue;
+        if (cfg->features[f])
+            continue;
         const StripItem *items = FEAT_STRIPS[f];
         for (int i = 0; items[i].name; i++)
             printf(T(M_REVIEW_STRIP), items[i].name), printf("\n");
@@ -643,10 +766,13 @@ static void print_review(const Config *cfg) {
 
 static void print_results(const Config *cfg) {
     printf("\n  Results:\n");
-    printf(T(M_OK_RENAME), g_renamed_files); printf("\n");
-    printf(T(M_OK_DIRS),   g_renamed_dirs);  printf("\n");
+    printf(T(M_OK_RENAME), g_renamed_files);
+    printf("\n");
+    printf(T(M_OK_DIRS), g_renamed_dirs);
+    printf("\n");
     for (int f = 0; f < FEAT_COUNT; f++) {
-        if (cfg->features[f]) continue;
+        if (cfg->features[f])
+            continue;
         const StripItem *items = FEAT_STRIPS[f];
         for (int i = 0; items[i].name; i++)
             printf(T(M_OK_STRIP), items[i].name), printf("\n");
@@ -656,7 +782,8 @@ static void print_results(const Config *cfg) {
     printf("\n  %s\n", T(M_NEXT_TITLE));
     pln(M_NEXT_1);
     pln(M_NEXT_2);
-    printf(T(M_NEXT_3), cfg->lower); printf("\n");
+    printf(T(M_NEXT_3), cfg->lower);
+    printf("\n");
     pln(M_NEXT_4);
     pln(M_NEXT_5);
     pln(M_NEXT_6);
@@ -671,13 +798,13 @@ static int run_interactive(void) {
     Config cfg;
     memset(&cfg, 0, sizeof(cfg));
     cfg.features[FEAT_INSTALLABLE] = 1;
-    cfg.features[FEAT_SUBPROJECT]  = 1;
-    cfg.features[FEAT_SHARED]      = 1;
-    cfg.features[FEAT_SANITIZERS]  = 1;
-    cfg.features[FEAT_COVERAGE]    = 0;
-    cfg.features[FEAT_CI]          = 1;
-    cfg.features[FEAT_AI_AGENT]    = 0;
-    cfg.features[FEAT_CLI]         = 1;
+    cfg.features[FEAT_SUBPROJECT] = 1;
+    cfg.features[FEAT_SHARED] = 1;
+    cfg.features[FEAT_SANITIZERS] = 1;
+    cfg.features[FEAT_COVERAGE] = 0;
+    cfg.features[FEAT_CI] = 1;
+    cfg.features[FEAT_AI_AGENT] = 0;
+    cfg.features[FEAT_CLI] = 1;
 
     select_language();
     printf("\n");
@@ -686,9 +813,14 @@ static int run_interactive(void) {
     /* ── project name ── */
     for (;;) {
         ask_raw(M_NAME_PROMPT, cfg.pascal, sizeof(cfg.pascal), "");
-        if (cfg.pascal[0] == '\0') { pln(M_ABORTED); return 1; }
-        if (validate_name(cfg.pascal)) break;
-        pln(M_NAME_ERROR); printf("\n");
+        if (cfg.pascal[0] == '\0') {
+            pln(M_ABORTED);
+            return 1;
+        }
+        if (validate_name(cfg.pascal))
+            break;
+        pln(M_NAME_ERROR);
+        printf("\n");
     }
     for (size_t i = 0; cfg.pascal[i]; i++) {
         cfg.lower[i] = (char)tolower((unsigned char)cfg.pascal[i]);
@@ -703,12 +835,16 @@ static int run_interactive(void) {
     ask_string(M_LICENSE_PROMPT, cfg.license, sizeof(cfg.license), M_LICENSE_DEFAULT);
 
     /* ── features ── */
-    if (!edit_features(&cfg)) return 1;
+    if (!edit_features(&cfg))
+        return 1;
 
     /* ── review ── */
     print_review(&cfg);
     printf("\n");
-    if (!ask_yesno(M_PROCEED, 1)) { pln(M_ABORTED); return 0; }
+    if (!ask_yesno(M_PROCEED, 1)) {
+        pln(M_ABORTED);
+        return 0;
+    }
 
     /* ── execute ── */
     printf("\n  Renaming identifiers...\n");
@@ -742,51 +878,67 @@ static int run_noninteractive(int argc, char *argv[]) {
     Config cfg;
     memset(&cfg, 0, sizeof(cfg));
     cfg.features[FEAT_INSTALLABLE] = 1;
-    cfg.features[FEAT_SUBPROJECT]  = 1;
-    cfg.features[FEAT_SHARED]      = 1;
-    cfg.features[FEAT_SANITIZERS]  = 1;
-    cfg.features[FEAT_COVERAGE]    = 0;
-    cfg.features[FEAT_CI]          = 1;
-    cfg.features[FEAT_AI_AGENT]    = 0;
-    cfg.features[FEAT_CLI]         = 1;
+    cfg.features[FEAT_SUBPROJECT] = 1;
+    cfg.features[FEAT_SHARED] = 1;
+    cfg.features[FEAT_SANITIZERS] = 1;
+    cfg.features[FEAT_COVERAGE] = 0;
+    cfg.features[FEAT_CI] = 1;
+    cfg.features[FEAT_AI_AGENT] = 0;
+    cfg.features[FEAT_CLI] = 1;
 
     for (int i = 1; i < argc; i++) {
         if (cfg.pascal[0] == '\0' && argv[i][0] != '-') {
-            strncpy(cfg.pascal, argv[i], sizeof(cfg.pascal)-1);
+            strncpy(cfg.pascal, argv[i], sizeof(cfg.pascal) - 1);
             continue;
         }
-        if (strcmp(argv[i], "--dry-run") == 0)      g_dry_run = 1;
-        else if (strcmp(argv[i], "--yes") == 0 || strcmp(argv[i], "-y") == 0) g_yes = 1;
-        else if (strcmp(argv[i], "--lang") == 0 && i+1 < argc) {
-            i++; g_lang = (strcmp(argv[i], "zh") == 0) ? LANG_ZH : LANG_EN;
-        } else if (strcmp(argv[i], "--description") == 0 && i+1 < argc)
-            strncpy(cfg.description, argv[++i], sizeof(cfg.description)-1);
-        else if (strcmp(argv[i], "--author") == 0 && i+1 < argc)
-            strncpy(cfg.author, argv[++i], sizeof(cfg.author)-1);
-        else if (strcmp(argv[i], "--version") == 0 && i+1 < argc)
-            strncpy(cfg.version, argv[++i], sizeof(cfg.version)-1);
-        else if (strcmp(argv[i], "--license") == 0 && i+1 < argc)
-            strncpy(cfg.license, argv[++i], sizeof(cfg.license)-1);
-        else if (strcmp(argv[i], "--no-installable") == 0) cfg.features[FEAT_INSTALLABLE] = 0;
-        else if (strcmp(argv[i], "--no-subproject") == 0)  cfg.features[FEAT_SUBPROJECT]  = 0;
-        else if (strcmp(argv[i], "--no-shared") == 0)      cfg.features[FEAT_SHARED]      = 0;
-        else if (strcmp(argv[i], "--no-sanitizers") == 0)  cfg.features[FEAT_SANITIZERS]  = 0;
-        else if (strcmp(argv[i], "--no-coverage") == 0)    cfg.features[FEAT_COVERAGE]    = 0;
-        else if (strcmp(argv[i], "--no-ci") == 0)          cfg.features[FEAT_CI]          = 0;
-        else if (strcmp(argv[i], "--no-ai-agent") == 0)    cfg.features[FEAT_AI_AGENT]    = 0;
-        else if (strcmp(argv[i], "--no-cli") == 0)         cfg.features[FEAT_CLI]         = 0;
+        if (strcmp(argv[i], "--dry-run") == 0)
+            g_dry_run = 1;
+        else if (strcmp(argv[i], "--yes") == 0 || strcmp(argv[i], "-y") == 0)
+            g_yes = 1;
+        else if (strcmp(argv[i], "--lang") == 0 && i + 1 < argc) {
+            i++;
+            g_lang = (strcmp(argv[i], "zh") == 0) ? LANG_ZH : LANG_EN;
+        } else if (strcmp(argv[i], "--description") == 0 && i + 1 < argc)
+            strncpy(cfg.description, argv[++i], sizeof(cfg.description) - 1);
+        else if (strcmp(argv[i], "--author") == 0 && i + 1 < argc)
+            strncpy(cfg.author, argv[++i], sizeof(cfg.author) - 1);
+        else if (strcmp(argv[i], "--version") == 0 && i + 1 < argc)
+            strncpy(cfg.version, argv[++i], sizeof(cfg.version) - 1);
+        else if (strcmp(argv[i], "--license") == 0 && i + 1 < argc)
+            strncpy(cfg.license, argv[++i], sizeof(cfg.license) - 1);
+        else if (strcmp(argv[i], "--no-installable") == 0)
+            cfg.features[FEAT_INSTALLABLE] = 0;
+        else if (strcmp(argv[i], "--no-subproject") == 0)
+            cfg.features[FEAT_SUBPROJECT] = 0;
+        else if (strcmp(argv[i], "--no-shared") == 0)
+            cfg.features[FEAT_SHARED] = 0;
+        else if (strcmp(argv[i], "--no-sanitizers") == 0)
+            cfg.features[FEAT_SANITIZERS] = 0;
+        else if (strcmp(argv[i], "--no-coverage") == 0)
+            cfg.features[FEAT_COVERAGE] = 0;
+        else if (strcmp(argv[i], "--no-ci") == 0)
+            cfg.features[FEAT_CI] = 0;
+        else if (strcmp(argv[i], "--no-ai-agent") == 0)
+            cfg.features[FEAT_AI_AGENT] = 0;
+        else if (strcmp(argv[i], "--no-cli") == 0)
+            cfg.features[FEAT_CLI] = 0;
     }
 
-    if (cfg.pascal[0] == '\0') return run_interactive();
+    if (cfg.pascal[0] == '\0')
+        return run_interactive();
     for (size_t i = 0; cfg.pascal[i]; i++) {
         cfg.lower[i] = (char)tolower((unsigned char)cfg.pascal[i]);
         cfg.upper[i] = (char)toupper((unsigned char)cfg.pascal[i]);
     }
-    if (cfg.description[0] == '\0') strcpy(cfg.description, "A C library");
-    if (cfg.version[0] == '\0')     strcpy(cfg.version, "0.1.0");
-    if (cfg.license[0] == '\0')     strcpy(cfg.license, "MIT");
+    if (cfg.description[0] == '\0')
+        strcpy(cfg.description, "A C library");
+    if (cfg.version[0] == '\0')
+        strcpy(cfg.version, "0.1.0");
+    if (cfg.license[0] == '\0')
+        strcpy(cfg.license, "MIT");
 
-    if (g_lang == LANG_EN) g_lang = (Lang)detect_lang();
+    if (g_lang == LANG_EN)
+        g_lang = (Lang)detect_lang();
 
     if (g_dry_run) {
         CProjectVersion v = cproject_version();
@@ -796,7 +948,10 @@ static int run_noninteractive(int argc, char *argv[]) {
 
     if (!g_yes && !g_dry_run) {
         printf("Rename CProjectStandard -> %s and initialize project.\n", cfg.pascal);
-        if (!ask_yesno(M_PROCEED, 1)) { pln(M_ABORTED); return 0; }
+        if (!ask_yesno(M_PROCEED, 1)) {
+            pln(M_ABORTED);
+            return 0;
+        }
     }
 
     g_renamed_files = g_renamed_dirs = 0;
@@ -810,8 +965,10 @@ static int run_noninteractive(int argc, char *argv[]) {
     clear_git_remote();
     write_stub_main(cfg.pascal, cfg.lower, cfg.features[FEAT_CLI]);
 
-    if (g_dry_run) printf("\n%s\n", T(M_DRYRUN_DONE));
-    else printf("\nDone. Run: cmake --build --preset ninja-debug\n");
+    if (g_dry_run)
+        printf("\n%s\n", T(M_DRYRUN_DONE));
+    else
+        printf("\nDone. Run: cmake --build --preset ninja-debug\n");
 
     return 0;
 }
@@ -827,19 +984,27 @@ static int run_noninteractive(int argc, char *argv[]) {
 static char *executable_dir(const char *argv0) {
     char buf[4096];
 #ifdef _WIN32
-    if (!_fullpath(buf, argv0, sizeof(buf))) return NULL;
+    if (!_fullpath(buf, argv0, sizeof(buf)))
+        return NULL;
 #else
-    if (!realpath(argv0, buf)) return NULL;
+    if (!realpath(argv0, buf))
+        return NULL;
 #endif
     char *copy = malloc(strlen(buf) + 1);
-    if (!copy) return NULL;
+    if (!copy)
+        return NULL;
     strcpy(copy, buf);
     /* Strip filename, leave directory */
     char *slash = strrchr(copy, '/');
 #ifdef _WIN32
-    { char *bs = strrchr(copy, '\\'); if (bs > slash) slash = bs; }
+    {
+        char *bs = strrchr(copy, '\\');
+        if (bs > slash)
+            slash = bs;
+    }
 #endif
-    if (slash) *slash = '\0';
+    if (slash)
+        *slash = '\0';
     return copy;
 }
 
@@ -849,7 +1014,8 @@ static char *executable_dir(const char *argv0) {
  */
 static int find_and_enter_root(const char *argv0) {
     char *dir = executable_dir(argv0);
-    if (!dir) return 0;
+    if (!dir)
+        return 0;
 
     for (int depth = 0; depth < 6; depth++) {
         char candidate[1024];
@@ -867,9 +1033,14 @@ static int find_and_enter_root(const char *argv0) {
         /* Go up one level */
         char *slash = strrchr(dir, '/');
 #ifdef _WIN32
-        { char *bs = strrchr(dir, '\\'); if (bs > slash) slash = bs; }
+        {
+            char *bs = strrchr(dir, '\\');
+            if (bs > slash)
+                slash = bs;
+        }
 #endif
-        if (!slash) break;
+        if (!slash)
+            break;
         *slash = '\0';
     }
     free(dir);
@@ -883,9 +1054,11 @@ static int find_and_enter_root(const char *argv0) {
 int main(int argc, char *argv[]) {
     if (!find_and_enter_root(argv[0])) {
         fprintf(stderr, "%s\n", T(M_NOT_ROOT));
-        fprintf(stderr, "Run from the project root, or ensure the binary is under build/<preset>/bin/.\n");
+        fprintf(stderr,
+                "Run from the project root, or ensure the binary is under build/<preset>/bin/.\n");
         return 1;
     }
-    if (argc > 1) return run_noninteractive(argc, argv);
+    if (argc > 1)
+        return run_noninteractive(argc, argv);
     return run_interactive();
 }
