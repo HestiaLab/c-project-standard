@@ -18,7 +18,6 @@
 #define rmdir(p) _rmdir(p)
 #define unlink(p) _unlink(p)
 #else
-#define _POSIX_C_SOURCE 200809L
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -979,29 +978,30 @@ static int run_noninteractive(int argc, char *argv[]) {
  * resolved from argv[0]. On failure returns NULL.
  */
 static char *executable_dir(const char *argv0) {
-    char buf[4096];
-#ifdef _WIN32
-    if (!_fullpath(buf, argv0, sizeof(buf)))
-        return NULL;
-#else
-    if (!realpath(argv0, buf))
-        return NULL;
-#endif
-    char *copy = malloc(strlen(buf) + 1);
-    if (!copy)
-        return NULL;
-    strcpy(copy, buf);
-    /* Strip filename, leave directory */
-    char *slash = strrchr(copy, '/');
+    /* Extract directory from argv[0] — no POSIX extensions needed */
+    const char *slash = strrchr(argv0, '/');
 #ifdef _WIN32
     {
-        char *bs = strrchr(copy, '\\');
+        const char *bs = strrchr(argv0, '\\');
         if (bs > slash)
             slash = bs;
     }
 #endif
-    if (slash)
-        *slash = '\0';
+    char *copy;
+    if (slash && slash != argv0) {
+        size_t n = (size_t)(slash - argv0);
+        copy = malloc(n + 1);
+        if (!copy)
+            return NULL;
+        memcpy(copy, argv0, n);
+        copy[n] = '\0';
+    } else {
+        copy = malloc(2);
+        if (!copy)
+            return NULL;
+        copy[0] = '.';
+        copy[1] = '\0';
+    }
     return copy;
 }
 

@@ -24,7 +24,21 @@ static int test_version(void) {
 }
 
 static int test_get_version(void) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
     CProjectVersion version = cproject_get_version();
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     if (!CPROJECT_EXPECT_INT_EQ(version.major, CPROJECT_VERSION_MAJOR)) {
         return 1;
     }
