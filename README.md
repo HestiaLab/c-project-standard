@@ -1,5 +1,7 @@
 # C Project Standard
 
+> [中文版](README.zh.md)
+
 Start your next C library or CLI tool with a solid foundation — CMake, C11,
 CTest, cross-platform CI, and clear contributor docs, all in one template.
 

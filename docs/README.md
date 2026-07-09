@@ -29,3 +29,13 @@ Keep repository documentation short and useful.
 | [../SECURITY.md](../SECURITY.md) | Vulnerability reporting and dependency handling |
 | [../AGENTS.md](../AGENTS.md) | AI agent entry point |
 | [../C_PROJECT_STANDARD.md](../C_PROJECT_STANDARD.md) | Reusable C project standard |
+
+---
+
+## 中文文档 / Chinese
+
+| 文档 | 说明 |
+|---|---|
+| [zh-CN/build.md](zh-CN/build.md) | 环境搭建、构建与测试 |
+| [zh-CN/template.md](zh-CN/template.md) | 模板重命名与裁剪指南 |
+| [zh-CN/README.md](zh-CN/README.md) | 完整中文文档索引 |

@@ -79,6 +79,10 @@ maintenance requests.
 
 ## Architecture
 
+When modifying core documentation (build, testing, template), also update the
+corresponding Chinese translation under `docs/zh-CN/` if the change affects
+user-visible instructions or policy.
+
 - Keep public headers small and stable.
 - Keep implementation details out of `include/`.
 - Prefer explicit ownership and cleanup paths.
