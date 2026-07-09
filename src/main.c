@@ -9,6 +9,21 @@
  * Language: C11 | No external dependencies beyond the standard library
  */
 
+#ifdef _WIN32
+#include <direct.h>
+#include <io.h>
+#define F_OK 0
+#define access _access
+#define mkdir(p, m) _mkdir(p)
+#define rmdir(p)    _rmdir(p)
+#define unlink(p)   _unlink(p)
+#else
+#define _POSIX_C_SOURCE 200809L
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
+
 #include <cproject/example.h>
 #include <cproject/version.h>
 
@@ -17,24 +32,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/* =========================================================================
- * Platform abstractions
- * ========================================================================= */
-
-#ifdef _WIN32
-#include <direct.h>
-#include <io.h>
-#define mkdir(p, m) _mkdir(p)
-#define rmdir(p) _rmdir(p)
-#define unlink(p) _unlink(p)
-#define F_OK 0
-#define access _access
-#else
-#include <dirent.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#endif
 
 /* =========================================================================
  * Types & constants
