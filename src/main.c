@@ -15,8 +15,8 @@
 #define F_OK 0
 #define access _access
 #define mkdir(p, m) _mkdir(p)
-#define rmdir(p)    _rmdir(p)
-#define unlink(p)   _unlink(p)
+#define rmdir(p) _rmdir(p)
+#define unlink(p) _unlink(p)
 #else
 #define _POSIX_C_SOURCE 200809L
 #include <dirent.h>
