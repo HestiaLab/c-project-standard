@@ -2,7 +2,7 @@
 
 Keep repository documentation short and useful.
 
-## Source Of Truth
+## Guides
 
 | Document | Description |
 |---|---|
