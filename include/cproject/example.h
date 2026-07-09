@@ -14,8 +14,16 @@ typedef struct CProjectVersion {
     int patch;
 } CProjectVersion;
 
-/* Returns the library version compiled into this build. */
+/* SETUP: replace with your first public API header.
+ * Keep the include guard, export macro, and extern "C" guard pattern. */
 CPROJECT_API CProjectVersion cproject_version(void);
+
+/*
+ * Deprecated alias for cproject_version(). Use cproject_version() instead.
+ * This declaration exists to demonstrate the CPROJECT_DEPRECATED annotation.
+ */
+CPROJECT_API CPROJECT_DEPRECATED("Use cproject_version() instead") CProjectVersion
+    cproject_get_version(void);
 
 /*
  * Adds two integers and writes the result to out_value.

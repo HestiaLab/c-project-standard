@@ -9,7 +9,7 @@
 - [ ] Additional relevant preset, smoke, or manual checks:
 - [ ] Not run; reason:
 
-See `doc/guides/testing.md` for change-specific validation guidance.
+See `docs/guides/testing.md` for change-specific validation guidance.
 
 ## Impact
 

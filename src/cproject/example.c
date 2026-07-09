@@ -3,6 +3,8 @@
 
 #include <limits.h>
 
+/* SETUP: replace with your library implementation.
+ * Wire public APIs declared in include/<project>/example.h */
 CProjectVersion cproject_version(void) {
     CProjectVersion version = {
         CPROJECT_VERSION_MAJOR,
@@ -10,6 +12,10 @@ CProjectVersion cproject_version(void) {
         CPROJECT_VERSION_PATCH,
     };
     return version;
+}
+
+CProjectVersion cproject_get_version(void) {
+    return cproject_version();
 }
 
 int cproject_add_checked(int left, int right, int *out_value) {

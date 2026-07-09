@@ -1,3 +1,10 @@
+# Rename template project identifiers in-place.
+#
+# ** RECOMMENDED: use the interactive setup wizard instead: **
+#     cmake --preset ninja-debug; cmake --build --preset ninja-debug
+#     .\build\ninja-debug\bin\cproject_example.exe
+#
+# This script is kept for CI, automation, and non-interactive use.
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false, Position = 0)]

@@ -1,3 +1,6 @@
+/* SETUP: replace with tests for your public API.
+ * Keep the test pattern: focused test functions returning 0 on success,
+ * main() calls each in sequence. */
 #include <cproject/example.h>
 #include <cproject/version.h>
 
@@ -15,6 +18,28 @@ static int test_version(void) {
         return 1;
     }
     if (!CPROJECT_EXPECT_INT_EQ(version.patch, CPROJECT_VERSION_PATCH)) {
+        return 1;
+    }
+    return 0;
+}
+
+static int test_get_version(void) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+    CProjectVersion version = cproject_get_version();
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+    if (!CPROJECT_EXPECT_INT_EQ(version.major, CPROJECT_VERSION_MAJOR)) {
         return 1;
     }
     return 0;
@@ -43,6 +68,9 @@ static int test_checked_add(void) {
 
 int main(void) {
     if (test_version()) {
+        return 1;
+    }
+    if (test_get_version()) {
         return 1;
     }
     if (test_checked_add()) {
