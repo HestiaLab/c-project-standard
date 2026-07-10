@@ -102,6 +102,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
 # ---------------------------------------------------------------------------
 # CPack — platform-specific binary + source packages
 # ---------------------------------------------------------------------------
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CProjectStandard")
 include(CPack)
 
 # --- common metadata ---
