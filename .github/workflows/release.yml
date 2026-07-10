@@ -57,14 +57,13 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          if [ -d build/ninja-release ]; then
-            find build/ninja-release -maxdepth 1 \
-              \( -name '*.deb' -o -name '*.rpm' -o -name '*.tar.gz' -o \
-                 -name '*.tar.Z' -o -name '*.tgz' -o -name '*.dmg' -o \
-                 -name '*.pkg' -o -name '*.exe' -o -name '*.zip' -o \
-                 -name '*.7z' \) \
-              -exec cp {} dist/ \\;
-          fi
+          # collect all CPack-generated packages; ignore missing patterns
+          shopt -s nullglob
+          for f in build/ninja-release/*.{deb,rpm,tar.gz,tar.Z,tgz,dmg,pkg,exe,zip,7z}; do
+            [ -f "$f" ] && cp "$f" dist/
+          done
+          shopt -u nullglob
+          ls dist/
 
       - name: Upload package artifacts
         uses: actions/upload-artifact@v5
