@@ -37,6 +37,10 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Install NSIS (Windows)
+        if: runner.os == 'Windows'
+        run: choco install nsis --no-progress -y
+
       - name: Install Linux packaging tools
         if: runner.os == 'Linux'
         run: |
