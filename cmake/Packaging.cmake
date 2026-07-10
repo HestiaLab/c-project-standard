@@ -58,11 +58,14 @@ install(FILES
 )
 
 # ---------------------------------------------------------------------------
-# Interactive wizard executable
+# Interactive wizard executable + launcher
 # ---------------------------------------------------------------------------
 if(CPROJECT_BUILD_EXAMPLE AND TARGET cproject_example)
     install(TARGETS cproject_example
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/run-wizard.bat"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 endif()
 
@@ -120,8 +123,10 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
-set(CPACK_NSIS_MUI_FINISHPAGE_RUN "cproject_example.exe")
+set(CPACK_NSIS_MUI_FINISHPAGE_RUN "run-wizard.bat")
 set(CPACK_NSIS_MUI_FINISHPAGE_RUN_TEXT "Launch Project Setup Wizard")
+set(CPACK_NSIS_CREATE_ICONS_EXTRA "SetOutPath $INSTDIR/bin\nCreateShortCut $DESKTOP/CProjectStandard.lnk run-wizard.bat")
+set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete $DESKTOP/CProjectStandard.lnk")
 include(CPack)
 
 # --- component grouping ---
@@ -143,8 +148,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         "bin/cproject_example.exe" "Project Setup Wizard"
         "share/c-project-standard" "Template Files"
     )
-    set(CPACK_NSIS_CREATE_ICONS_EXTRA "")
-    set(CPACK_NSIS_DELETE_ICONS_EXTRA "")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CPACK_GENERATOR "productbuild;TGZ")
     set(CPACK_PRODUCTBUILD_IDENTIFIER "com.cprojectstandard.template")
