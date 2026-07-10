@@ -45,7 +45,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq rpm
+          sudo apt-get install -y -qq rpm dpkg-dev
 
       - name: Configure (release)
         run: cmake --preset ninja-release
@@ -67,6 +67,9 @@ jobs:
             [ -f "$f" ] && cp "$f" dist/
           done
           shopt -u nullglob
+          # Generate SHA256 checksums
+          cd dist && sha256sum -- * > SHA256SUMS 2>/dev/null || true
+          cd "$OLDPWD"
           ls dist/
 
       - name: Upload package artifacts

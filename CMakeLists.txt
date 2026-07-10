@@ -67,7 +67,23 @@ target_include_directories(cproject_core
 cproject_target_defaults(cproject_core)
 
 if(CPROJECT_BUILD_EXAMPLE)
+    # Windows version-info resource
+    if(WIN32)
+        set(CPROJECT_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+        set(CPROJECT_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+        set(CPROJECT_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject_example.rc.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/cproject_example.rc"
+            @ONLY
+        )
+    endif()
     add_executable(cproject_example ${CPROJECT_EXAMPLE_SOURCES})
+    if(WIN32)
+        target_sources(cproject_example PRIVATE
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/cproject_example.rc"
+        )
+    endif()
     target_link_libraries(cproject_example PRIVATE cproject_core)
     cproject_target_defaults(cproject_example)
     set_target_properties(cproject_example PROPERTIES
