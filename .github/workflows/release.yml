@@ -57,9 +57,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          # collect all CPack-generated packages; ignore missing patterns
+          # CPack outputs all packages as CProjectStandard-* in the build root
           shopt -s nullglob
-          for f in build/ninja-release/*.{deb,rpm,tar.gz,tar.Z,tgz,dmg,pkg,exe,zip,7z}; do
+          for f in build/ninja-release/CProjectStandard-*; do
             [ -f "$f" ] && cp "$f" dist/
           done
           shopt -u nullglob
