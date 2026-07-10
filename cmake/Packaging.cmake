@@ -112,6 +112,10 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
 # CPack — platform-specific binary + source packages
 # ---------------------------------------------------------------------------
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "CProjectStandard")
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_VENDOR "CProjectStandard contributors")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
@@ -119,12 +123,6 @@ set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_FINISHPAGE_RUN "cproject_example.exe")
 set(CPACK_NSIS_MUI_FINISHPAGE_RUN_TEXT "Launch Project Setup Wizard")
 include(CPack)
-
-# --- common metadata ---
-set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
-set(CPACK_PACKAGE_VENDOR "CProjectStandard contributors")
 
 # --- component grouping ---
 set(CPACK_COMPONENTS_ALL runtime template devel)
@@ -141,11 +139,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/wubing7755/c-project-standard")
     set(CPACK_NSIS_CONTACT "CProjectStandard contributors")
     set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_NSIS_MENU_LINKS
+        "bin/cproject_example.exe" "Project Setup Wizard"
+        "share/c-project-standard" "Template Files"
+    )
     set(CPACK_NSIS_CREATE_ICONS_EXTRA "")
     set(CPACK_NSIS_DELETE_ICONS_EXTRA "")
-    set(CPACK_NSIS_MENU_LINKS
-        "share/c-project-standard" "Project Template"
-    )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CPACK_GENERATOR "productbuild;TGZ")
     set(CPACK_PRODUCTBUILD_IDENTIFIER "com.cprojectstandard.template")
