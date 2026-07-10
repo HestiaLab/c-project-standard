@@ -125,7 +125,7 @@ set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_FINISHPAGE_RUN "run-wizard.bat")
 set(CPACK_NSIS_MUI_FINISHPAGE_RUN_TEXT "Launch Project Setup Wizard")
-set(CPACK_NSIS_CREATE_ICONS_EXTRA "SetOutPath $INSTDIR/bin\nCreateShortCut $DESKTOP/CProjectStandard.lnk run-wizard.bat")
+set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut $DESKTOP/CProjectStandard.lnk $INSTDIR/bin/run-wizard.bat")
 set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete $DESKTOP/CProjectStandard.lnk")
 include(CPack)
 
