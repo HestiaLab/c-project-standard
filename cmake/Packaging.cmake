@@ -49,6 +49,15 @@ install(FILES
 )
 
 # ---------------------------------------------------------------------------
+# Top-level documentation
+# ---------------------------------------------------------------------------
+install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+    "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+)
+
+# ---------------------------------------------------------------------------
 # Interactive wizard executable
 # ---------------------------------------------------------------------------
 if(CPROJECT_BUILD_EXAMPLE AND TARGET cproject_example)
@@ -103,6 +112,8 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
 # CPack — platform-specific binary + source packages
 # ---------------------------------------------------------------------------
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "CProjectStandard")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 include(CPack)
 
 # --- common metadata ---
@@ -110,8 +121,6 @@ set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
 set(CPACK_PACKAGE_VENDOR "CProjectStandard contributors")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
 # --- component grouping ---
 set(CPACK_COMPONENTS_ALL runtime template devel)
@@ -127,7 +136,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CPACK_NSIS_HELP_LINK "https://github.com/wubing7755/c-project-standard")
     set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/wubing7755/c-project-standard")
     set(CPACK_NSIS_CONTACT "CProjectStandard contributors")
-    set(CPACK_NSIS_MODIFY_PATH OFF)
+    set(CPACK_NSIS_MODIFY_PATH ON)
     set(CPACK_NSIS_CREATE_ICONS_EXTRA "")
     set(CPACK_NSIS_DELETE_ICONS_EXTRA "")
     set(CPACK_NSIS_MENU_LINKS
