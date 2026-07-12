@@ -74,19 +74,19 @@ if(CPROJECT_BUILD_EXAMPLE)
         set(CPROJECT_VERSION_PATCH ${PROJECT_VERSION_PATCH})
         configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject_example.rc.in"
-            "${CMAKE_CURRENT_BINARY_DIR}/generated/cproject_example.rc"
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/cproject.rc"
             @ONLY
         )
     endif()
-    add_executable(cproject_example ${CPROJECT_EXAMPLE_SOURCES})
+    add_executable(cproject ${CPROJECT_EXAMPLE_SOURCES})
     if(WIN32)
-        target_sources(cproject_example PRIVATE
-            "${CMAKE_CURRENT_BINARY_DIR}/generated/cproject_example.rc"
+        target_sources(cproject PRIVATE
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/cproject.rc"
         )
     endif()
-    target_link_libraries(cproject_example PRIVATE cproject_core)
-    cproject_target_defaults(cproject_example)
-    set_target_properties(cproject_example PROPERTIES
+    target_link_libraries(cproject PRIVATE cproject_core)
+    cproject_target_defaults(cproject)
+    set_target_properties(cproject PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 endif()

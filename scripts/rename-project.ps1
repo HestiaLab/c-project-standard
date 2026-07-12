@@ -2,7 +2,7 @@
 #
 # ** RECOMMENDED: use the interactive setup wizard instead: **
 #     cmake --preset ninja-debug; cmake --build --preset ninja-debug
-#     .\build\ninja-debug\bin\cproject_example.exe
+#     .\build\ninja-debug\bin\cproject.exe init --in-place
 #
 # This script is kept for CI, automation, and non-interactive use.
 [CmdletBinding()]

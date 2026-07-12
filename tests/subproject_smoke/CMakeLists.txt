@@ -22,7 +22,7 @@ foreach(option_name IN ITEMS
 endforeach()
 
 foreach(target_name IN ITEMS
-        cproject_example
+        cproject
         cproject_example_tests
         cproject_tests)
     if(TARGET ${target_name})

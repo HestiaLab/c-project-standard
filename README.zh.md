@@ -25,22 +25,28 @@ docs/guides/    主题指南
    ```sh
    cmake --preset ninja-debug
    cmake --build --preset ninja-debug
-   ./build/ninja-debug/bin/cproject_example
+   ./build/ninja-debug/bin/cproject
    ```
 
-   向导交互式引导你完成项目名称、描述、特性选择，并自动执行
-   重命名和清理。
+   默认 `cproject` 命令会进入交互式向导，从此模板创建一个新的项目副本，
+   并引导你完成项目名称、输出目录、描述、特性选择、重命名和清理。
 
    跳过交互：
 
    ```sh
-   ./build/ninja-debug/bin/cproject_example MyLib --yes
+   ./build/ninja-debug/bin/cproject new MyLib --yes
    ```
 
    预览变更（不实际修改）：
 
    ```sh
-   ./build/ninja-debug/bin/cproject_example MyLib --dry-run --yes
+   ./build/ninja-debug/bin/cproject new MyLib --dry-run --yes
+   ```
+
+   如需有意在当前模板目录中原地初始化：
+
+   ```sh
+   ./build/ninja-debug/bin/cproject init --in-place MyLib --yes
    ```
 
 2. **替换** 示例代码和测试为你的真实模块。

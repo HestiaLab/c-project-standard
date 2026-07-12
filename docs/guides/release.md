@@ -84,7 +84,7 @@ Each binary installer installs:
 
 | Path                        | Contents                       |
 | --------------------------- | ------------------------------ |
-| `bin/`                      | `cproject_example` wizard      |
+| `bin/`                      | `cproject` project wizard      |
 | `include/`                  | Public C headers               |
 | `lib/`                      | `libcproject_core` library     |
 | `lib/cmake/CProjectStandard/` | CMake `find_package` configs |
@@ -92,19 +92,33 @@ Each binary installer installs:
 
 ### After installation
 
-The wizard needs the template files to scaffold new projects.
-After installing:
+The installed `cproject` command uses `share/c-project-standard/` as a read-only
+template source and creates projects in a user-writable output directory. After
+installing, open a new terminal and run:
 
-**Linux / macOS**
 ```sh
-cd /usr/local/share/c-project-standard
-./cproject_example MyProject --yes
+cproject
 ```
 
-**Windows**
+or create a project non-interactively:
+
 ```sh
-cd "C:\Program Files\CProjectStandard\share\c-project-standard"
-cproject_example MyProject --yes
+cproject new MyProject --yes
 ```
+
+On Windows, the installer also creates Start Menu and desktop shortcuts for the
+Project Setup Wizard. The installer finish page should not auto-run the wizard.
+
+### Windows installer manual checks
+
+Before publishing a Windows release, install the generated NSIS `.exe` and verify:
+
+1. The license page text matches the visible buttons.
+2. The finish page does not auto-run the wizard.
+3. A desktop shortcut named `CProjectStandard Setup Wizard` exists.
+4. The Start Menu folder contains `Project Setup Wizard`, `Template Files`, and `Uninstall`.
+5. A new terminal can run `cproject --version` and `cproject new MyProject --yes`.
+6. The generated project configures, builds, and passes tests.
+7. Uninstall removes the desktop shortcut and Start Menu entries.
 
 Do not publish releases from AI-assisted changes without maintainer approval.

@@ -16,9 +16,9 @@ BEGIN
             VALUE "CompanyName", "CProjectStandard contributors"
             VALUE "FileDescription", "Project Setup Wizard"
             VALUE "FileVersion", "@PROJECT_VERSION@"
-            VALUE "InternalName", "cproject_example"
+            VALUE "InternalName", "cproject"
             VALUE "LegalCopyright", "Copyright (c) 2026 CProjectStandard contributors"
-            VALUE "OriginalFilename", "cproject_example.exe"
+            VALUE "OriginalFilename", "cproject.exe"
             VALUE "ProductName", "CProjectStandard"
             VALUE "ProductVersion", "@PROJECT_VERSION@"
         END
