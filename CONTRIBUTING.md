@@ -4,11 +4,33 @@ This project uses focused, reviewable changes.
 
 ## Local Checks
 
+See [docs/guides/cmake.md](docs/guides/cmake.md) for a detailed explanation of configure, build, test,
+install, presets, and common CMake troubleshooting.
+
+For a new checkout or a new machine, run bootstrap first.
+If you have not yet installed the required tools, see
+[docs/guides/environment.md](docs/guides/environment.md) for platform-specific
+instructions.
+
+**Linux/macOS**
+
+```sh
+./scripts/bootstrap.sh
+```
+
+**Windows PowerShell**
+
+```powershell
+./scripts/bootstrap.ps1
+```
+
+**Linux/macOS**
+
 ```sh
 ./scripts/check.sh
 ```
 
-On Windows PowerShell:
+**Windows PowerShell**
 
 ```powershell
 ./scripts/check.ps1
@@ -17,9 +39,9 @@ On Windows PowerShell:
 Or run CMake directly:
 
 ```sh
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug --output-on-failure
+cmake --preset ninja-debug
+cmake --build --preset ninja-debug
+ctest --preset ninja-debug --output-on-failure
 ```
 
 ## Branches
@@ -45,11 +67,21 @@ refactor(build): share test target helper
 Before opening a PR:
 
 - Run the smallest local checks that cover the change.
+- Fill in the PR template sections that apply to the change.
 - Explain behavioral, compatibility, or release impact.
 - Add tests for behavior changes.
+- Link to updated docs when the change affects build, test, install, release,
+  security, or public API behavior.
 - Keep unrelated cleanup out of feature or fix PRs.
 
+Use the issue templates for bug reports, feature proposals, and infrastructure
+maintenance requests.
+
 ## Architecture
+
+When modifying core documentation (build, testing, template), also update the
+corresponding Chinese translation under `docs/zh-CN/` if the change affects
+user-visible instructions or policy.
 
 - Keep public headers small and stable.
 - Keep implementation details out of `include/`.

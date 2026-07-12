@@ -1,3 +1,4 @@
+# SETUP: add your library source files here.
 set(CPROJECT_CORE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cproject/example.c
 )

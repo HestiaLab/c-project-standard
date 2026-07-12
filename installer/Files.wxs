@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Files.wxs - hand-listed install files. Each ComponentGroup is referenced
+  from the Feature in Product.wxs.
+
+  Hand-listing these (instead of harvesting) keeps the GUIDs stable across
+  builds. Stable GUIDs matter: Windows Installer treats a Component with a
+  new GUID as a different file, which leaves orphaned install records on
+  upgrade. Add new Components at the end with new GUIDs - never recycle them.
+
+  The template source tree (share/c-project-standard/) is NOT listed here.
+  It is harvested by PackagingMSI.cmake and written to TemplateTree.wxs,
+  which is compiled alongside this file.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <Fragment>
+
+    <!-- bin/ : wizard executable + launcher batch. -->
+    <ComponentGroup Id="FilesComponents" Directory="INSTALLDIR_bin">
+      <Component Id="Files_bin_cproject"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000001">
+        <File Id="File_bin_cproject"
+              Source="$(var.CPROJECT.StagingDir)\bin\cproject.exe"
+              KeyPath="yes" />
+      </Component>
+      <Component Id="Files_bin_run_wizard"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000002">
+        <File Id="File_bin_run_wizard"
+              Source="$(var.CPROJECT.StagingDir)\bin\run-wizard.bat" />
+      </Component>
+      <Component Id="Files_bin_shortcut_scripts"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000003">
+        <File Id="File_bin_create_shortcut_ps1"
+              Source="$(var.CPROJECT.StagingDir)\bin\create-shortcut.ps1" />
+        <File Id="File_bin_remove_shortcut_ps1"
+              Source="$(var.CPROJECT.StagingDir)\bin\remove-shortcut.ps1" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- lib/ : static library + CMake package config files. -->
+    <ComponentGroup Id="LibComponents" Directory="INSTALLDIR_lib">
+      <Component Id="Files_lib_cproject_core"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000010">
+        <File Id="File_lib_cproject_core"
+              Source="$(var.CPROJECT.StagingDir)\lib\libcproject_core.a" />
+      </Component>
+      <Component Id="Files_lib_cmake_config"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000011">
+        <File Id="File_lib_cmake_config"
+              Source="$(var.CPROJECT.StagingDir)\lib\cmake\CProjectStandard\CProjectStandardConfig.cmake" />
+        <File Id="File_lib_cmake_config_version"
+              Source="$(var.CPROJECT.StagingDir)\lib\cmake\CProjectStandard\CProjectStandardConfigVersion.cmake" />
+        <File Id="File_lib_cmake_targets"
+              Source="$(var.CPROJECT.StagingDir)\lib\cmake\CProjectStandard\CProjectStandardTargets.cmake" />
+        <File Id="File_lib_cmake_targets_release"
+              Source="$(var.CPROJECT.StagingDir)\lib\cmake\CProjectStandard\CProjectStandardTargets-release.cmake" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- include/ : public C headers. -->
+    <ComponentGroup Id="IncludeComponents" Directory="INSTALLDIR_include">
+      <Component Id="Files_include_compiler"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000020">
+        <File Id="File_include_compiler"
+              Source="$(var.CPROJECT.StagingDir)\include\cproject\compiler.h" />
+      </Component>
+      <Component Id="Files_include_example"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000021">
+        <File Id="File_include_example"
+              Source="$(var.CPROJECT.StagingDir)\include\cproject\example.h" />
+      </Component>
+      <Component Id="Files_include_export"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000022">
+        <File Id="File_include_export"
+              Source="$(var.CPROJECT.StagingDir)\include\cproject\export.h" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- doc/ : LICENSE + README shown in Apps and Features. -->
+    <ComponentGroup Id="DocComponents" Directory="INSTALLDIR_doc">
+      <Component Id="Files_doc_license"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000040">
+        <File Id="File_doc_license"
+              Source="$(var.CPROJECT.StagingDir)\share\doc\CProjectStandard\LICENSE" />
+      </Component>
+      <Component Id="Files_doc_readme"
+                 Guid="A1B2C3D4-1111-1111-1111-000000000041">
+        <File Id="File_doc_readme"
+              Source="$(var.CPROJECT.StagingDir)\share\doc\CProjectStandard\README.md" />
+      </Component>
+    </ComponentGroup>
+
+  </Fragment>
+
+</Wix>
