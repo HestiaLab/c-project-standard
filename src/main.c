@@ -910,14 +910,18 @@ static void derive_names(Config *cfg) {
 
 static void print_help(void) {
     printf("Usage:\n");
-    printf("  cproject\n  cproject new [Name] [options]\n  cproject init --in-place [Name] [options]\n");
+    printf("  cproject\n  cproject new [Name] [options]\n  cproject init --in-place [Name] "
+           "[options]\n");
     printf("  cproject --help\n  cproject --version\n\n");
     printf("Commands:\n  new       Create a new project from the installed template (default)\n");
     printf("  init      Initialize the current template directory in place\n\n");
     printf("Options:\n  --output <dir>          Parent directory for the new project\n");
-    printf("  --template-root <dir>   Template source directory\n  --yes, -y               Accept defaults\n");
-    printf("  --dry-run               Preview changes without writing\n  --lang <en|zh>          Language\n");
-    printf("  --description <text>    Project description\n  --author <text>         Author/vendor\n");
+    printf("  --template-root <dir>   Template source directory\n  --yes, -y               Accept "
+           "defaults\n");
+    printf("  --dry-run               Preview changes without writing\n  --lang <en|zh>          "
+           "Language\n");
+    printf(
+        "  --description <text>    Project description\n  --author <text>         Author/vendor\n");
     printf("  --license <text>        License\n");
 }
 
@@ -926,7 +930,9 @@ static void print_version(void) {
     printf("%d.%d.%d\n", v.major, v.minor, v.patch);
 }
 
-static int path_exists(const char *path) { return access(path, F_OK) == 0; }
+static int path_exists(const char *path) {
+    return access(path, F_OK) == 0;
+}
 
 static int is_dir_path(const char *path) {
     struct stat st;
@@ -982,8 +988,9 @@ static int mkdir_recursive(const char *path) {
 
 static int is_skip_copy_name(const char *name) {
     return strcmp(name, ".git") == 0 || strcmp(name, "build") == 0 || strcmp(name, ".vs") == 0 ||
-           strcmp(name, ".cache") == 0 || strcmp(name, "install") == 0 || strncmp(name, "install-", 8) == 0 ||
-           strcmp(name, "dist") == 0 || strcmp(name, "out") == 0 || strcmp(name, "_CPack_Packages") == 0 ||
+           strcmp(name, ".cache") == 0 || strcmp(name, "install") == 0 ||
+           strncmp(name, "install-", 8) == 0 || strcmp(name, "dist") == 0 ||
+           strcmp(name, "out") == 0 || strcmp(name, "_CPack_Packages") == 0 ||
            strcmp(name, "Testing") == 0 || strcmp(name, ".hermes") == 0;
 }
 
@@ -1029,8 +1036,14 @@ static int copy_tree(const char *src, const char *dst) {
         join_path(sfull, sizeof(sfull), src, fd.name);
         join_path(dfull, sizeof(dfull), dst, fd.name);
         if (fd.attrib & _A_SUBDIR) {
-            if (copy_tree(sfull, dfull) != 0) { _findclose(h); return -1; }
-        } else if (copy_file_binary(sfull, dfull) != 0) { _findclose(h); return -1; }
+            if (copy_tree(sfull, dfull) != 0) {
+                _findclose(h);
+                return -1;
+            }
+        } else if (copy_file_binary(sfull, dfull) != 0) {
+            _findclose(h);
+            return -1;
+        }
     } while (_findnext(h, &fd) == 0);
     _findclose(h);
 #else
@@ -1039,7 +1052,8 @@ static int copy_tree(const char *src, const char *dst) {
         return -1;
     struct dirent *e;
     while ((e = readdir(d))) {
-        if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0 || is_skip_copy_name(e->d_name))
+        if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0 ||
+            is_skip_copy_name(e->d_name))
             continue;
         char sfull[1024], dfull[1024];
         join_path(sfull, sizeof(sfull), src, e->d_name);
@@ -1048,8 +1062,14 @@ static int copy_tree(const char *src, const char *dst) {
         if (stat(sfull, &st) != 0)
             continue;
         if (S_ISDIR(st.st_mode)) {
-            if (copy_tree(sfull, dfull) != 0) { closedir(d); return -1; }
-        } else if (copy_file_binary(sfull, dfull) != 0) { closedir(d); return -1; }
+            if (copy_tree(sfull, dfull) != 0) {
+                closedir(d);
+                return -1;
+            }
+        } else if (copy_file_binary(sfull, dfull) != 0) {
+            closedir(d);
+            return -1;
+        }
     }
     closedir(d);
 #endif
@@ -1086,18 +1106,23 @@ static char *executable_dir(const char *argv0) {
     const char *slash = strrchr(argv0, '/');
 #ifdef _WIN32
     const char *bs = strrchr(argv0, '\\');
-    if (bs && (!slash || bs > slash)) slash = bs;
+    if (bs && (!slash || bs > slash))
+        slash = bs;
 #endif
     if (slash && slash != argv0) {
         size_t n = (size_t)(slash - argv0);
         char *copy = malloc(n + 1);
-        if (!copy) return NULL;
+        if (!copy)
+            return NULL;
         memcpy(copy, argv0, n);
         copy[n] = '\0';
         return copy;
     }
     char *copy = malloc(2);
-    if (copy) { copy[0] = '.'; copy[1] = '\0'; }
+    if (copy) {
+        copy[0] = '.';
+        copy[1] = '\0';
+    }
     return copy;
 }
 
@@ -1106,89 +1131,161 @@ static int find_upward_template_root(const char *start, char *out, size_t size) 
     strncpy(dir, start, sizeof(dir) - 1);
     dir[sizeof(dir) - 1] = '\0';
     for (int depth = 0; depth < 8; depth++) {
-        if (is_template_root(dir)) { strncpy(out, dir, size - 1); out[size - 1] = '\0'; return 1; }
+        if (is_template_root(dir)) {
+            strncpy(out, dir, size - 1);
+            out[size - 1] = '\0';
+            return 1;
+        }
         char *slash = strrchr(dir, '/');
 #ifdef _WIN32
         char *bs = strrchr(dir, '\\');
-        if (bs && (!slash || bs > slash)) slash = bs;
+        if (bs && (!slash || bs > slash))
+            slash = bs;
 #endif
-        if (!slash) break;
+        if (!slash)
+            break;
         *slash = '\0';
     }
     return 0;
 }
 
-static int resolve_template_root(const char *argv0, const char *explicit_root, char *out, size_t size) {
+static int resolve_template_root(const char *argv0, const char *explicit_root, char *out,
+                                 size_t size) {
     if (explicit_root && explicit_root[0]) {
-        if (!is_template_root(explicit_root)) return 0;
-        strncpy(out, explicit_root, size - 1); out[size - 1] = '\0'; return 1;
+        if (!is_template_root(explicit_root))
+            return 0;
+        strncpy(out, explicit_root, size - 1);
+        out[size - 1] = '\0';
+        return 1;
     }
     const char *env = getenv("CPROJECT_TEMPLATE_ROOT");
-    if (env && env[0] && is_template_root(env)) { strncpy(out, env, size - 1); out[size - 1] = '\0'; return 1; }
+    if (env && env[0] && is_template_root(env)) {
+        strncpy(out, env, size - 1);
+        out[size - 1] = '\0';
+        return 1;
+    }
     char *exe = executable_dir(argv0);
     if (exe) {
         char installed[1024];
         join_path(installed, sizeof(installed), exe, "../share/c-project-standard");
-        if (is_template_root(installed)) { strncpy(out, installed, size - 1); out[size - 1] = '\0'; free(exe); return 1; }
-        if (find_upward_template_root(exe, out, size)) { free(exe); return 1; }
+        if (is_template_root(installed)) {
+            strncpy(out, installed, size - 1);
+            out[size - 1] = '\0';
+            free(exe);
+            return 1;
+        }
+        if (find_upward_template_root(exe, out, size)) {
+            free(exe);
+            return 1;
+        }
         free(exe);
     }
-    if (is_template_root(".")) { strncpy(out, ".", size - 1); out[size - 1] = '\0'; return 1; }
+    if (is_template_root(".")) {
+        strncpy(out, ".", size - 1);
+        out[size - 1] = '\0';
+        return 1;
+    }
     return 0;
 }
 
-static int parse_common_option(int argc, char **argv, int *i, Config *cfg, char *template_root, size_t template_root_size, char *output, size_t output_size) {
-    if (strcmp(argv[*i], "--dry-run") == 0) g_dry_run = 1;
-    else if (strcmp(argv[*i], "--yes") == 0 || strcmp(argv[*i], "-y") == 0) g_yes = 1;
-    else if (strcmp(argv[*i], "--lang") == 0 && *i + 1 < argc) { (*i)++; g_lang = (strcmp(argv[*i], "zh") == 0) ? LANG_ZH : LANG_EN; }
-    else if (strcmp(argv[*i], "--description") == 0 && *i + 1 < argc) strncpy(cfg->description, argv[++(*i)], sizeof(cfg->description) - 1);
-    else if (strcmp(argv[*i], "--author") == 0 && *i + 1 < argc) strncpy(cfg->author, argv[++(*i)], sizeof(cfg->author) - 1);
-    else if (strcmp(argv[*i], "--version") == 0 && *i + 1 < argc) strncpy(cfg->version, argv[++(*i)], sizeof(cfg->version) - 1);
-    else if (strcmp(argv[*i], "--license") == 0 && *i + 1 < argc) strncpy(cfg->license, argv[++(*i)], sizeof(cfg->license) - 1);
-    else if (strcmp(argv[*i], "--template-root") == 0 && *i + 1 < argc) { strncpy(template_root, argv[++(*i)], template_root_size - 1); template_root[template_root_size - 1] = '\0'; }
-    else if (strcmp(argv[*i], "--output") == 0 && *i + 1 < argc) { strncpy(output, argv[++(*i)], output_size - 1); output[output_size - 1] = '\0'; }
-    else if (strcmp(argv[*i], "--no-installable") == 0) cfg->features[FEAT_INSTALLABLE] = 0;
-    else if (strcmp(argv[*i], "--no-subproject") == 0) cfg->features[FEAT_SUBPROJECT] = 0;
-    else if (strcmp(argv[*i], "--no-shared") == 0) cfg->features[FEAT_SHARED] = 0;
-    else if (strcmp(argv[*i], "--no-sanitizers") == 0) cfg->features[FEAT_SANITIZERS] = 0;
-    else if (strcmp(argv[*i], "--no-coverage") == 0) cfg->features[FEAT_COVERAGE] = 0;
-    else if (strcmp(argv[*i], "--no-ci") == 0) cfg->features[FEAT_CI] = 0;
-    else if (strcmp(argv[*i], "--no-ai-agent") == 0) cfg->features[FEAT_AI_AGENT] = 0;
-    else if (strcmp(argv[*i], "--no-cli") == 0) cfg->features[FEAT_CLI] = 0;
-    else return 0;
+static int parse_common_option(int argc, char **argv, int *i, Config *cfg, char *template_root,
+                               size_t template_root_size, char *output, size_t output_size) {
+    if (strcmp(argv[*i], "--dry-run") == 0)
+        g_dry_run = 1;
+    else if (strcmp(argv[*i], "--yes") == 0 || strcmp(argv[*i], "-y") == 0)
+        g_yes = 1;
+    else if (strcmp(argv[*i], "--lang") == 0 && *i + 1 < argc) {
+        (*i)++;
+        g_lang = (strcmp(argv[*i], "zh") == 0) ? LANG_ZH : LANG_EN;
+    } else if (strcmp(argv[*i], "--description") == 0 && *i + 1 < argc)
+        strncpy(cfg->description, argv[++(*i)], sizeof(cfg->description) - 1);
+    else if (strcmp(argv[*i], "--author") == 0 && *i + 1 < argc)
+        strncpy(cfg->author, argv[++(*i)], sizeof(cfg->author) - 1);
+    else if (strcmp(argv[*i], "--version") == 0 && *i + 1 < argc)
+        strncpy(cfg->version, argv[++(*i)], sizeof(cfg->version) - 1);
+    else if (strcmp(argv[*i], "--license") == 0 && *i + 1 < argc)
+        strncpy(cfg->license, argv[++(*i)], sizeof(cfg->license) - 1);
+    else if (strcmp(argv[*i], "--template-root") == 0 && *i + 1 < argc) {
+        strncpy(template_root, argv[++(*i)], template_root_size - 1);
+        template_root[template_root_size - 1] = '\0';
+    } else if (strcmp(argv[*i], "--output") == 0 && *i + 1 < argc) {
+        strncpy(output, argv[++(*i)], output_size - 1);
+        output[output_size - 1] = '\0';
+    } else if (strcmp(argv[*i], "--no-installable") == 0)
+        cfg->features[FEAT_INSTALLABLE] = 0;
+    else if (strcmp(argv[*i], "--no-subproject") == 0)
+        cfg->features[FEAT_SUBPROJECT] = 0;
+    else if (strcmp(argv[*i], "--no-shared") == 0)
+        cfg->features[FEAT_SHARED] = 0;
+    else if (strcmp(argv[*i], "--no-sanitizers") == 0)
+        cfg->features[FEAT_SANITIZERS] = 0;
+    else if (strcmp(argv[*i], "--no-coverage") == 0)
+        cfg->features[FEAT_COVERAGE] = 0;
+    else if (strcmp(argv[*i], "--no-ci") == 0)
+        cfg->features[FEAT_CI] = 0;
+    else if (strcmp(argv[*i], "--no-ai-agent") == 0)
+        cfg->features[FEAT_AI_AGENT] = 0;
+    else if (strcmp(argv[*i], "--no-cli") == 0)
+        cfg->features[FEAT_CLI] = 0;
+    else
+        return 0;
     return 1;
 }
 
 static void default_output_parent(char *out, size_t size) {
     const char *env = getenv("CPROJECT_DEFAULT_OUTPUT");
-    if (env && env[0]) { strncpy(out, env, size - 1); out[size - 1] = '\0'; return; }
-    if (!getcwd(out, (int)size)) { strncpy(out, ".", size - 1); out[size - 1] = '\0'; }
+    if (env && env[0]) {
+        strncpy(out, env, size - 1);
+        out[size - 1] = '\0';
+        return;
+    }
+    if (!getcwd(out, (int)size)) {
+        strncpy(out, ".", size - 1);
+        out[size - 1] = '\0';
+    }
 }
 
 static int run_new_command(int argc, char **argv, int first, const char *argv0) {
     Config cfg;
-    char template_arg[1024] = "", template_root[1024] = "", output_parent[1024] = "", dest[1024] = "";
+    char template_arg[1024] = "", template_root[1024] = "", output_parent[1024] = "",
+         dest[1024] = "";
     init_default_config(&cfg);
     for (int i = first; i < argc; i++) {
-        if (argv[i][0] != '-' && cfg.pascal[0] == '\0') { strncpy(cfg.pascal, argv[i], sizeof(cfg.pascal) - 1); continue; }
-        if (strcmp(argv[i], "--interactive") == 0) continue;
-        if (!parse_common_option(argc, argv, &i, &cfg, template_arg, sizeof(template_arg), output_parent, sizeof(output_parent))) {
-            fprintf(stderr, "ERROR: unknown option or extra argument: %s\n", argv[i]); return 2;
+        if (argv[i][0] != '-' && cfg.pascal[0] == '\0') {
+            strncpy(cfg.pascal, argv[i], sizeof(cfg.pascal) - 1);
+            continue;
+        }
+        if (strcmp(argv[i], "--interactive") == 0)
+            continue;
+        if (!parse_common_option(argc, argv, &i, &cfg, template_arg, sizeof(template_arg),
+                                 output_parent, sizeof(output_parent))) {
+            fprintf(stderr, "ERROR: unknown option or extra argument: %s\n", argv[i]);
+            return 2;
         }
     }
-    if (g_lang == LANG_EN) g_lang = (Lang)detect_lang();
+    if (g_lang == LANG_EN)
+        g_lang = (Lang)detect_lang();
     if (cfg.pascal[0] == '\0') {
-        select_language(); print_banner();
+        select_language();
+        print_banner();
         for (;;) {
             ask_raw(M_NAME_PROMPT, cfg.pascal, sizeof(cfg.pascal), "");
-            if (cfg.pascal[0] == '\0') { pln(M_ABORTED); return 1; }
-            if (validate_name(cfg.pascal)) break;
+            if (cfg.pascal[0] == '\0') {
+                pln(M_ABORTED);
+                return 1;
+            }
+            if (validate_name(cfg.pascal))
+                break;
             pln(M_NAME_ERROR);
         }
     }
-    if (!validate_name(cfg.pascal)) { pln(M_NAME_ERROR); return 1; }
+    if (!validate_name(cfg.pascal)) {
+        pln(M_NAME_ERROR);
+        return 1;
+    }
     derive_names(&cfg);
-    if (output_parent[0] == '\0') default_output_parent(output_parent, sizeof(output_parent));
+    if (output_parent[0] == '\0')
+        default_output_parent(output_parent, sizeof(output_parent));
     if (!g_yes && !g_dry_run) {
         ask_string(M_DESC_PROMPT, cfg.description, sizeof(cfg.description), M_DESC_DEFAULT);
         ask_raw(M_AUTHOR_PROMPT, cfg.author, sizeof(cfg.author), "");
@@ -1197,25 +1294,42 @@ static int run_new_command(int argc, char **argv, int first, const char *argv0) 
         edit_features(&cfg);
         derive_names(&cfg);
     }
-    if (!resolve_template_root(argv0, template_arg, template_root, sizeof(template_root))) { fprintf(stderr, "ERROR: template root not found. Use --template-root <dir>.\n"); return 1; }
+    if (!resolve_template_root(argv0, template_arg, template_root, sizeof(template_root))) {
+        fprintf(stderr, "ERROR: template root not found. Use --template-root <dir>.\n");
+        return 1;
+    }
     join_path(dest, sizeof(dest), output_parent, cfg.pascal);
     printf("Template: %s\nOutput:   %s\n", template_root, dest);
-    if (!g_yes && !g_dry_run && !ask_yesno(M_PROCEED, 1)) { pln(M_ABORTED); return 0; }
+    if (!g_yes && !g_dry_run && !ask_yesno(M_PROCEED, 1)) {
+        pln(M_ABORTED);
+        return 0;
+    }
     if (g_dry_run) {
         CProjectVersion v = cproject_version();
-        printf(T(M_BANNER), v.major, v.minor, v.patch); printf(" (--dry-run)\n");
+        printf(T(M_BANNER), v.major, v.minor, v.patch);
+        printf(" (--dry-run)\n");
         printf("Would copy template and create project at %s\n", dest);
-        printf("\n%s\n", T(M_DRYRUN_DONE)); return 0;
+        printf("\n%s\n", T(M_DRYRUN_DONE));
+        return 0;
     }
-    if (path_exists(dest)) { fprintf(stderr, "ERROR: output path already exists: %s\n", dest); return 1; }
+    if (path_exists(dest)) {
+        fprintf(stderr, "ERROR: output path already exists: %s\n", dest);
+        return 1;
+    }
     printf("Copying template...\n");
-    if (copy_tree(template_root, dest) != 0) { fprintf(stderr, "ERROR: failed to copy template to %s\n", dest); return 1; }
+    if (copy_tree(template_root, dest) != 0) {
+        fprintf(stderr, "ERROR: failed to copy template to %s\n", dest);
+        return 1;
+    }
 #ifdef _WIN32
     if (_chdir(dest) != 0)
 #else
     if (chdir(dest) != 0)
 #endif
-    { fprintf(stderr, "ERROR: failed to enter output path: %s\n", dest); return 1; }
+    {
+        fprintf(stderr, "ERROR: failed to enter output path: %s\n", dest);
+        return 1;
+    }
     apply_setup_to_current_directory(&cfg);
     printf("\nDone. Project created at %s\n", dest);
     return 0;
@@ -1227,21 +1341,53 @@ static int run_init_command(int argc, char **argv, int first) {
     int in_place = 0;
     init_default_config(&cfg);
     for (int i = first; i < argc; i++) {
-        if (strcmp(argv[i], "--in-place") == 0) { in_place = 1; continue; }
-        if (argv[i][0] != '-' && cfg.pascal[0] == '\0') { strncpy(cfg.pascal, argv[i], sizeof(cfg.pascal) - 1); continue; }
-        if (!parse_common_option(argc, argv, &i, &cfg, unused_template, sizeof(unused_template), unused_output, sizeof(unused_output))) {
-            fprintf(stderr, "ERROR: unknown option or extra argument: %s\n", argv[i]); return 2;
+        if (strcmp(argv[i], "--in-place") == 0) {
+            in_place = 1;
+            continue;
+        }
+        if (argv[i][0] != '-' && cfg.pascal[0] == '\0') {
+            strncpy(cfg.pascal, argv[i], sizeof(cfg.pascal) - 1);
+            continue;
+        }
+        if (!parse_common_option(argc, argv, &i, &cfg, unused_template, sizeof(unused_template),
+                                 unused_output, sizeof(unused_output))) {
+            fprintf(stderr, "ERROR: unknown option or extra argument: %s\n", argv[i]);
+            return 2;
         }
     }
-    if (!in_place) { fprintf(stderr, "ERROR: init modifies the current directory. Pass --in-place to continue.\n"); return 2; }
-    if (!is_template_root(".")) { fprintf(stderr, "%s\n", T(M_NOT_ROOT)); return 1; }
-    if (cfg.pascal[0] == '\0') return run_interactive();
-    if (!validate_name(cfg.pascal)) { pln(M_NAME_ERROR); return 1; }
+    if (!in_place) {
+        fprintf(stderr,
+                "ERROR: init modifies the current directory. Pass --in-place to continue.\n");
+        return 2;
+    }
+    if (!is_template_root(".")) {
+        fprintf(stderr, "%s\n", T(M_NOT_ROOT));
+        return 1;
+    }
+    if (cfg.pascal[0] == '\0')
+        return run_interactive();
+    if (!validate_name(cfg.pascal)) {
+        pln(M_NAME_ERROR);
+        return 1;
+    }
     derive_names(&cfg);
-    if (g_dry_run) { CProjectVersion v = cproject_version(); printf(T(M_BANNER), v.major, v.minor, v.patch); printf(" (--dry-run)\n\n"); }
-    if (!g_yes && !g_dry_run) { printf("Initialize current template directory as %s.\n", cfg.pascal); if (!ask_yesno(M_PROCEED, 1)) { pln(M_ABORTED); return 0; } }
+    if (g_dry_run) {
+        CProjectVersion v = cproject_version();
+        printf(T(M_BANNER), v.major, v.minor, v.patch);
+        printf(" (--dry-run)\n\n");
+    }
+    if (!g_yes && !g_dry_run) {
+        printf("Initialize current template directory as %s.\n", cfg.pascal);
+        if (!ask_yesno(M_PROCEED, 1)) {
+            pln(M_ABORTED);
+            return 0;
+        }
+    }
     apply_setup_to_current_directory(&cfg);
-    if (g_dry_run) printf("\n%s\n", T(M_DRYRUN_DONE)); else printf("\nDone. Run: cmake --build --preset ninja-debug\n");
+    if (g_dry_run)
+        printf("\n%s\n", T(M_DRYRUN_DONE));
+    else
+        printf("\nDone. Run: cmake --build --preset ninja-debug\n");
     return 0;
 }
 
@@ -1250,12 +1396,22 @@ static int run_init_command(int argc, char **argv, int first) {
  * ========================================================================= */
 
 int main(int argc, char *argv[]) {
-    if (argc > 1 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) { print_help(); return 0; }
-    if (argc > 1 && strcmp(argv[1], "--version") == 0) { print_version(); return 0; }
-    if (argc <= 1) return run_new_command(argc, argv, 1, argv[0]);
-    if (strcmp(argv[1], "new") == 0) return run_new_command(argc, argv, 2, argv[0]);
-    if (strcmp(argv[1], "init") == 0) return run_init_command(argc, argv, 2);
-    if (argv[1][0] != '-') return run_new_command(argc, argv, 1, argv[0]);
+    if (argc > 1 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
+        print_help();
+        return 0;
+    }
+    if (argc > 1 && strcmp(argv[1], "--version") == 0) {
+        print_version();
+        return 0;
+    }
+    if (argc <= 1)
+        return run_new_command(argc, argv, 1, argv[0]);
+    if (strcmp(argv[1], "new") == 0)
+        return run_new_command(argc, argv, 2, argv[0]);
+    if (strcmp(argv[1], "init") == 0)
+        return run_init_command(argc, argv, 2);
+    if (argv[1][0] != '-')
+        return run_new_command(argc, argv, 1, argv[0]);
     fprintf(stderr, "ERROR: unknown command: %s\nRun 'cproject --help' for usage.\n", argv[1]);
     return 2;
 }
