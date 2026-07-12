@@ -70,7 +70,10 @@ if(TARGET cproject)
 endif()
 # CPROJECT_WIZARD_TESTS_END
 
-if(WIN32)
+# CPack config validation is only meaningful on non-Windows platforms where
+# we still use CPack for packaging (DEB/RPM/TGZ on Linux, productbuild/TGZ
+# on macOS). On Windows the packaging is done via WiX 6 MSI.
+if(NOT WIN32)
     find_package(Python3 COMPONENTS Interpreter REQUIRED)
     add_test(NAME cproject_cpack_config
         COMMAND ${Python3_EXECUTABLE}
