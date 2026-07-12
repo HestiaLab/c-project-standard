@@ -125,18 +125,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
-# Desktop shortcut: generated .nsh via configure_file, included via !include.
-# $INSTDIR contains spaces (Program Files) — NSIS paths MUST be quoted.
-# The .nsh file is NOT CMake-processed, so backslashes and quotes work correctly.
-# !include path has no spaces/quotes needed; CPACK_CREATE_DESKTOP_LINKS enables checkbox.
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/res/installer_shortcuts.nsh.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/installer_shortcuts.nsh"
-    COPYONLY
-)
+# Desktop shortcut via standard CPack mechanism (enables checkbox in installer)
 set(CPACK_CREATE_DESKTOP_LINKS "bin/run-wizard.bat")
-set(CPACK_NSIS_CREATE_ICONS_EXTRA "!include ${CMAKE_CURRENT_BINARY_DIR}/installer_shortcuts.nsh")
-set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete $DESKTOP/CProjectStandard.lnk")
+# NOTE: NSIS CreateShortCut via CPACK_NSIS_CREATE_ICONS_EXTRA fails silently
+# because $INSTDIR contains spaces (Program Files) and CMake cannot pass quoted
+# NSIS paths through its string escaping. The standard CPACK_CREATE_DESKTOP_LINKS
+# generates properly quoted shortcuts via CPack's internal NSIS code.
+# For the most reliable experience, use the Start Menu shortcut or ZIP package.
 
 # --- cross-platform default generators ---
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
