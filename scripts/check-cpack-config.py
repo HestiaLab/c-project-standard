@@ -34,9 +34,9 @@ def main(argv: list[str]) -> int:
     if not menu_links or "bin/run-wizard.bat" not in menu_links:
         errors.append("CPACK_NSIS_MENU_LINKS must include bin/run-wizard.bat")
 
-    shortcut = cmake_value(text, "CPACK_NSIS_CREATE_ICONS_EXTRA")
-    if not shortcut or "run-wizard.bat" not in shortcut:
-        errors.append("desktop shortcut must point to bin/run-wizard.bat")
+    desktop_links = cmake_value(text, "CPACK_CREATE_DESKTOP_LINKS")
+    if not desktop_links or "run-wizard.bat" not in desktop_links:
+        errors.append("CPACK_CREATE_DESKTOP_LINKS must include bin/run-wizard.bat")
 
     # PATH modification is optional (may fail with long PATH on user machines)
     pass
