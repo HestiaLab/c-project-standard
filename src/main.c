@@ -973,7 +973,8 @@ static int mkdir_recursive(const char *path) {
     size_t len = strlen(path);
     if (len >= sizeof(tmp))
         return -1;
-    strcpy(tmp, path);
+    strncpy(tmp, path, sizeof(tmp) - 1);
+    tmp[sizeof(tmp) - 1] = '\0';
     for (char *q = tmp + 1; *q; q++) {
         if (*q == '/' || *q == '\\') {
             char old = *q;
