@@ -128,11 +128,8 @@ set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 # Desktop shortcut via standard CPack mechanism (enables checkbox in installer)
 set(CPACK_CREATE_DESKTOP_LINKS "bin/run-wizard.bat")
 # Unconditional fallback shortcut (in case checkbox mechanism fails)
-# Desktop shortcut via !include (avoids CMake backslash escaping in NSIS commands)
-set(CPACK_NSIS_CREATE_ICONS_EXTRA
-    "!include ${CMAKE_CURRENT_SOURCE_DIR}/res/installer_shortcuts.nsh")
-set(CPACK_NSIS_DELETE_ICONS_EXTRA
-    "Delete $DESKTOP/CProjectStandard.lnk")
+# Desktop shortcut checkbox via standard CPack mechanism
+# Shortcut appears on Public Desktop (SetShellVarContext all in admin install)
 
 # --- cross-platform default generators ---
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
