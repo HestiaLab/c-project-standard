@@ -125,19 +125,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
-# Desktop shortcut: generate .nsh from template, include via !include.
-# Using a separate .nsh file avoids ALL CMake backslash/quote escaping issues.
-# The template has backslashes that work correctly in NSIS but break CMake strings.
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/res/installer_shortcuts.nsh.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/installer_shortcuts.nsh"
-    COPYONLY
-)
-# Enable desktop shortcut checkbox in installer UI
+# Desktop shortcut: simple CreateShortCut with forward slashes.
+# At the NSIS template line 713, SetShellVarContext is still "current",
+# so $DESKTOP is the USER's personal desktop, not Public.
 set(CPACK_CREATE_DESKTOP_LINKS "bin/run-wizard.bat")
-# Shortcut creation: !include the generated .nsh (no quotes needed, path has no spaces)
-set(CPACK_NSIS_CREATE_ICONS_EXTRA "!include ${CMAKE_CURRENT_BINARY_DIR}/installer_shortcuts.nsh")
-# Simple delete for uninstall (no backslashes in path)
+set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut $DESKTOP/CProjectStandard.lnk $INSTDIR/bin/run-wizard.bat")
 set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete $DESKTOP/CProjectStandard.lnk")
 
 # --- cross-platform default generators ---

@@ -1,5 +1,0 @@
-; Desktop shortcut for CProjectStandard.
-; Included by CPack NSIS installer via !include.
-; At this point in the template (line 713) SetShellVarContext is still
-; "current", so $DESKTOP is the user's personal desktop.
-CreateShortCut "$DESKTOP\CProjectStandard.lnk" "$INSTDIR\bin\run-wizard.bat"
