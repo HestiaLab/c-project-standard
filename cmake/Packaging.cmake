@@ -125,13 +125,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
-# Desktop shortcut via standard CPack mechanism (enables checkbox in installer)
-set(CPACK_CREATE_DESKTOP_LINKS "bin/run-wizard.bat")
-# NOTE: NSIS CreateShortCut via CPACK_NSIS_CREATE_ICONS_EXTRA fails silently
-# because $INSTDIR contains spaces (Program Files) and CMake cannot pass quoted
-# NSIS paths through its string escaping. The standard CPACK_CREATE_DESKTOP_LINKS
-# generates properly quoted shortcuts via CPack's internal NSIS code.
-# For the most reliable experience, use the Start Menu shortcut or ZIP package.
+# Disable PATH modify (avoids "PATH too long" warning on systems with long PATH)
+set(CPACK_NSIS_MODIFY_PATH OFF)
+# Desktop shortcut: uses CPACK_NSIS_EXTRA_INSTALL_COMMANDS with quoted paths.
+# $INSTDIR = C:\Program Files\CProjectStandard has a space — quoting is mandatory.
+# At NSIS template line ~740, SetShellVarContext is still "current", so
+# $DESKTOP = user personal desktop. ReadEnvStr reads USERPROFILE explicitly.
+# NSIS .nsh file bypasses CMake escaping issues entirely.
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/res/installer_shortcuts.nsh.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/installer_shortcuts.nsh"
+    COPYONLY
+)
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "!insertmacro INSTALLER_SHORTCUTS")
+set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "Delete $DESKTOP/CProjectStandard.lnk")
 
 # --- cross-platform default generators ---
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -141,7 +148,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CPACK_NSIS_HELP_LINK "https://github.com/wubing7755/c-project-standard")
     set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/wubing7755/c-project-standard")
     set(CPACK_NSIS_CONTACT "CProjectStandard contributors")
-    set(CPACK_NSIS_MODIFY_PATH ON)
     set(CPACK_NSIS_MENU_LINKS
         "bin/run-wizard.bat" "Project Setup Wizard"
         "share/c-project-standard" "Template Files"

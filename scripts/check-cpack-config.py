@@ -34,13 +34,27 @@ def main(argv: list[str]) -> int:
     if not menu_links or "bin/run-wizard.bat" not in menu_links:
         errors.append("CPACK_NSIS_MENU_LINKS must include bin/run-wizard.bat")
 
-    has_desktop = (cmake_value(text, "CPACK_CREATE_DESKTOP_LINKS") or "").find("run-wizard.bat") >= 0
-    has_extra = (cmake_value(text, "CPACK_NSIS_CREATE_ICONS_EXTRA") or "").find("run-wizard.bat") >= 0
-    if not has_desktop and not has_extra:
-        errors.append("desktop shortcut must point to bin/run-wizard.bat")
+    # Desktop shortcut: look in EXTRA_INSTALL_COMMANDS, EXTRA_UNINSTALL,
+    # or follow the !include to the .nsh file.
+    extra_install = cmake_value(text, "CPACK_NSIS_EXTRA_INSTALL_COMMANDS") or ""
+    extra_uninstall = cmake_value(text, "CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS") or ""
+    desktop_links = cmake_value(text, "CPACK_CREATE_DESKTOP_LINKS") or ""
 
-    # PATH modification is optional (may fail with long PATH on user machines)
-    pass
+    # Follow !include or !insertmacro. For !insertmacro, we cannot resolve
+    # the target file from CPackConfig alone — assume any reference to
+    # INSTALLER_SHORTCUTS macro means a .nsh include exists in the build tree.
+    if "!insertmacro INSTALLER_SHORTCUTS" in extra_install:
+        # Look for the generated .nsh in the build tree
+        cpack_dir = path.parent
+        candidates = list(cpack_dir.glob("installer_shortcuts.nsh"))
+        if candidates:
+            extra_install += " " + candidates[0].read_text(errors="replace")
+
+    found = ("run-wizard.bat" in extra_install or
+             "run-wizard.bat" in extra_uninstall or
+             "run-wizard.bat" in desktop_links)
+    if not found:
+        errors.append("desktop shortcut must point to bin/run-wizard.bat")
 
     if "ZIP" not in generator and cmake_value(text, "CPACK_BINARY_ZIP") != "ON":
         errors.append("Windows packages must include ZIP alongside NSIS")
