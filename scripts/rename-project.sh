@@ -3,7 +3,7 @@
 #
 # ** RECOMMENDED: use the interactive setup wizard instead: **
 #     cmake --preset ninja-debug && cmake --build --preset ninja-debug
-#     ./build/ninja-debug/bin/cproject_example
+#     ./build/ninja-debug/bin/cproject init --in-place
 #
 # This script is kept for CI, automation, and non-interactive use.
 set -eu

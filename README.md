@@ -25,22 +25,29 @@ docs/guides/    Topic guides
    ```sh
    cmake --preset ninja-debug
    cmake --build --preset ninja-debug
-   ./build/ninja-debug/bin/cproject_example
+   ./build/ninja-debug/bin/cproject
    ```
 
-   The wizard interactively guides you through project name, metadata,
-   feature selection, and automated rename + cleanup.
+   The default `cproject` command starts an interactive wizard that creates a
+   new project from this template. It asks for project name, output directory,
+   metadata, feature selection, and then initializes the generated copy.
 
    To skip interaction:
 
    ```sh
-   ./build/ninja-debug/bin/cproject_example MyLib --yes
+   ./build/ninja-debug/bin/cproject new MyLib --yes
    ```
 
    Preview without changes:
 
    ```sh
-   ./build/ninja-debug/bin/cproject_example MyLib --dry-run --yes
+   ./build/ninja-debug/bin/cproject new MyLib --dry-run --yes
+   ```
+
+   To intentionally initialize the current template directory in place, use:
+
+   ```sh
+   ./build/ninja-debug/bin/cproject init --in-place MyLib --yes
    ```
 
 2. **Replace** the example source and tests with your real modules.
