@@ -936,7 +936,13 @@ static int path_exists(const char *path) {
 
 static int is_dir_path(const char *path) {
     struct stat st;
-    return stat(path, &st) == 0 && S_ISDIR(st.st_mode) != 0;
+    if (stat(path, &st) != 0)
+        return 0;
+#ifdef _WIN32
+    return (st.st_mode & _S_IFDIR) != 0;
+#else
+    return S_ISDIR(st.st_mode) != 0;
+#endif
 }
 
 static void join_path(char *out, size_t size, const char *a, const char *b) {
