@@ -120,6 +120,8 @@ if(NOT _wix_util_ext_path)
     set(CPROJECT_WIX_AVAILABLE OFF)
 endif()
 
+endif()  # CPROJECT_WIX_AVAILABLE (extensions)
+
 if(CPROJECT_WIX_AVAILABLE)
 
 # ---- Inputs ----------------------------------------------------------------
