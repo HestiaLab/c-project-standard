@@ -39,10 +39,12 @@ jobs:
 
       - name: Install WiX (Windows)
         if: runner.os == 'Windows'
+        shell: bash
         run: |
-          dotnet tool install --global wix --version 6.*
-          wix extension add WixToolset.UI.wixext
-          wix extension add WixToolset.Util.wixext
+          dotnet tool install --global wix --version 6.0.2
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          wix extension add --global WixToolset.UI.wixext/6.0.2
+          wix extension add --global WixToolset.Util.wixext/6.0.2
 
       - name: Install Linux packaging tools
         if: runner.os == 'Linux'
