@@ -97,5 +97,11 @@ if(CPROJECT_BUILD_TESTING)
 endif()
 
 if(CPROJECT_INSTALL)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Packaging.cmake")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        # Windows uses a WiX-based MSI installer (see cmake/PackagingMSI.cmake).
+        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PackagingMSI.cmake")
+    else()
+        # Linux/macOS continue to use CPack (see cmake/Packaging.cmake).
+        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Packaging.cmake")
+    endif()
 endif()

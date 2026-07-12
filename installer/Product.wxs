@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Product.wxs - top-level WiX 6 source for the CProjectStandard MSI installer.
+
+  Preprocessor variables (set on the wix command line via -d):
+    CPROJECT.Version       - "x.y.z" project version (CMake passes this)
+    CPROJECT.SourceDir     - absolute path to repo root (for WixUILicenseRtf)
+    CPROJECT.StagingDir    - root of the staged install layout
+
+  WiX 6 changes from v3:
+    * No `heat` command (directory harvest is done in CMake, see PackagingMSI.cmake)
+    * No SummaryCodepage on <Package>
+    * <DirectoryRef> cannot directly contain <ComponentGroup> - the group
+      must live at the Fragment root, and Feature/Component references pull
+      it in.
+    * $(var.X) syntax requires X to be defined with <?define X ...?>.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <?define ProductName = "CProjectStandard" ?>
+  <?define ProductManufacturer = "CProjectStandard contributors" ?>
+
+  <Package Name="$(var.ProductName)"
+           Version="$(var.CPROJECT.Version)"
+           Manufacturer="$(var.ProductManufacturer)"
+           ProductCode="*"
+           UpgradeCode="6F4A2B71-1D3E-4F8C-9A5B-2E7C8D9F1A3B"
+           Language="1033"
+           Codepage="1252"
+           InstallerVersion="500"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+                  Schedule="afterInstallInitialize"
+                  MigrateFeatures="yes" />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- License shown by WixUI_InstallDir. -->
+    <WixVariable Id="WixUILicenseRtf"
+                 Value="$(var.CPROJECT.SourceDir)\installer\License.rtf" />
+
+    <ui:WixUI Id="WixUI_InstallDir"
+              InstallDirectory="INSTALLDIR" />
+
+    <!--
+      Reference custom actions defined in Shortcuts.wxs so the WiX linker
+      includes them in the final MSI. Without these, the actions are
+      defined in their Fragment but never pulled into the output.
+    -->
+    <CustomActionRef Id="CreateDesktopShortcut" />
+    <CustomActionRef Id="RemoveDesktopShortcut" />
+
+    <!--
+      Standard directory tree.
+
+      ProgramFiles64Folder resolves to C:\Program Files on a clean 64-bit
+      Windows install. INSTALLDIR is the configurable user-visible install
+      path under it.
+
+      DesktopFolder is the current user's personal desktop (not Public). The
+      Windows Installer service resolves this standard folder at install time
+      using HKCU\...\Explorer\Shell Folders\Desktop, so the shortcut lands
+      on the right desktop without any SetShellVarContext gymnastics.
+    -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLDIR" Name="CProjectStandard">
+        <Directory Id="INSTALLDIR_bin" Name="bin" />
+        <Directory Id="INSTALLDIR_lib" Name="lib" />
+        <Directory Id="INSTALLDIR_lib_cmake" Name="cmake" />
+        <Directory Id="INSTALLDIR_include" Name="include" />
+        <Directory Id="INSTALLDIR_share" Name="share">
+          <Directory Id="INSTALLDIR_share_cproject" Name="c-project-standard" />
+        </Directory>
+        <Directory Id="INSTALLDIR_doc" Name="doc" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder" />
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder"
+                  Name="CProjectStandard $(var.CPROJECT.Version)" />
+    </StandardDirectory>
+
+    <Feature Id="ProductFeature"
+             Title="CProjectStandard"
+             Description="Project setup wizard and template sources"
+             Level="1"
+             ConfigurableDirectory="INSTALLDIR">
+      <ComponentGroupRef Id="FilesComponents" />
+      <ComponentGroupRef Id="LibComponents" />
+      <ComponentGroupRef Id="IncludeComponents" />
+      <ComponentGroupRef Id="DocComponents" />
+      <ComponentGroupRef Id="TemplateTreeComponents" />
+      <ComponentGroupRef Id="ShortcutsComponents" />
+      <ComponentRef Id="UninstallRegistry" />
+    </Feature>
+
+  </Package>
+</Wix>
