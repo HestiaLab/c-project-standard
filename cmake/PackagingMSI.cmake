@@ -45,11 +45,17 @@ find_program(WIX_EXECUTABLE
     DOC   "WiX 6 CLI (.NET tool)")
 
 if(NOT WIX_EXECUTABLE)
-    message(FATAL_ERROR
-        "WiX 6 was not found. Install it with:\n"
+    message(WARNING
+        "WiX 6 was not found — the 'msi' target will not be available. "
+        "Install WiX to build the MSI installer:\n"
         "  dotnet tool install --global wix --version 6.*\n"
         "Then re-run cmake.")
+    set(CPROJECT_WIX_AVAILABLE OFF)
+else()
+    set(CPROJECT_WIX_AVAILABLE ON)
 endif()
+
+if(CPROJECT_WIX_AVAILABLE)
 
 # WiX 6 stores extensions under:
 #   * $LOCALAPPDATA/wix/extensions/ when installed with `wix extension add -g`
@@ -79,10 +85,12 @@ foreach(_d IN LISTS _wix_search_dirs)
 endforeach()
 
 if(NOT _wix_ui_ext_path)
-    message(FATAL_ERROR
-        "WixToolset.UI.wixext not found. Install it with:\n"
+    message(WARNING
+        "WixToolset.UI.wixext not found — WixUI dialogs unavailable. "
+        "Install it with:\n"
         "  wix extension add WixToolset.UI.wixext\n"
         "Then re-run cmake.")
+    set(CPROJECT_WIX_AVAILABLE OFF)
 endif()
 
 # Same detection for the Util extension (provides WixQuietExec64 used by the
@@ -104,11 +112,15 @@ foreach(_d IN LISTS _wix_search_dirs)
 endforeach()
 
 if(NOT _wix_util_ext_path)
-    message(FATAL_ERROR
-        "WixToolset.Util.wixext not found. Install it with:\n"
+    message(WARNING
+        "WixToolset.Util.wixext not found — desktop shortcut CA unavailable. "
+        "Install it with:\n"
         "  wix extension add WixToolset.Util.wixext\n"
         "Then re-run cmake.")
+    set(CPROJECT_WIX_AVAILABLE OFF)
 endif()
+
+if(CPROJECT_WIX_AVAILABLE)
 
 # ---- Inputs ----------------------------------------------------------------
 set(CPROJECT_INSTALLER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/installer")
@@ -289,3 +301,5 @@ set(CPROJECT_MSI_PATH "${CPROJECT_MSI_PATH}" CACHE FILEPATH
 message(STATUS "Windows MSI installer target 'msi' configured (WiX: ${WIX_EXECUTABLE})")
 message(STATUS "  Output: ${CPROJECT_MSI_PATH}")
 message(STATUS "  UI extension: ${_wix_ui_ext_path}")
+
+endif()  # CPROJECT_WIX_AVAILABLE
