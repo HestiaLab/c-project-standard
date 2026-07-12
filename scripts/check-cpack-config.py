@@ -34,16 +34,12 @@ def main(argv: list[str]) -> int:
     if not menu_links or "bin/run-wizard.bat" not in menu_links:
         errors.append("CPACK_NSIS_MENU_LINKS must include bin/run-wizard.bat")
 
-    shortcut = cmake_value(text, "CPACK_NSIS_CREATE_ICONS_EXTRA")
-    desktop_links = cmake_value(text, "CPACK_CREATE_DESKTOP_LINKS")
-    has_shortcut = (shortcut and "run-wizard.bat" in shortcut)
-    has_desktop_links = (desktop_links and "run-wizard.bat" in desktop_links)
-    if not has_shortcut and not has_desktop_links:
+    extra_install = cmake_value(text, "CPACK_NSIS_EXTRA_INSTALL_COMMANDS")
+    if not extra_install or "run-wizard.bat" not in extra_install:
         errors.append("desktop shortcut must point to bin/run-wizard.bat")
 
-    modify_path = cmake_value(text, "CPACK_NSIS_MODIFY_PATH")
-    if modify_path != "ON":
-        errors.append("CPACK_NSIS_MODIFY_PATH must be ON")
+    # PATH modification is optional (may fail with long PATH on user machines)
+    pass
 
     if "ZIP" not in generator and cmake_value(text, "CPACK_BINARY_ZIP") != "ON":
         errors.append("Windows packages must include ZIP alongside NSIS")

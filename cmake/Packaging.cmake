@@ -125,13 +125,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
-set(CPACK_NSIS_CREATE_ICONS_EXTRA
-    "CreateShortCut $DESKTOP/CProjectStandard.lnk $INSTDIR/bin/run-wizard.bat")
-set(CPACK_NSIS_DELETE_ICONS_EXTRA
-    "Delete $DESKTOP/CProjectStandard.lnk")
-
-# Desktop shortcut (standard CPack mechanism, respects the checkbox)
-set(CPACK_CREATE_DESKTOP_LINKS "bin/run-wizard.bat")
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+    "CreateShortCut \"$DESKTOP\\CProjectStandard.lnk\" \"$INSTDIR\\bin\\run-wizard.bat\"")
+set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
+    "Delete \"$DESKTOP\\CProjectStandard.lnk\"")
 
 # --- cross-platform default generators ---
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -141,7 +138,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CPACK_NSIS_HELP_LINK "https://github.com/wubing7755/c-project-standard")
     set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/wubing7755/c-project-standard")
     set(CPACK_NSIS_CONTACT "CProjectStandard contributors")
-    set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_NSIS_MODIFY_PATH OFF)
     set(CPACK_NSIS_MENU_LINKS
         "bin/run-wizard.bat" "Project Setup Wizard"
         "share/c-project-standard" "Template Files"

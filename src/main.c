@@ -1407,6 +1407,20 @@ static int run_init_command(int argc, char **argv, int first) {
  * ========================================================================= */
 
 int main(int argc, char *argv[]) {
+#ifdef _WIN32
+    /* Enable UTF-8 console output for Chinese text on Windows.
+     * Uses __declspec(dllimport) to avoid <windows.h> header conflicts. */
+    {
+        typedef unsigned int UINT;
+#ifndef CP_UTF8
+#define CP_UTF8 65001
+#endif
+        __declspec(dllimport) int __stdcall SetConsoleOutputCP(UINT);
+        __declspec(dllimport) int __stdcall SetConsoleCP(UINT);
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
+    }
+#endif
     if (argc > 1 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
         print_help();
         return 0;
