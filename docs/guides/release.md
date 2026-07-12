@@ -115,7 +115,7 @@ Before publishing a Windows release, install the generated NSIS `.exe` and verif
 
 1. The license page text matches the visible buttons.
 2. The finish page does not auto-run the wizard.
-3. A desktop shortcut named `CProjectStandard Setup Wizard` exists.
+3. A desktop shortcut named `CProjectStandard` (setup wizard) exists.
 4. The Start Menu folder contains `Project Setup Wizard`, `Template Files`, and `Uninstall`.
 5. A new terminal can run `cproject --version` and `cproject new MyProject --yes`.
 6. The generated project configures, builds, and passes tests.
