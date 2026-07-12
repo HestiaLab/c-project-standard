@@ -936,7 +936,7 @@ static int path_exists(const char *path) {
 
 static int is_dir_path(const char *path) {
     struct stat st;
-    return stat(path, &st) == 0 && (st.st_mode & S_IFDIR) != 0;
+    return stat(path, &st) == 0 && S_ISDIR(st.st_mode) != 0;
 }
 
 static void join_path(char *out, size_t size, const char *a, const char *b) {
@@ -1239,7 +1239,11 @@ static void default_output_parent(char *out, size_t size) {
         out[size - 1] = '\0';
         return;
     }
+#ifdef _WIN32
     if (!getcwd(out, (int)size)) {
+#else
+    if (!getcwd(out, size)) {
+#endif
         strncpy(out, ".", size - 1);
         out[size - 1] = '\0';
     }
