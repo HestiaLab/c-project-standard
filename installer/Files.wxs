@@ -40,12 +40,7 @@
 
     <!-- lib/ : static library + CMake package config files. -->
     <ComponentGroup Id="LibComponents" Directory="INSTALLDIR_lib">
-      <Component Id="Files_lib_cproject_core"
-                 Guid="A1B2C3D4-1111-1111-1111-000000000010">
-        <File Id="File_lib_cproject_core"
-              Source="$(var.CPROJECT.StagingDir)\lib\libcproject_core.a" />
-      </Component>
-      <Component Id="Files_lib_cmake_config"
+    <Component Id="Files_lib_cmake_config"
                  Guid="A1B2C3D4-1111-1111-1111-000000000011">
         <File Id="File_lib_cmake_config"
               Source="$(var.CPROJECT.StagingDir)\lib\cmake\CProjectStandard\CProjectStandardConfig.cmake" />
