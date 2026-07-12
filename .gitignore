@@ -16,3 +16,5 @@ CMakeUserPresets.json
 !.vscode/tasks.json
 compile_commands.json
 Testing/
+.wix/
+.hermes/

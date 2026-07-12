@@ -1,27 +1,44 @@
 # Release
 
-This template provides CPack-based multi-platform packaging and a GitHub
-Actions workflow that creates installers for Linux, macOS, and Windows.
+This template provides multi-platform packaging and a GitHub Actions
+workflow that creates installers for Linux, macOS, and Windows.
 
 ## Packaging
 
-The project uses CPack to generate platform-specific installers:
+Platform-specific installers are built with CPack (Linux/macOS) and WiX (Windows):
 
-| Platform | Generators           | Artifact                          |
-| -------- | -------------------- | --------------------------------- |
-| Linux    | DEB, RPM, TGZ        | `.deb`, `.rpm`, `.tar.gz`         |
-| macOS    | productbuild, TGZ    | `.pkg`, `.tar.gz`                 |
-| Windows  | NSIS, ZIP            | `.exe`, `.zip`                    |
+| Platform | Generators                    | Artifact                   |
+| -------- | ----------------------------- | -------------------------- |
+| Linux    | DEB, RPM, TGZ                 | `.deb`, `.rpm`, `.tar.gz`  |
+| macOS    | productbuild, TGZ             | `.pkg`, `.tar.gz`          |
+| Windows  | WiX (MSI), ZIP (CPack)        | `.msi`, `.zip`             |
 
 Build the package locally:
 
 ```sh
 cmake --preset ninja-release
 cmake --build --preset ninja-release
+
+# Linux / macOS
 cd build/ninja-release && cpack
+
+# Windows
+cmake --build --preset ninja-release --target msi
 ```
 
-Packages appear in `build/ninja-release/`.
+Packages appear in `build/ninja-release/` (Linux/macOS) or
+`build/ninja-release/msi/` (Windows).
+
+### Windows MSI prerequisites
+
+The Windows MSI requires the WiX Toolset v6 and two extensions. Install them
+once:
+
+```sh
+dotnet tool install --global wix --version 6.*
+wix extension add WixToolset.UI.wixext
+wix extension add WixToolset.Util.wixext
+```
 
 ### Source packages
 
@@ -40,7 +57,7 @@ The `.github/workflows/release.yml` workflow:
 The workflow:
 
 1. Builds `ninja-release` on `ubuntu-latest`, `macos-latest`, `windows-latest`.
-2. Runs CPack to generate platform installers.
+2. Runs CPack (Linux/macOS) or CMake `msi` target (Windows) to generate platform installers.
 3. Builds source archives (`tar.gz` + `zip`).
 4. On tag push, creates a GitHub Release with all artifacts attached.
 
@@ -82,13 +99,13 @@ The workflow:
 
 Each binary installer installs:
 
-| Path                        | Contents                       |
-| --------------------------- | ------------------------------ |
-| `bin/`                      | `cproject` project wizard      |
-| `include/`                  | Public C headers               |
-| `lib/`                      | `libcproject_core` library     |
-| `lib/cmake/CProjectStandard/` | CMake `find_package` configs |
-| `share/c-project-standard/` | Full project template sources  |
+| Path                          | Contents                       |
+| ----------------------------- | ------------------------------ |
+| `bin/`                        | `cproject` project wizard      |
+| `include/`                    | Public C headers               |
+| `lib/`                        | `libcproject_core` library     |
+| `lib/cmake/CProjectStandard/` | CMake `find_package` configs   |
+| `share/c-project-standard/`   | Full project template sources  |
 
 ### After installation
 
@@ -107,18 +124,17 @@ cproject new MyProject --yes
 ```
 
 On Windows, the installer also creates Start Menu and desktop shortcuts for the
-Project Setup Wizard. The installer finish page should not auto-run the wizard.
+Project Setup Wizard.
 
 ### Windows installer manual checks
 
-Before publishing a Windows release, install the generated NSIS `.exe` and verify:
+Before publishing a Windows release, install the generated `.msi` and verify:
 
-1. The license page text matches the visible buttons.
-2. The finish page does not auto-run the wizard.
-3. A desktop shortcut named `CProjectStandard` (setup wizard) exists.
-4. The Start Menu folder contains `Project Setup Wizard`, `Template Files`, and `Uninstall`.
-5. A new terminal can run `cproject --version` and `cproject new MyProject --yes`.
-6. The generated project configures, builds, and passes tests.
-7. Uninstall removes the desktop shortcut and Start Menu entries.
+1. The installer wizard pages render correctly (license, install directory, progress).
+2. A desktop shortcut named `CProjectStandard` exists on the **current user's personal desktop**.
+3. The Start Menu folder contains `Project Setup Wizard`, `Template Files`, and `Uninstall`.
+4. A new terminal can run `cproject --version` and `cproject new MyProject --yes`.
+5. The generated project configures, builds, and passes tests.
+6. Uninstall (via *Apps & Features* or `msiexec /x`) removes the desktop shortcut and Start Menu entries.
 
 Do not publish releases from AI-assisted changes without maintainer approval.

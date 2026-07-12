@@ -1,0 +1,1 @@
+Remove-Item ([Environment]::GetFolderPath('Desktop') + '\CProjectStandard.lnk') -ErrorAction SilentlyContinue
