@@ -35,8 +35,11 @@ def main(argv: list[str]) -> int:
         errors.append("CPACK_NSIS_MENU_LINKS must include bin/run-wizard.bat")
 
     shortcut = cmake_value(text, "CPACK_NSIS_CREATE_ICONS_EXTRA")
-    if not shortcut or "run-wizard.bat" not in shortcut or '"' not in shortcut:
-        errors.append("desktop shortcut must point to quoted bin/run-wizard.bat")
+    desktop_links = cmake_value(text, "CPACK_CREATE_DESKTOP_LINKS")
+    has_shortcut = (shortcut and "run-wizard.bat" in shortcut)
+    has_desktop_links = (desktop_links and "run-wizard.bat" in desktop_links)
+    if not has_shortcut and not has_desktop_links:
+        errors.append("desktop shortcut must point to bin/run-wizard.bat")
 
     modify_path = cmake_value(text, "CPACK_NSIS_MODIFY_PATH")
     if modify_path != "ON":

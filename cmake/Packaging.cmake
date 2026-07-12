@@ -130,11 +130,8 @@ set(CPACK_NSIS_CREATE_ICONS_EXTRA
 set(CPACK_NSIS_DELETE_ICONS_EXTRA
     "Delete $DESKTOP/CProjectStandard.lnk")
 
-# --- component grouping ---
-set(CPACK_COMPONENTS_ALL runtime template devel)
-set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "Runtime")
-set(CPACK_COMPONENT_TEMPLATE_DISPLAY_NAME "Project Template")
-set(CPACK_COMPONENT_DEVEL_DISPLAY_NAME "Development Files")
+# Desktop shortcut (standard CPack mechanism, respects the checkbox)
+set(CPACK_CREATE_DESKTOP_LINKS "bin/run-wizard.bat")
 
 # --- cross-platform default generators ---
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
