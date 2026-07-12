@@ -126,9 +126,9 @@ endif()
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_CREATE_ICONS_EXTRA
-    "CreateShortCut \"$DESKTOP/CProjectStandard Setup Wizard.lnk\" \"$INSTDIR/bin/run-wizard.bat\"")
+    "CreateShortCut $DESKTOP/CProjectStandard.lnk $INSTDIR/bin/run-wizard.bat")
 set(CPACK_NSIS_DELETE_ICONS_EXTRA
-    "Delete \"$DESKTOP/CProjectStandard Setup Wizard.lnk\"")
+    "Delete $DESKTOP/CProjectStandard.lnk")
 
 # --- component grouping ---
 set(CPACK_COMPONENTS_ALL runtime template devel)
