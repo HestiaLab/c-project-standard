@@ -125,10 +125,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
-set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
-    "CreateShortCut \"$DESKTOP/CProjectStandard.lnk\" \"$INSTDIR/bin/run-wizard.bat\"")
-set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
-    "Delete \"$DESKTOP/CProjectStandard.lnk\"")
+set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut $DESKTOP/CProjectStandard.lnk $INSTDIR/bin/run-wizard.bat")
+set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete $DESKTOP/CProjectStandard.lnk")
 
 # --- cross-platform default generators ---
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
