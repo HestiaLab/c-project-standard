@@ -125,11 +125,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/res/cproject.ico")
-# Desktop shortcut via standard CPack mechanism (enables checkbox in installer)
+# Desktop shortcut: CPACK_CREATE_DESKTOP_LINKS for checkbox + CREATE_ICONS_EXTRA for single command
 set(CPACK_CREATE_DESKTOP_LINKS "bin/run-wizard.bat")
-# Unconditional fallback shortcut (in case checkbox mechanism fails)
-# Desktop shortcut checkbox via standard CPack mechanism
-# Shortcut appears on Public Desktop (SetShellVarContext all in admin install)
+set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut $DESKTOP/CProjectStandard.lnk $INSTDIR/bin/run-wizard.bat")
+set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete $DESKTOP/CProjectStandard.lnk")
+
 
 # --- cross-platform default generators ---
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
