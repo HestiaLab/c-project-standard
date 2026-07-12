@@ -1,0 +1,4 @@
+; Desktop shortcut for CProjectStandard.
+; This file is NOT processed by CMake — it's read directly by NSIS via !include.
+; Backslashes and quotes are correct NSIS syntax.
+CreateShortCut "$DESKTOP\CProjectStandard.lnk" "$INSTDIR\bin\run-wizard.bat"
