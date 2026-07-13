@@ -1,0 +1,15 @@
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  bugprone-*,
+  performance-*,
+  portability-*,
+  misc-*,
+  -misc-include-cleaner,
+  -misc-no-recursion,
+  -bugprone-easily-swappable-parameters,
+  -readability-*
+WarningsAsErrors: ''
+HeaderFilterRegex: '^(include|src|tests)/'
+FormatStyle: file
