@@ -72,6 +72,10 @@ enum Msg {
     M_NAME_PROMPT,
     M_NAME_ERROR,
     M_OUTPUT_PROMPT,
+    M_META_HEADER,
+    M_META_HINT,
+    M_REVIEW_TIP,
+    M_CREATE_OR_CUSTOMIZE,
     M_DESC_PROMPT,
     M_DESC_DEFAULT,
     M_AUTHOR_PROMPT,
@@ -134,6 +138,10 @@ static const Bilingual M[M_MSG_COUNT] = {
     [M_NAME_ERROR] = {"Must start with uppercase letter, letters and digits only.",
                       "必须以大写字母开头，仅含字母和数字。"},
     [M_OUTPUT_PROMPT] = {"Output directory", "输出目录"},
+    [M_META_HEADER] = {"Project metadata", "项目元信息"},
+    [M_META_HINT] = {"(Enter = accept default)", "（回车=接受默认）"},
+    [M_REVIEW_TIP] = {"Press Enter to accept, or 'e' to edit a field.", "回车确认，或输入 'e' 修改某项。"},
+    [M_CREATE_OR_CUSTOMIZE] = {"Enter = create,  c = customize", "回车创建，c 自定义"},
     [M_DESC_PROMPT] = {"Description", "项目描述"},
     [M_DESC_DEFAULT] = {"A C library", "一个 C 库"},
     [M_AUTHOR_PROMPT] = {"Author/Vendor", "作者/组织"},
@@ -798,6 +806,34 @@ static void print_results(const Config *cfg) {
     printf("\n");
 }
 
+/* Forward decls for helpers defined further down. */
+static void join_path(char *out, size_t size, const char *a, const char *b);
+
+/* Compact one-screen preview, create-vite style:
+   show computed defaults, let user accept or drill into details. */
+static void print_new_summary(const Config *cfg, const char *parent) {
+    char dest[1024];
+    join_path(dest, sizeof(dest), parent, cfg->pascal);
+    printf("\n  %s\n", T(M_REVIEW_HEADER));
+    printf(T(M_REVIEW_NAME), cfg->pascal);
+    printf("\n");
+    printf("  Output:   %s\n", dest);
+    if (cfg->description[0]) {
+        printf(T(M_REVIEW_DESC), cfg->description);
+        printf("\n");
+    }
+    if (cfg->author[0]) {
+        printf("  Author:   %s\n", cfg->author);
+    }
+    printf(T(M_REVIEW_VERSION), cfg->version);
+    printf("\n");
+    printf(T(M_REVIEW_LICENSE), cfg->license);
+    printf("\n");
+    printf("\n  %s\n", T(M_FEAT_HEADER));
+    for (int i = 0; i < FEAT_COUNT; i++)
+        printf("  [%c] %s\n", cfg->features[i] ? 'Y' : 'N', T(FEAT_MSGS[i]));
+}
+
 /* =========================================================================
  * Interactive: full flow
  * ========================================================================= */
@@ -952,7 +988,11 @@ static void join_path(char *out, size_t size, const char *a, const char *b) {
     if (len > 0 && (a[len - 1] == '/' || a[len - 1] == '\\'))
         snprintf(out, size, "%s%s", a, b);
     else
+#ifdef _WIN32
+        snprintf(out, size, "%s\\%s", a, b);
+#else
         snprintf(out, size, "%s/%s", a, b);
+#endif
 }
 
 static int has_file_under(const char *root, const char *rel) {
@@ -960,10 +1000,20 @@ static int has_file_under(const char *root, const char *rel) {
     join_path(path, sizeof(path), root, rel);
     return path_exists(path);
 }
-
 static int is_template_root(const char *path) {
-    return has_file_under(path, "CMakeLists.txt") && has_file_under(path, "cmake/Sources.cmake") &&
+    return has_file_under(path, "CMakeLists.txt") &&
+           has_file_under(path, "cmake/Sources.cmake") &&
            has_file_under(path, "include/cproject/example.h");
+}
+
+/* The development source tree also satisfies is_template_root (it ships the
+   same scaffolding). We must never treat it as a template to copy, or
+   the wizard would clone the whole repo — including stray test dirs —
+   into the user's output. Detect the source tree by markers that
+   only exist in the repo, never in a packaged/staged template. */
+static int is_source_repo(const char *dir) {
+    return has_file_under(dir, "installer/Product.wxs") ||
+           has_file_under(dir, "AGENTS.md");
 }
 
 static int mkdir_one(const char *path) {
@@ -1154,6 +1204,9 @@ static int find_upward_template_root(const char *start, char *out, size_t size) 
         if (!slash)
             break;
         *slash = '\0';
+        /* Never treat the development source tree as a template to copy. */
+        if (is_source_repo(dir))
+            continue;
     }
     return 0;
 }
@@ -1177,6 +1230,15 @@ static int resolve_template_root(const char *argv0, const char *explicit_root, c
     if (exe) {
         char installed[1024];
         join_path(installed, sizeof(installed), exe, "../share/c-project-standard");
+        if (is_template_root(installed)) {
+            strncpy(out, installed, size - 1);
+            out[size - 1] = '\0';
+            free(exe);
+            return 1;
+        }
+        /* When running from a build tree (e.g. build/ninja-release/bin),
+           the staging tree may be at ../../installer-staging/share/c-project-standard. */
+        join_path(installed, sizeof(installed), exe, "../installer-staging/share/c-project-standard");
         if (is_template_root(installed)) {
             strncpy(out, installed, size - 1);
             out[size - 1] = '\0';
@@ -1248,13 +1310,27 @@ static void default_output_parent(char *out, size_t size) {
         out[size - 1] = '\0';
         return;
     }
+    /* Default to the user's desktop so new projects aren't buried in
+       the install or build directory. */
+    const char *home = getenv("USERPROFILE"); /* Windows */
+    if (!home || !home[0])
+        home = getenv("HOME");              /* Linux / macOS */
+    if (home && home[0]) {
 #ifdef _WIN32
-    if (!getcwd(out, (int)size)) {
+        snprintf(out, size, "%s\\Desktop", home);
 #else
-    if (!getcwd(out, size)) {
+        snprintf(out, size, "%s/Desktop", home);
 #endif
-        strncpy(out, ".", size - 1);
-        out[size - 1] = '\0';
+    } else {
+#ifdef _WIN32
+        if (!getcwd(out, (int)size))
+#else
+        if (!getcwd(out, size))
+#endif
+        {
+            strncpy(out, ".", size - 1);
+            out[size - 1] = '\0';
+        }
     }
 }
 
@@ -1300,13 +1376,31 @@ static int run_new_command(int argc, char **argv, int first, const char *argv0) 
     if (output_parent[0] == '\0')
         default_output_parent(output_parent, sizeof(output_parent));
     if (!g_yes && !g_dry_run) {
-        ask_raw(M_OUTPUT_PROMPT, output_parent, sizeof(output_parent), output_parent);
-        ask_string(M_DESC_PROMPT, cfg.description, sizeof(cfg.description), M_DESC_DEFAULT);
-        ask_raw(M_AUTHOR_PROMPT, cfg.author, sizeof(cfg.author), "");
-        ask_string(M_VERSION_PROMPT, cfg.version, sizeof(cfg.version), M_VERSION_DEFAULT);
-        ask_string(M_LICENSE_PROMPT, cfg.license, sizeof(cfg.license), M_LICENSE_DEFAULT);
-        edit_features(&cfg);
-        derive_names(&cfg);
+        char default_output[1024];
+        strncpy(default_output, output_parent, sizeof(default_output) - 1);
+        default_output[sizeof(default_output) - 1] = '\0';
+        ask_raw(M_OUTPUT_PROMPT, output_parent, sizeof(output_parent), default_output);
+        /* Progressive: preview defaults, accept or customize (create-vite style). */
+        for (;;) {
+            print_new_summary(&cfg, output_parent);
+            printf("\n");
+            pln(M_CREATE_OR_CUSTOMIZE);
+            fflush(stdout);
+            char buf[8];
+            if (!safe_gets(buf, (int)sizeof(buf)))
+                return 1;
+            if (buf[0] == '\0' || buf[0] == 'y' || buf[0] == 'Y')
+                break;
+            if (buf[0] == 'c' || buf[0] == 'C') {
+                ask_string(M_DESC_PROMPT, cfg.description, sizeof(cfg.description), M_DESC_DEFAULT);
+                ask_raw(M_AUTHOR_PROMPT, cfg.author, sizeof(cfg.author), "");
+                ask_string(M_VERSION_PROMPT, cfg.version, sizeof(cfg.version), M_VERSION_DEFAULT);
+                ask_string(M_LICENSE_PROMPT, cfg.license, sizeof(cfg.license), M_LICENSE_DEFAULT);
+                edit_features(&cfg);
+                derive_names(&cfg);
+                continue;
+            }
+        }
     }
     if (!resolve_template_root(argv0, template_arg, template_root, sizeof(template_root))) {
         fprintf(stderr, "ERROR: template root not found. Use --template-root <dir>.\n");
@@ -1314,10 +1408,6 @@ static int run_new_command(int argc, char **argv, int first, const char *argv0) 
     }
     join_path(dest, sizeof(dest), output_parent, cfg.pascal);
     printf("Template: %s\nOutput:   %s\n", template_root, dest);
-    if (!g_yes && !g_dry_run && !ask_yesno(M_PROCEED, 1)) {
-        pln(M_ABORTED);
-        return 0;
-    }
     if (g_dry_run) {
         CProjectVersion v = cproject_version();
         printf(T(M_BANNER), v.major, v.minor, v.patch);
