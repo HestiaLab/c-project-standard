@@ -37,6 +37,10 @@
 
     <MediaTemplate EmbedCab="yes" />
 
+    <!-- MSI icon (shown in Explorer and Add/Remove Programs). -->
+    <Icon Id="AppIcon" SourceFile="$(var.CPROJECT.SourceDir)\res\cproject.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
     <!-- License shown by WixUI_InstallDir. -->
     <WixVariable Id="WixUILicenseRtf"
                  Value="$(var.CPROJECT.SourceDir)\installer\License.rtf" />
