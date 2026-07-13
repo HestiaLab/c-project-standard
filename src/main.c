@@ -71,6 +71,7 @@ enum Msg {
     M_LANG_SELECT,
     M_NAME_PROMPT,
     M_NAME_ERROR,
+    M_OUTPUT_PROMPT,
     M_DESC_PROMPT,
     M_DESC_DEFAULT,
     M_AUTHOR_PROMPT,
@@ -132,6 +133,7 @@ static const Bilingual M[M_MSG_COUNT] = {
     [M_NAME_PROMPT] = {"Project name (PascalCase): ", "项目名称 (PascalCase): "},
     [M_NAME_ERROR] = {"Must start with uppercase letter, letters and digits only.",
                       "必须以大写字母开头，仅含字母和数字。"},
+    [M_OUTPUT_PROMPT] = {"Output directory", "输出目录"},
     [M_DESC_PROMPT] = {"Description", "项目描述"},
     [M_DESC_DEFAULT] = {"A C library", "一个 C 库"},
     [M_AUTHOR_PROMPT] = {"Author/Vendor", "作者/组织"},
@@ -1298,6 +1300,7 @@ static int run_new_command(int argc, char **argv, int first, const char *argv0) 
     if (output_parent[0] == '\0')
         default_output_parent(output_parent, sizeof(output_parent));
     if (!g_yes && !g_dry_run) {
+        ask_raw(M_OUTPUT_PROMPT, output_parent, sizeof(output_parent), output_parent);
         ask_string(M_DESC_PROMPT, cfg.description, sizeof(cfg.description), M_DESC_DEFAULT);
         ask_raw(M_AUTHOR_PROMPT, cfg.author, sizeof(cfg.author), "");
         ask_string(M_VERSION_PROMPT, cfg.version, sizeof(cfg.version), M_VERSION_DEFAULT);
