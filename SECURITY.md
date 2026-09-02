@@ -20,4 +20,4 @@ publishes versioned releases with a separate support table.
 
 For GitHub Actions updates, validate the affected workflow in CI. For build or
 toolchain dependency changes, run the relevant preset and smoke tests described
-in `docs/guides/cmake.md`.
+in `docs/en/guides/cmake.md`.

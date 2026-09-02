@@ -107,8 +107,8 @@ project:
 After renaming, update:
 
 - `README.md` for the new project overview and quick start.
-- `docs/guides/cmake.md` for project-specific targets, options, and smoke tests.
-- `docs/guides/testing.md` for test layers and required checks.
-- `docs/guides/release.md` if the project publishes artifacts.
-- `docs/guides/ai-agent.md` if the project accepts AI-assisted changes.
+- `docs/en/guides/cmake.md` for project-specific targets, options, and smoke tests.
+- `docs/en/guides/testing.md` for test layers and required checks.
+- `docs/en/guides/release.md` if the project publishes artifacts.
+- `docs/en/guides/ai-agent.md` if the project accepts AI-assisted changes.
 - `SECURITY.md` if support windows or vulnerability reporting differ.

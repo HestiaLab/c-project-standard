@@ -61,7 +61,7 @@ files=$(find . -type f \
   ! -path './build/*' ! -path './.git/*' \
   ! -path './scripts/rename-project.sh' \
   ! -path './scripts/rename-project.ps1' \
-  -exec grep -l -e 'CProjectStandard' -e 'cproject' -e 'CPROJECT' -e 'CProject' {} + 2>/dev/null || true)
+  -exec grep -l -e 'CProjectStandard' -e 'cproject' -e 'CPROJECT' {} + 2>/dev/null || true)
 
 if [ -z "$files" ]; then
   echo "No files found with original project identifiers."
@@ -74,13 +74,11 @@ for file in $files; do
   count_pascal_std=$(grep -o 'CProjectStandard' "$file" 2>/dev/null | wc -l | tr -d ' ')
   count_lower=$(grep -o 'cproject' "$file" 2>/dev/null | wc -l | tr -d ' ')
   count_upper=$(grep -o 'CPROJECT' "$file" 2>/dev/null | wc -l | tr -d ' ')
-  count_pascal=$(grep -o 'CProject' "$file" 2>/dev/null | wc -l | tr -d ' ')
 
   sed \
     -e "s/CProjectStandard/${PASCAL}/g" \
     -e "s/cproject/${LOWER}/g" \
     -e "s/CPROJECT/${UPPER}/g" \
-    -e "s/CProject/${PASCAL}/g" \
     "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
 
   echo "  $file"
@@ -92,12 +90,6 @@ for file in $files; do
   fi
   if [ "$count_upper" -gt 0 ]; then
     echo "    CPROJECT -> ${UPPER} ($count_upper)"
-  fi
-  # count_pascal includes CProjectStandard matches already shown above;
-  # only print if there are additional standalone CProject matches
-  extra_pascal=$((count_pascal - count_pascal_std))
-  if [ "$extra_pascal" -gt 0 ]; then
-    echo "    CProject -> ${PASCAL} ($extra_pascal)"
   fi
   updated=$((updated + 1))
 done

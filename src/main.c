@@ -484,7 +484,7 @@ static void walk_and_rename(const char *dir, const char *pascal, const char *low
             walk_and_rename(full, pascal, lower, upper);
         } else if (has_rename_ext(fd.name) && file_has_any(full)) {
             int r = replace_in_file(full, "CProjectStandard", pascal, "cproject", lower, "CPROJECT",
-                                    upper, "CProject", pascal);
+                                    upper, NULL, NULL);
             if (r > 0) {
                 g_renamed_files++;
                 printf("    %s\n", full);
@@ -511,7 +511,7 @@ static void walk_and_rename(const char *dir, const char *pascal, const char *low
             walk_and_rename(full, pascal, lower, upper);
         } else if (has_rename_ext(e->d_name) && file_has_any(full)) {
             int r = replace_in_file(full, "CProjectStandard", pascal, "cproject", lower, "CPROJECT",
-                                    upper, "CProject", pascal);
+                                    upper, NULL, NULL);
             if (r > 0) {
                 g_renamed_files++;
                 printf("    %s\n", full);
@@ -574,11 +574,11 @@ static void write_stub_main(const char *pascal, const char *lower, int has_cli) 
                  "#include <%s/example.h>\n"
                  "#include <stdio.h>\n\n"
                  "int main(void) {\n"
-                 "    %sVersion v = %s_version();\n"
+                 "    %s_version_t v = %s_version();\n"
                  "    printf(\"%s v%%d.%%d.%%d\\n\", v.major, v.minor, v.patch);\n"
                  "    return 0;\n"
                  "}\n",
-                 lower, pascal, lower, pascal);
+                 lower, lower, lower, pascal);
     } else {
         snprintf(content, sizeof(content),
                  "/* SETUP: Your entry point goes here.\n"
@@ -624,7 +624,7 @@ static const StripItem FEAT_STRIPS[FEAT_COUNT][4] = {
         },
     [FEAT_AI_AGENT] =
         {
-            {"AI agent policy doc", "docs/guides/ai-agent.md"},
+            {"AI agent policy doc", "docs/en/guides/ai-agent.md"},
             {NULL, NULL},
         },
     [FEAT_CLI] = {{NULL, NULL}},
@@ -682,7 +682,7 @@ static int detect_lang(void) {
  * ========================================================================= */
 
 static void print_banner(void) {
-    CProjectVersion v = cproject_version();
+    cproject_version_t v = cproject_version();
     const char *s = T(M_BANNER);
     printf("\n  ");
     printf(s, v.major, v.minor, v.patch);
@@ -964,7 +964,7 @@ static void print_help(void) {
 }
 
 static void print_version(void) {
-    CProjectVersion v = cproject_version();
+    cproject_version_t v = cproject_version();
     printf("%d.%d.%d\n", v.major, v.minor, v.patch);
 }
 
@@ -1409,7 +1409,7 @@ static int run_new_command(int argc, char **argv, int first, const char *argv0) 
     join_path(dest, sizeof(dest), output_parent, cfg.pascal);
     printf("Template: %s\nOutput:   %s\n", template_root, dest);
     if (g_dry_run) {
-        CProjectVersion v = cproject_version();
+        cproject_version_t v = cproject_version();
         printf(T(M_BANNER), v.major, v.minor, v.patch);
         printf(" (--dry-run)\n");
         printf("Would copy template and create project at %s\n", dest);
@@ -1476,7 +1476,7 @@ static int run_init_command(int argc, char **argv, int first) {
     }
     derive_names(&cfg);
     if (g_dry_run) {
-        CProjectVersion v = cproject_version();
+        cproject_version_t v = cproject_version();
         printf(T(M_BANNER), v.major, v.minor, v.patch);
         printf(" (--dry-run)\n\n");
     }

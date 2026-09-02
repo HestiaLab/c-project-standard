@@ -1,82 +1,65 @@
 /* SETUP: replace with tests for your public API.
- * Keep the test pattern: focused test functions returning 0 on success,
- * main() calls each in sequence. */
+ * Keep the Unity test pattern: each test function registers with RUN_TEST(),
+ * main() runs UNITY_BEGIN() / UNITY_END(). */
 #include <cproject/example.h>
 #include <cproject/version.h>
 
-#include "test_assert.h"
+#include "unity.h"
 
 #include <limits.h>
-#include <stdio.h>
 
-static int test_version(void) {
-    CProjectVersion version = cproject_version();
-    if (!CPROJECT_EXPECT_INT_EQ(version.major, CPROJECT_VERSION_MAJOR)) {
-        return 1;
-    }
-    if (!CPROJECT_EXPECT_INT_EQ(version.minor, CPROJECT_VERSION_MINOR)) {
-        return 1;
-    }
-    if (!CPROJECT_EXPECT_INT_EQ(version.patch, CPROJECT_VERSION_PATCH)) {
-        return 1;
-    }
-    return 0;
+/* Unity calls setUp() before each test and tearDown() after. Both are required
+ * even when empty. */
+void setUp(void) {}
+
+void tearDown(void) {}
+
+static void test_version(void) {
+    cproject_version_t version = cproject_version();
+    TEST_ASSERT_EQUAL_INT(CPROJECT_VERSION_MAJOR, version.major);
+    TEST_ASSERT_EQUAL_INT(CPROJECT_VERSION_MINOR, version.minor);
+    TEST_ASSERT_EQUAL_INT(CPROJECT_VERSION_PATCH, version.patch);
 }
 
-static int test_get_version(void) {
-#ifdef __GNUC__
+static void test_get_version(void) {
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-#ifdef __clang__
+#elif defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #endif
-    CProjectVersion version = cproject_get_version();
-#ifdef __GNUC__
+    cproject_version_t version = cproject_get_version();
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
-#endif
-#ifdef __clang__
+#elif defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
 #endif
-    if (!CPROJECT_EXPECT_INT_EQ(version.major, CPROJECT_VERSION_MAJOR)) {
-        return 1;
-    }
-    return 0;
+    TEST_ASSERT_EQUAL_INT(CPROJECT_VERSION_MAJOR, version.major);
+    TEST_ASSERT_EQUAL_INT(CPROJECT_VERSION_MINOR, version.minor);
+    TEST_ASSERT_EQUAL_INT(CPROJECT_VERSION_PATCH, version.patch);
 }
 
-static int test_checked_add(void) {
+static void test_checked_add(void) {
     int value = 0;
 
-    if (!CPROJECT_EXPECT_TRUE(cproject_add_checked(2, 3, &value))) {
-        return 1;
-    }
-    if (!CPROJECT_EXPECT_INT_EQ(value, 5)) {
-        return 1;
-    }
-    if (!CPROJECT_EXPECT_TRUE(!cproject_add_checked(INT_MAX, 1, &value))) {
-        return 1;
-    }
-    if (!CPROJECT_EXPECT_TRUE(!cproject_add_checked(INT_MIN, -1, &value))) {
-        return 1;
-    }
-    if (!CPROJECT_EXPECT_TRUE(!cproject_add_checked(1, 1, NULL))) {
-        return 1;
-    }
-    return 0;
+    TEST_ASSERT_TRUE(cproject_add_checked(2, 3, &value));
+    TEST_ASSERT_EQUAL_INT(5, value);
+
+    TEST_ASSERT_FALSE(cproject_add_checked(INT_MAX, 1, &value));
+    TEST_ASSERT_FALSE(cproject_add_checked(INT_MIN, -1, &value));
+    TEST_ASSERT_FALSE(cproject_add_checked(1, 1, NULL));
 }
 
 int main(void) {
-    if (test_version()) {
-        return 1;
-    }
-    if (test_get_version()) {
-        return 1;
-    }
-    if (test_checked_add()) {
-        return 1;
-    }
-
-    printf("[PASS] example tests\n");
-    return 0;
+    UNITY_BEGIN();
+    RUN_TEST(test_version);
+    RUN_TEST(test_get_version);
+    RUN_TEST(test_checked_add);
+    return UNITY_END();
 }

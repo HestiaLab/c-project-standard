@@ -2,6 +2,7 @@
 param(
     [string]$Preset = "ninja-debug",
     [switch]$SkipFormat,
+    [switch]$FixFormat,
     [switch]$EnableTidy
 )
 
@@ -28,13 +29,21 @@ function Invoke-CheckedCommand {
 
 if (-not $SkipFormat -and (Get-Command clang-format -ErrorAction SilentlyContinue)) {
     $files = Get-ChildItem -Path include,src,tests -Recurse -File -Include *.c,*.h,*.cpp |
+        Where-Object { $_.FullName -notlike "*\tests\vendor\*" } |
         Sort-Object FullName
     if ($files.Count -gt 0) {
-        Invoke-CheckedCommand -Command "clang-format" -Arguments @(
-            "--dry-run",
-            "--Werror",
-            $files.FullName
-        )
+        if ($FixFormat) {
+            Invoke-CheckedCommand -Command "clang-format" -Arguments @(
+                "-i",
+                $files.FullName
+            )
+        } else {
+            Invoke-CheckedCommand -Command "clang-format" -Arguments @(
+                "--dry-run",
+                "--Werror",
+                $files.FullName
+            )
+        }
     }
 } elseif (-not $SkipFormat) {
     Write-Host "Skipping clang-format: command not found."
@@ -51,6 +60,7 @@ if ($EnableTidy) {
         $files = Get-ChildItem -Path src,tests -Recurse -File -Include *.c |
             Where-Object { $_.FullName -notlike "*\tests\package_smoke\*" } |
             Where-Object { $_.FullName -notlike "*\tests\subproject_smoke\*" } |
+            Where-Object { $_.FullName -notlike "*\tests\vendor\*" } |
             Sort-Object FullName
         foreach ($file in $files) {
             if (Test-Path $compileCommands) {

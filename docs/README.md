@@ -1,41 +1,25 @@
-# Documentation
+# Documentation / 文档
 
-Keep repository documentation short and useful.
+Repository documentation is maintained in two languages. English is the primary
+language; Chinese mirrors the English guides.
 
-## Guides
+本仓库文档以中英双语维护，英文为主、中文镜像。
 
-| Document | Description |
-|---|---|
-| [environment.md](guides/environment.md) | Platform prerequisites and tool installation |
-| [cmake.md](guides/cmake.md) | CMake presets, workflows, and troubleshooting |
-| [testing.md](guides/testing.md) | Test layers, static analysis, and smoke tests |
-| [template.md](guides/template.md) | Project rename, trim, and reuse guidance |
-| [release.md](guides/release.md) | Release preparation |
-| [ai-agent.md](guides/ai-agent.md) | AI agent policy (redirects to AGENTS.md) |
+## Language Indexes / 语言索引
 
-## Architecture
+| Language / 语言 | Index / 索引 |
+| --- | --- |
+| English | [en/README.md](en/README.md) |
+| 中文 | [zh/README.md](zh/README.md) |
 
-| Document | Description |
-|---|---|
-| [adr/](adr/) | Architecture decision records |
-| [0001](adr/0001-c11-cmake-toolchain-policy.md) | C11 and CMake toolchain policy |
+## Root Documents / 根级文档
 
-## Root Documents
-
-| Document | Description |
-|---|---|
-| [../README.md](../README.md) | Project overview and quick start |
-| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Branch, commit, and PR workflow |
+| Document / 文档 | Description / 说明 |
+| --- | --- |
+| [../README.md](../README.md) | Project overview and quick start (English) |
+| [../README.zh.md](../README.zh.md) | 项目概览与快速开始（中文） |
+| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Branch, commit, and PR workflow (English) |
+| [../CONTRIBUTING.zh.md](../CONTRIBUTING.zh.md) | 贡献指南（中文） |
 | [../SECURITY.md](../SECURITY.md) | Vulnerability reporting and dependency handling |
 | [../AGENTS.md](../AGENTS.md) | AI agent entry point |
 | [../C_PROJECT_STANDARD.md](../C_PROJECT_STANDARD.md) | Reusable C project standard |
-
----
-
-## 中文文档 / Chinese
-
-| 文档 | 说明 |
-|---|---|
-| [zh-CN/build.md](zh-CN/build.md) | 环境搭建、构建与测试 |
-| [zh-CN/template.md](zh-CN/template.md) | 模板重命名与裁剪指南 |
-| [zh-CN/README.md](zh-CN/README.md) | 完整中文文档索引 |

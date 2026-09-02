@@ -14,7 +14,8 @@ tests/          CTest 测试
 cmake/          CMake 模块
 scripts/        引导、检查、重命名和发布脚本
 docs/           项目文档
-docs/guides/    主题指南
+docs/en/        英文文档（主题指南、架构决策记录）
+docs/zh/        中文文档（主题指南）
 .github/        CI 工作流和仓库模板
 ```
 
@@ -57,7 +58,7 @@ docs/guides/    主题指南
 
 5. **更新** 文档当构建、测试、发布或 API 规则变化时。
 
-详见 [docs/zh-CN/template.md](docs/zh-CN/template.md) 获取完整的重命名清单
+详见 [docs/zh/guides/template.md](docs/zh/guides/template.md) 获取完整的重命名清单
 和裁剪指南。
 
 ## 快速开始
@@ -67,7 +68,7 @@ docs/guides/    主题指南
 
 Windows 上请在 Developer PowerShell、Developer Command Prompt 或初始化了
 MSVC 的 VS Code CMake kit 中运行 Ninja 预设。各平台详细安装说明见
-[docs/guides/environment.md](docs/guides/environment.md)（英文）。
+[docs/zh/guides/environment.md](docs/zh/guides/environment.md)。
 
 **首次设置：**
 
@@ -96,7 +97,7 @@ Linux/macOS
 ./scripts/check.sh
 ```
 
-详细的 CMake 工作流说明见 [docs/guides/cmake.md](docs/guides/cmake.md)（英文）。
+详细的 CMake 工作流说明见 [docs/zh/guides/cmake.md](docs/zh/guides/cmake.md)。
 
 ## 包含内容
 
@@ -126,7 +127,7 @@ target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 
 ## 文档
 
-完整文档索引见 [docs/zh-CN/README.md](docs/zh-CN/README.md)。
+完整文档索引见 [docs/zh/README.md](docs/zh/README.md)。
 
 ## 许可证
 

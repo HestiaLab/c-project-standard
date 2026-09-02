@@ -1,7 +1,7 @@
 #include <cproject/example.h>
 
 int main(void) {
-    CProjectVersion version = cproject_version();
+    cproject_version_t version = cproject_version();
     int value = 0;
 
     if (version.major < 0 || version.minor < 0 || version.patch < 0) {

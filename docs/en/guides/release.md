@@ -29,6 +29,22 @@ cmake --build --preset ninja-release --target msi
 Packages appear in `build/ninja-release/` (Linux/macOS) or
 `build/ninja-release/msi/` (Windows).
 
+### Portable zip (package.ps1)
+
+For a quick local zip of the full install tree — no WiX/CPack dependency — use
+the packaging script:
+
+```powershell
+cmake --preset ninja-release
+cmake --build --preset ninja-release
+./scripts/package.ps1
+```
+
+It installs the build into a staging directory, smoke-checks the `cproject`
+wizard, and zips `bin/`, `include/`, `lib/`, `lib/cmake/`, and the template
+sources under `share/` (the layout in *Package contents* below), then writes
+`SHA256SUMS.txt`. The result is `dist/cproject-standard-win64-<version>.zip`.
+
 ### Windows MSI prerequisites
 
 The Windows MSI requires the WiX Toolset v6 and two extensions. Install them
@@ -60,6 +76,21 @@ The workflow:
 2. Runs CPack (Linux/macOS) or CMake `msi` target (Windows) to generate platform installers.
 3. Builds source archives (`tar.gz` + `zip`).
 4. On tag push, creates a GitHub Release with all artifacts attached.
+
+### Local zip publish (publish.ps1)
+
+To upload a zip produced by `package.ps1` to a GitHub Release from your machine,
+use an authenticated `gh` CLI:
+
+```powershell
+./scripts/publish.ps1 -Tag v0.1.0
+```
+
+It creates the release if missing (attaching the zip and `SHA256SUMS.txt`),
+otherwise uploads to the existing release. Use `-Draft` / `-Prerelease` for
+draft or pre-release flags, and `-NotesFile <file>` for custom release notes.
+Publishing is a state-changing operation on the remote repository; run it only
+after local verification and maintainer review.
 
 ## Release checklist
 

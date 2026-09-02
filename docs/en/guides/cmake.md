@@ -18,8 +18,8 @@ the project.
 - Ninja for the default presets, or another generator supported by CMake through
   local presets or command-line generator selection.
 
-For step-by-step installation commands per platform, see
-[environment.md](environment.md).
+For the supported Windows development environment (VS Code + MSYS2 UCRT64 +
+GCC), see [environment.md](environment.md).
 
 The project requires C11 at the target level with `c_std_11`. Keep public
 headers portable across the supported compiler families and avoid compiler

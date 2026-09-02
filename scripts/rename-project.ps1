@@ -61,7 +61,7 @@ $files = Get-ChildItem -Recurse -File -Include $extensions -Path . |
     } |
     ForEach-Object {
         $content = Get-Content $_.FullName -Raw -ErrorAction SilentlyContinue
-        if ($content -match 'CProjectStandard|cproject|CPROJECT|CProject') {
+        if ($content -match 'CProjectStandard|cproject|CPROJECT') {
             $_
         }
     }
@@ -81,13 +81,11 @@ foreach ($file in $files) {
     $countPascalStd = ([regex]::Matches($content, 'CProjectStandard')).Count
     $countLower     = ([regex]::Matches($content, 'cproject')).Count
     $countUpper     = ([regex]::Matches($content, 'CPROJECT')).Count
-    $countPascal    = ([regex]::Matches($content, 'CProject')).Count
 
     $newContent = $content `
         -creplace 'CProjectStandard', $Pascal `
         -creplace 'cproject', $Lower `
-        -creplace 'CPROJECT', $Upper `
-        -creplace 'CProject', $Pascal
+        -creplace 'CPROJECT', $Upper
 
     if ($newContent -ne $content) {
         [System.IO.File]::WriteAllText($file.FullName, $newContent, [System.Text.UTF8Encoding]::new($false))
@@ -103,10 +101,6 @@ foreach ($file in $files) {
     }
     if ($countUpper -gt 0) {
         Write-Host "    CPROJECT -> $Upper ($countUpper)"
-    }
-    $extraPascal = $countPascal - $countPascalStd
-    if ($extraPascal -gt 0) {
-        Write-Host "    CProject -> $Pascal ($extraPascal)"
     }
     $updated++
 }

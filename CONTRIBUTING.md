@@ -4,45 +4,67 @@ This project uses focused, reviewable changes.
 
 ## Local Checks
 
-See [docs/guides/cmake.md](docs/guides/cmake.md) for a detailed explanation of configure, build, test,
-install, presets, and common CMake troubleshooting.
-
-For a new checkout or a new machine, run bootstrap first.
-If you have not yet installed the required tools, see
-[docs/guides/environment.md](docs/guides/environment.md) for platform-specific
-instructions.
+Before submitting, run the complete local check (format check + configure +
+build + test). The check commands do not rewrite source automatically; a format
+failure fails the check.
 
 **Linux/macOS**
 
 ```sh
 ./scripts/bootstrap.sh
-```
-
-**Windows PowerShell**
-
-```powershell
-./scripts/bootstrap.ps1
-```
-
-**Linux/macOS**
-
-```sh
 ./scripts/check.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
+./scripts/bootstrap.ps1
 ./scripts/check.ps1
 ```
 
-Or run CMake directly:
+Run the full quality gate including clang-tidy before submitting:
+
+**Linux/macOS**
 
 ```sh
-cmake --preset ninja-debug
-cmake --build --preset ninja-debug
-ctest --preset ninja-debug --output-on-failure
+./scripts/check.sh --enable-tidy
 ```
+
+**Windows PowerShell**
+
+```powershell
+./scripts/check.ps1 -EnableTidy
+```
+
+To fix C formatting in place explicitly, run:
+
+```sh
+./scripts/check.sh --fix-format        # Linux/macOS
+./scripts/check.ps1 -FixFormat         # Windows
+```
+
+To check or format C files on their own, without configure/build/test, use the
+dedicated format script:
+
+```powershell
+./scripts/format.ps1 -Check             # verify only; exits 2 on violations
+./scripts/format.ps1 -Format            # rewrite in place
+```
+
+`-SkipFormat` / `--skip-format` is for temporary diagnosis only and does not
+satisfy the pre-submit check. CI re-runs the full quality gate without skip
+flags. `clang-format` does not process Markdown; for documentation changes,
+review the prose, relative links, and `git diff --check` output instead.
+Vendored third-party code under `tests/vendor/` is excluded from format and
+static-analysis checks.
+
+For a new checkout or a new machine, run bootstrap first. If you have not yet
+installed the required tools, see
+[docs/en/guides/environment.md](docs/en/guides/environment.md) for the Windows
+development environment setup.
+
+For a detailed explanation of configure, build, test, install, presets, and
+common CMake troubleshooting, see [docs/en/guides/cmake.md](docs/en/guides/cmake.md).
 
 ## Branches
 
@@ -80,8 +102,9 @@ maintenance requests.
 ## Architecture
 
 When modifying core documentation (build, testing, template), also update the
-corresponding Chinese translation under `docs/zh-CN/` if the change affects
-user-visible instructions or policy.
+corresponding Chinese translation under `docs/zh/` if the change affects
+user-visible instructions or policy. English guides live under `docs/en/`;
+Chinese mirrors live under `docs/zh/`.
 
 - Keep public headers small and stable.
 - Keep implementation details out of `include/`.

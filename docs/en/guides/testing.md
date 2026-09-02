@@ -8,6 +8,14 @@ ctest --preset ninja-debug --output-on-failure
 
 For command details and generator-specific flags, see `cmake.md`.
 
+## Test Framework
+
+Tests use the vendored [Unity](https://github.com/ThrowTheSwitch/Unity) framework
+(MIT, under `tests/vendor/unity/`). Each test executable registers its cases
+with `RUN_TEST()` between `UNITY_BEGIN()` and `UNITY_END()`, and must provide
+`setUp()` and `tearDown()` even when they are empty. Vendored Unity source is
+excluded from `clang-format`, `clang-tidy`, and `cppcheck`.
+
 ## Expectations
 
 - Bug fixes should include regression tests.

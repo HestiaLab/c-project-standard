@@ -3,6 +3,7 @@ set -eu
 
 PRESET="ninja-debug"
 CHECK_ONLY=0
+CHECK_EDITOR=0
 FAILED=0
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
@@ -28,6 +29,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --check-only)
       CHECK_ONLY=1
+      shift
+      ;;
+    --check-editor)
+      CHECK_EDITOR=1
       shift
       ;;
     -h|--help)
@@ -140,6 +145,10 @@ fi
 check_tool clangd "Install clangd for editor navigation." optional
 check_tool clang-format "Install clang-format for local format checks." optional
 check_tool clang-tidy "Install clang-tidy for optional static analysis." optional
+
+if [ "$CHECK_EDITOR" -eq 1 ]; then
+  check_tool gdb "Install gdb for debugging (MSYS2: pacman -S mingw-w64-ucrt-x86_64-gdb)." required
+fi
 
 if [ "$FAILED" -ne 0 ]; then
   exit 1

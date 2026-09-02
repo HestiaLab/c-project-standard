@@ -8,17 +8,17 @@ projects scaffolded from it.
 Before changing files, read:
 
 - `CONTRIBUTING.md`
-- `docs/guides/testing.md`
+- `docs/en/guides/testing.md`
 
 For architecture-sensitive changes, also read:
 
-- `docs/adr/README.md`
-- Relevant ADR files under `docs/adr/`
+- `docs/en/adr/README.md`
+- Relevant ADR files under `docs/en/adr/`
 
 For build, CI, packaging, release, dependency, or security work, also read:
 
-- `docs/guides/cmake.md`
-- `docs/guides/release.md`
+- `docs/en/guides/cmake.md`
+- `docs/en/guides/release.md`
 - `SECURITY.md`
 
 ## Project Shape
@@ -32,7 +32,7 @@ tests/          CTest tests
 cmake/          Build modules
 scripts/        Local bootstrap and check wrappers
 docs/           Contributor documentation
-docs/guides/    Topic guides
+docs/en/guides/  Topic guides
 ```
 
 ## Build And Verification
@@ -113,7 +113,7 @@ covering touched modules.
 practical, fix the project cause rather than masking the check, keep scripts
 and presets aligned.
 
-For CMake, package, install, or subproject work, use `docs/guides/cmake.md`
+For CMake, package, install, or subproject work, use `docs/en/guides/cmake.md`
 to select the relevant smoke checks.
 
 ## Documentation

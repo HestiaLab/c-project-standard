@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$Preset = "ninja-debug",
-    [switch]$CheckOnly
+    [switch]$CheckOnly,
+    [switch]$CheckEditor
 )
 
 $ErrorActionPreference = "Stop"
@@ -100,6 +101,10 @@ if ($script:CCPath) {
 Test-Tool -Name "clangd" -InstallHint "Install clangd for editor navigation." | Out-Null
 Test-Tool -Name "clang-format" -InstallHint "Install clang-format for local format checks." | Out-Null
 Test-Tool -Name "clang-tidy" -InstallHint "Install clang-tidy for optional static analysis." | Out-Null
+
+if ($CheckEditor) {
+    Test-Tool -Name "gdb" -InstallHint "Install gdb for debugging (MSYS2: pacman -S mingw-w64-ucrt-x86_64-gdb)." -Required | Out-Null
+}
 
 if ($failed) {
     exit 1

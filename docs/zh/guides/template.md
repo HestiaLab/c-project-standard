@@ -1,4 +1,4 @@
-<!-- 对应英文版：docs/guides/template.md | 最后同步：2026-07-09 -->
+<!-- 对应英文版：docs/en/guides/template.md | 最后同步：2026-09-02 -->
 
 # 使用此模板
 
@@ -107,9 +107,9 @@ ctest --preset ninja-shared --output-on-failure
 
 重命名后需要更新：
 
-- `README.md` — 新项目的概述和快速开始。
-- `docs/guides/cmake.md` — 项目特定的目标、选项和冒烟测试。
-- `docs/guides/testing.md` — 测试分层和必要检查。
-- `docs/guides/release.md` — 如果项目发布制品。
-- `docs/guides/ai-agent.md` — 如果项目接受 AI 辅助改动。
+- `README.md` / `README.zh.md` — 新项目的概述和快速开始。
+- `docs/zh/guides/cmake.md` — 项目特定的目标、选项和冒烟测试（英文版见 `docs/en/guides/cmake.md`）。
+- `docs/zh/guides/testing.md` — 测试分层和必要检查。
+- `docs/zh/guides/release.md` — 如果项目发布制品。
+- `docs/zh/guides/ai-agent.md` — 如果项目接受 AI 辅助改动。
 - `SECURITY.md` — 如果支持窗口或漏洞报告流程不同。

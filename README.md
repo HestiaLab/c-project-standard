@@ -14,7 +14,7 @@ tests/          CTest test programs
 cmake/          CMake modules
 scripts/        Bootstrap, check, rename, and release scripts
 docs/           Project documentation
-docs/guides/    Topic guides
+docs/en/guides/    Topic guides
 .github/        CI workflows and repository templates
 ```
 
@@ -58,7 +58,7 @@ docs/guides/    Topic guides
 
 5. **Update** docs when build, test, release, or API rules change.
 
-See [docs/guides/template.md](docs/guides/template.md) for the full rename
+See [docs/en/guides/template.md](docs/en/guides/template.md) for the full rename
 checklist, including how to trim optional pieces.
 
 ## Quick Start
@@ -68,7 +68,7 @@ AppleClang), and Ninja for the default presets.
 
 On Windows, run Ninja presets from a Developer PowerShell, Developer Command
 Prompt, or VS Code CMake kit that initializes MSVC. For step-by-step platform
-instructions, see [docs/guides/environment.md](docs/guides/environment.md).
+instructions, see [docs/en/guides/environment.md](docs/en/guides/environment.md).
 
 **First-time setup:**
 
@@ -98,7 +98,7 @@ Linux/macOS
 ```
 
 For a fuller explanation of configure, build, test, install, presets, and
-common errors, see [docs/guides/cmake.md](docs/guides/cmake.md).
+common errors, see [docs/en/guides/cmake.md](docs/en/guides/cmake.md).
 
 ## What's Included
 
@@ -107,7 +107,7 @@ common errors, see [docs/guides/cmake.md](docs/guides/cmake.md).
 - C11 as the target-level language baseline.
 - Cross-platform support for MSVC, GCC, Clang, and AppleClang.
 - Presets for debug, release, shared-library, sanitizer, and coverage builds.
-- CTest-based unit tests.
+- CTest-based unit tests using the vendored Unity framework (MIT).
 - Installable CMake package config with `find_package` smoke tests.
 - `add_subdirectory()` smoke tests for subproject consumers.
 - GitHub Actions for build, test, and static analysis.

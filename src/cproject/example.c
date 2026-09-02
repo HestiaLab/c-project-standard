@@ -5,8 +5,8 @@
 
 /* SETUP: replace with your library implementation.
  * Wire public APIs declared in include/<project>/example.h */
-CProjectVersion cproject_version(void) {
-    CProjectVersion version = {
+cproject_version_t cproject_version(void) {
+    cproject_version_t version = {
         CPROJECT_VERSION_MAJOR,
         CPROJECT_VERSION_MINOR,
         CPROJECT_VERSION_PATCH,
@@ -14,7 +14,7 @@ CProjectVersion cproject_version(void) {
     return version;
 }
 
-CProjectVersion cproject_get_version(void) {
+cproject_version_t cproject_get_version(void) {
     return cproject_version();
 }
 

@@ -27,7 +27,7 @@ jobs:
 
       - name: Format check
         run: |
-          find include src tests -type f \( -name '*.c' -o -name '*.h' -o -name '*.cpp' \) \
+          find include src tests \( -path tests/vendor \) -prune -o -type f \( -name '*.c' -o -name '*.h' -o -name '*.cpp' \) \
             | sort > format-files.txt
           if [ -s format-files.txt ]; then
             xargs clang-format --dry-run --Werror < format-files.txt
@@ -38,7 +38,7 @@ jobs:
 
       - name: Clang-tidy
         run: |
-          find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke \) \
+          find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke -o -path tests/vendor \) \
             -prune -o -type f -name '*.c' -print \
             | sort > clang-tidy-files.txt
           if [ -s clang-tidy-files.txt ]; then
@@ -47,7 +47,8 @@ jobs:
 
       - name: Cppcheck
         run: |
-          find src tests -type f -name '*.c' | sort > cppcheck-files.txt
+          find src tests \( -path tests/vendor \) -prune -o -type f -name '*.c' \
+            | sort > cppcheck-files.txt
           cppcheck \
             --std=c11 \
             --enable=warning,performance,portability \

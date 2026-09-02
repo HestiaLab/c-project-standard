@@ -33,7 +33,8 @@ tests/               Focused CTest tests
 cmake/               CMake modules
 scripts/             Local bootstrap and check wrappers
 docs/                 Short documentation
-docs/guides/          Topic guides
+docs/en/               English guides and ADRs
+docs/zh/               Chinese guides
 .github/workflows/   CI
 ```
 
@@ -105,8 +106,9 @@ Recommended generator-neutral compatibility presets:
 ## Testing Standard
 
 - Use CTest as the universal test runner.
+- Use the vendored Unity framework (MIT, `tests/vendor/unity/`) for test
+  assertions. Each test executable provides `setUp()`/`tearDown()`.
 - Prefer focused test executables per module or subsystem.
-- Keep test helpers in `tests/support/`.
 - Do not test implementation details unless the detail is a documented internal contract.
 - Bug fixes should include a regression test unless the behavior is only observable manually.
 - Installable libraries should include a package smoke test that builds a small
@@ -162,15 +164,22 @@ Keep local docs short:
 - `CONTRIBUTING.md` for workflow and PR expectations.
 - `SECURITY.md` for vulnerability handling.
 - `docs/README.md` for the documentation map and source-of-truth index.
-- `docs/guides/environment.md` for tool installation and environment setup.
-- `docs/guides/cmake.md` for CMake workflows, presets, package consumption, and
+- `docs/en/guides/environment.md` for tool installation and environment setup.
+- `docs/en/guides/cmake.md` for CMake workflows, presets, package consumption, and
   troubleshooting.
-- `docs/guides/testing.md` for test layers and expectations.
-- `docs/guides/release.md` for release steps.
-- `docs/guides/template.md` for rename and trim guidance.
-- `docs/guides/ai-agent.md` for AI-assisted contribution rules.
-- `docs/adr/README.md` for architecture decisions.
+- `docs/en/guides/coding-style.md` for naming, header, formatting, and API
+  documentation conventions.
+- `docs/en/guides/testing.md` for test layers and expectations.
+- `docs/en/guides/release.md` for release steps.
+- `docs/en/guides/template.md` for rename and trim guidance.
+- `docs/en/guides/ai-agent.md` for AI-assisted contribution rules.
+- `docs/en/adr/README.md` for architecture decisions.
 - `AGENTS.md` for AI-agent instructions.
+
+Documentation is maintained in two languages: English is the primary language
+under `docs/en/`, with Chinese mirrors under `docs/zh/`. When a user-visible
+instruction or policy changes, update the English source and its Chinese mirror
+together.
 
 ## Avoid By Default
 
