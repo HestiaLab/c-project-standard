@@ -7,6 +7,15 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+# PowerShell binds a stray bash-style `--flag` to the first positional
+# parameter, which here is $Preset; that fails downstream with a confusing
+# CMake error. Fail fast with an actionable message instead.
+if ($Preset -like "-*") {
+    [Console]::Error.WriteLine("Unknown option '$Preset'. PowerShell switches use a single dash: -EnableTidy, -SkipFormat, -FixFormat, -Preset <name>.")
+    exit 2
+}
+
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 
 Push-Location $RepoRoot
@@ -21,7 +30,17 @@ function Invoke-CheckedCommand {
         [string[]]$Arguments
     )
 
-    & $Command @Arguments
+    # Under $ErrorActionPreference="Stop" on PowerShell 5.1, a native command
+    # writing to stderr is surfaced as NativeCommandError and terminates the
+    # script even when the command only returned a non-zero exit code. Drop to
+    # Continue for the call and judge success by $LASTEXITCODE instead.
+    $savedErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & $Command @Arguments
+    } finally {
+        $ErrorActionPreference = $savedErrorActionPreference
+    }
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
@@ -32,17 +51,18 @@ if (-not $SkipFormat -and (Get-Command clang-format -ErrorAction SilentlyContinu
         Where-Object { $_.FullName -notlike "*\tests\vendor\*" } |
         Sort-Object FullName
     if ($files.Count -gt 0) {
+        # Build the file list with `+=`, not an inline array literal. Binding
+        # `@("-i", $files.FullName)` to a [string[]] parameter flattens the path
+        # array into one space-joined string that clang-format rejects as
+        # "Invalid argument". `+=` appends each path as its own argument.
         if ($FixFormat) {
-            Invoke-CheckedCommand -Command "clang-format" -Arguments @(
-                "-i",
-                $files.FullName
-            )
+            $formatArgs = @("-i")
+            $formatArgs += $files.FullName
+            Invoke-CheckedCommand -Command "clang-format" -Arguments $formatArgs
         } else {
-            Invoke-CheckedCommand -Command "clang-format" -Arguments @(
-                "--dry-run",
-                "--Werror",
-                $files.FullName
-            )
+            $formatArgs = @("--dry-run", "--Werror")
+            $formatArgs += $files.FullName
+            Invoke-CheckedCommand -Command "clang-format" -Arguments $formatArgs
         }
     }
 } elseif (-not $SkipFormat) {
@@ -67,6 +87,7 @@ if ($EnableTidy) {
                 Invoke-CheckedCommand -Command "clang-tidy" -Arguments @(
                     $file.FullName,
                     "--warnings-as-errors=*",
+                    "-quiet",
                     "-p",
                     $buildDirectory
                 )
@@ -74,6 +95,7 @@ if ($EnableTidy) {
                 Invoke-CheckedCommand -Command "clang-tidy" -Arguments @(
                     $file.FullName,
                     "--warnings-as-errors=*",
+                    "-quiet",
                     "--extra-arg=-std=c11",
                     "--",
                     "-Iinclude",

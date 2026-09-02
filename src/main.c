@@ -140,7 +140,8 @@ static const Bilingual M[M_MSG_COUNT] = {
     [M_OUTPUT_PROMPT] = {"Output directory", "输出目录"},
     [M_META_HEADER] = {"Project metadata", "项目元信息"},
     [M_META_HINT] = {"(Enter = accept default)", "（回车=接受默认）"},
-    [M_REVIEW_TIP] = {"Press Enter to accept, or 'e' to edit a field.", "回车确认，或输入 'e' 修改某项。"},
+    [M_REVIEW_TIP] = {"Press Enter to accept, or 'e' to edit a field.",
+                      "回车确认，或输入 'e' 修改某项。"},
     [M_CREATE_OR_CUSTOMIZE] = {"Enter = create,  c = customize", "回车创建，c 自定义"},
     [M_DESC_PROMPT] = {"Description", "项目描述"},
     [M_DESC_DEFAULT] = {"A C library", "一个 C 库"},
@@ -356,7 +357,7 @@ static char *slurp(const char *path, size_t *out_len) {
     }
     size_t n = fread(buf, 1, (size_t)len, f);
     fclose(f);
-    buf[n] = '\0';
+    buf[n] = '\0'; /* NOLINT(clang-analyzer-security.ArrayBound) fread returns <= len */
     if (out_len)
         *out_len = n;
     return buf;
@@ -656,7 +657,9 @@ static void clear_git_remote(void) {
         printf("    git remote origin ...\n");
         return;
     }
-    (void)system("git remote remove origin 2>/dev/null");
+    /* Fixed command literal with no user input; system() is the simplest way
+     * to invoke git from the wizard. */
+    (void)system("git remote remove origin 2>/dev/null"); /* NOLINT(bugprone-command-processor) */
 }
 
 /* =========================================================================
@@ -739,9 +742,10 @@ static int edit_features(Config *cfg) {
             fflush(stdout);
             if (!safe_gets(buf, (int)sizeof(buf)))
                 return 1;
-            int n = atoi(buf);
-            if (n >= 1 && n <= FEAT_COUNT)
-                cfg->features[n - 1] = !cfg->features[n - 1];
+            char *end = NULL;
+            long v = strtol(buf, &end, 10);
+            if (end != buf && v >= 1 && v <= FEAT_COUNT)
+                cfg->features[(int)v - 1] = !cfg->features[(int)v - 1];
         }
     }
 }
@@ -1001,8 +1005,7 @@ static int has_file_under(const char *root, const char *rel) {
     return path_exists(path);
 }
 static int is_template_root(const char *path) {
-    return has_file_under(path, "CMakeLists.txt") &&
-           has_file_under(path, "cmake/Sources.cmake") &&
+    return has_file_under(path, "CMakeLists.txt") && has_file_under(path, "cmake/Sources.cmake") &&
            has_file_under(path, "include/cproject/example.h");
 }
 
@@ -1012,8 +1015,7 @@ static int is_template_root(const char *path) {
    into the user's output. Detect the source tree by markers that
    only exist in the repo, never in a packaged/staged template. */
 static int is_source_repo(const char *dir) {
-    return has_file_under(dir, "installer/Product.wxs") ||
-           has_file_under(dir, "AGENTS.md");
+    return has_file_under(dir, "installer/Product.wxs") || has_file_under(dir, "AGENTS.md");
 }
 
 static int mkdir_one(const char *path) {
@@ -1065,7 +1067,9 @@ static int copy_file_binary(const char *src, const char *dst) {
     char buf[16384];
     size_t n;
     int ok = 0;
-    while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
+    /* Standard read-to-EOF loop; calling fread again at EOF returns 0 and is
+     * well-defined, which the unix.Stream checker misreports. */
+    while ((n = fread(buf, 1, sizeof(buf), in)) > 0) { /* NOLINT(clang-analyzer-unix.Stream) */
         if (fwrite(buf, 1, n, out) != n) {
             ok = -1;
             break;
@@ -1238,7 +1242,8 @@ static int resolve_template_root(const char *argv0, const char *explicit_root, c
         }
         /* When running from a build tree (e.g. build/ninja-release/bin),
            the staging tree may be at ../../installer-staging/share/c-project-standard. */
-        join_path(installed, sizeof(installed), exe, "../installer-staging/share/c-project-standard");
+        join_path(installed, sizeof(installed), exe,
+                  "../installer-staging/share/c-project-standard");
         if (is_template_root(installed)) {
             strncpy(out, installed, size - 1);
             out[size - 1] = '\0';
@@ -1314,7 +1319,7 @@ static void default_output_parent(char *out, size_t size) {
        the install or build directory. */
     const char *home = getenv("USERPROFILE"); /* Windows */
     if (!home || !home[0])
-        home = getenv("HOME");              /* Linux / macOS */
+        home = getenv("HOME"); /* Linux / macOS */
     if (home && home[0]) {
 #ifdef _WIN32
         snprintf(out, size, "%s\\Desktop", home);
