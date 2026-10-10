@@ -180,6 +180,12 @@ src/<project>/feature_internal.h
 3. 补牙齿测试与空目录探针证据（进 `scripts/tests/test_gate_behaviors.py` 或交付记录）。
 4. 在本节与 `docs/guides/testing.md` 登记该门禁守护什么、失败时怎么读输出。
 
+### git 视角门禁需要完整历史
+
+判定依赖 git 工作副本的门禁，其证据前提是**完整历史与 tag**。浅克隆（`git clone --depth 1`，GitHub Actions 的 checkout 步骤默认只取一个提交）会让「历史并集」退化成单个提交、「tag 列表」退化为空——此时「路径不存在」与「无 tag 段落」都不是发现，而是假结论：前者假红，后者假绿。
+
+口径：这类门禁检测到 `git rev-parse --is-shallow-repository` 为真时报「无法取证」并 exit 1（不降级为跳过）；跑这些门禁的 CI job 必须 `fetch-depth: 0`。同一门禁在本地完整克隆与 CI 浅克隆下给出不同结论，本身就是缺陷，不是环境差异。
+
 ### 覆盖率基线的唯一平台口径
 
 覆盖率的阈值基线只能有唯一平台口径。同一份代码在不同编译器/平台/工具版本下的行覆盖数字并不可比；棘轮基线（`scripts/coverage_ratchet.py`，默认不接入 CI）记录的数字必须注明取数平台，且只允许该平台更新它。混入第二个平台的数字会让「只升不降」失去意义——这是教训记录，不配脚本。
@@ -193,8 +199,8 @@ GitHub Actions 依赖应由 Dependabot 或等效的书面更新流程覆盖。
 
 保持本地文档简短：
 
-- `README.md` 提供概览、快速开始与完整文档索引（唯一事实源，不设
-  `docs/README.md`）。
+- `README.md` 提供概览、快速开始与完整文档索引（唯一事实源；docs/ 下
+  不再设独立的索引文件）。
 - `CONTRIBUTING.md` 说明工作流与 PR 预期。
 - `SECURITY.md` 说明漏洞处理。
 - `docs/guides/environment.md` 说明工具安装与环境配置。

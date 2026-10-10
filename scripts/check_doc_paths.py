@@ -65,6 +65,11 @@ def git_evidence_available(repo: Path) -> bool:
     return code == 0 and out.strip() == b"true"
 
 
+def git_is_shallow(repo: Path) -> bool:
+    code, out = git_bytes(repo, "rev-parse", "--is-shallow-repository")
+    return code == 0 and out.strip() == b"true"
+
+
 def git_view_paths(repo: Path) -> set[str]:
     """tracked (index) ∪ history union, as repo-relative posix strings."""
     view: set[str] = set()
@@ -181,6 +186,11 @@ def main(argv: list[str]) -> int:
     if not git_evidence_available(root):
         print("FAIL: 无法取证——该目录不是 git 工作副本，"
               "反引号路径的 git 视角判定无法进行（不降级为跳过）", file=sys.stderr)
+        return 1
+    if git_is_shallow(root):
+        print("FAIL: 无法取证——浅克隆的历史并集不完整，"
+              "「git 视角下不存在」的判定不可靠；请用完整克隆"
+              "（CI 需 fetch-depth: 0）（不降级为跳过）", file=sys.stderr)
         return 1
 
     tokens = collect_tokens(root)

@@ -57,6 +57,11 @@ def git_evidence_available(repo: Path) -> bool:
     return code == 0 and out.strip() == "true"
 
 
+def git_is_shallow(repo: Path) -> bool:
+    code, out, _ = run_git(repo, "rev-parse", "--is-shallow-repository")
+    return code == 0 and out.strip() == "true"
+
+
 def list_version_tags(repo: Path) -> list[str]:
     """Return sorted v* tag version strings that look like x.y.z."""
     code, out, _ = run_git(repo, "tag", "-l", "v*")
@@ -154,6 +159,13 @@ def main(argv: list[str]) -> int:
     if not git_evidence_available(root):
         print("FAIL: 无法取证——该目录不是 git 工作副本，"
               "CHANGELOG↔tag 一致性无法验证（不降级为跳过）", file=sys.stderr)
+        return 1
+    if git_is_shallow(root):
+        # A shallow clone does not fetch tags, so "no tags" here would be a
+        # vacuous pass on a repository that actually has releases.
+        print("FAIL: 无法取证——浅克隆不会取到 tag，"
+              "「无 tag 段落」结论是假绿；请用完整克隆"
+              "（CI 需 fetch-depth: 0）（不降级为跳过）", file=sys.stderr)
         return 1
 
     problems: list[str] = []

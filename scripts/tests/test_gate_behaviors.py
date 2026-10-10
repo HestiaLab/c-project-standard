@@ -23,6 +23,7 @@ from pathlib import Path
 # scripts/tests/ -> scripts/ -> repo root
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SCRIPTS_DIR = _REPO_ROOT / "scripts"
+_GIT = shutil.which("git")
 
 
 def _run_script(script: Path, *args: str) -> subprocess.CompletedProcess:
@@ -40,6 +41,27 @@ def _load_module(script: Path, module_name: str):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _repo_is_full_git_clone() -> bool:
+    """True when _REPO_ROOT is a git worktree with complete history.
+
+    Only then do the git-backed gates have enough evidence to certify, so
+    only then is a "must pass" assertion about them meaningful. Wizard-
+    generated projects are not git repositories at creation time and run
+    this same test file, so the positive test must skip there.
+    """
+    if not _GIT:
+        return False
+    inside = subprocess.run(
+        [_GIT, "rev-parse", "--is-inside-work-tree"],
+        cwd=_REPO_ROOT, capture_output=True, text=True)
+    if inside.returncode != 0 or inside.stdout.strip() != "true":
+        return False
+    shallow = subprocess.run(
+        [_GIT, "rev-parse", "--is-shallow-repository"],
+        cwd=_REPO_ROOT, capture_output=True, text=True)
+    return not (shallow.returncode == 0 and shallow.stdout.strip() == "true")
 
 
 class TestDeclDefGate(unittest.TestCase):
@@ -172,6 +194,84 @@ class TestVersionConsistencyGate(unittest.TestCase):
             "--exe", str(empty / "no-such-exe"),
         )
         self.assertEqual(result.returncode, 1)
+
+
+class TestGitEvidenceGates(unittest.TestCase):
+    """Gates that judge against git must refuse to certify without evidence.
+
+    Two failure modes were observed in CI and must stay fixed:
+    - a non-git directory (no evidence at all), and
+    - a shallow clone (history/tags truncated, so a "path does not exist" or
+      "no tags" verdict would be a false result rather than a finding).
+    """
+
+    def setUp(self) -> None:
+        self.doc_paths = _SCRIPTS_DIR / "check_doc_paths.py"
+        self.changelog_tag = _SCRIPTS_DIR / "check_changelog_tag.py"
+        for script in (self.doc_paths, self.changelog_tag):
+            self.assertTrue(script.is_file(), f"missing gate script: {script}")
+        self.tmp = Path(tempfile.mkdtemp(prefix="gate-test-gitevidence-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def test_non_git_directory_reports_cannot_verify(self) -> None:
+        plain = self.tmp / "plain"
+        plain.mkdir()
+        (plain / "CHANGELOG.md").write_text(
+            "# 更新日志\n\n## 1.0.0 — 2026-01-01\n\n- x\n", encoding="utf-8")
+        for script in (self.doc_paths, self.changelog_tag):
+            result = _run_script(script, str(plain))
+            self.assertEqual(result.returncode, 1,
+                             f"{script.name}: {result.stdout}{result.stderr}")
+            self.assertIn("无法取证", result.stderr)
+
+    @unittest.skipUnless(_GIT, "git not available")
+    def test_shallow_clone_reports_cannot_verify(self) -> None:
+        git_exec = _GIT
+        assert git_exec is not None
+        origin = self.tmp / "origin"
+        origin.mkdir()
+        (origin / "CHANGELOG.md").write_text(
+            "# 更新日志\n\n## 1.0.0 — 2026-01-01\n\n- x\n", encoding="utf-8")
+        (origin / "README.md").write_text("# doc\n", encoding="utf-8")
+
+        def git(*args: str, cwd: Path) -> None:
+            subprocess.run([git_exec, *args], cwd=cwd, check=True,
+                           capture_output=True)
+
+        git("init", "-q", ".", cwd=origin)
+        git("config", "user.email", "probe@local", cwd=origin)
+        git("config", "user.name", "probe", cwd=origin)
+        git("-c", "commit.gpgsign=false", "add", "-A", cwd=origin)
+        git("-c", "commit.gpgsign=false", "commit", "-q", "-m", "init",
+            cwd=origin)
+        git("-c", "tag.gpgsign=false", "tag", "v1.0.0", cwd=origin)
+
+        shallow = self.tmp / "shallow"
+        subprocess.run(
+            [git_exec, "clone", "-q", "--depth", "1",
+             origin.as_uri(), str(shallow)],
+            check=True, capture_output=True)
+
+        # Sanity: the clone really is shallow and really lost the tag.
+        probe = subprocess.run(
+            [git_exec, "rev-parse", "--is-shallow-repository"],
+            cwd=shallow, capture_output=True, text=True, check=True)
+        self.assertEqual(probe.stdout.strip(), "true")
+
+        for script in (self.doc_paths, self.changelog_tag):
+            result = _run_script(script, str(shallow))
+            self.assertEqual(result.returncode, 1,
+                             f"{script.name}: {result.stdout}{result.stderr}")
+            self.assertIn("无法取证", result.stderr)
+
+    @unittest.skipUnless(_repo_is_full_git_clone(),
+                         "repository is not a full-history git clone")
+    def test_clean_repo_verdicts_pass(self) -> None:
+        """In this (full-history) repo both gates must certify normally."""
+        for script in (self.doc_paths, self.changelog_tag):
+            result = _run_script(script, str(_REPO_ROOT))
+            self.assertEqual(result.returncode, 0,
+                             f"{script.name}: {result.stdout}{result.stderr}")
 
 
 class TestCpackConfigGate(unittest.TestCase):
