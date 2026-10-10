@@ -26,35 +26,15 @@ jobs:
         run: yamllint .github .yamllint.yml
 
       - name: Format check
-        run: |
-          find include src tests \( -path tests/vendor \) -prune -o -type f \( -name '*.c' -o -name '*.h' -o -name '*.cpp' \) \
-            | sort > format-files.txt
-          if [ -s format-files.txt ]; then
-            xargs clang-format --dry-run --Werror < format-files.txt
-          fi
+        # Invoked via bash: scripts/ files are committed without the
+        # executable bit in this repository (mode 100644).
+        run: bash scripts/static_analysis.sh format-check --require-tools
 
       - name: Configure clang-tidy database
         run: cmake --preset ninja-debug
 
       - name: Clang-tidy
-        run: |
-          find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke -o -path tests/vendor \) \
-            -prune -o -type f -name '*.c' -print \
-            | sort > clang-tidy-files.txt
-          if [ -s clang-tidy-files.txt ]; then
-            xargs clang-tidy --warnings-as-errors='*' -p build/ninja-debug < clang-tidy-files.txt
-          fi
+        run: bash scripts/static_analysis.sh tidy --require-tools
 
       - name: Cppcheck
-        run: |
-          find src tests \( -path tests/vendor \) -prune -o -type f -name '*.c' \
-            | sort > cppcheck-files.txt
-          cppcheck \
-            --std=c11 \
-            --enable=warning,performance,portability \
-            --max-configs=1 \
-            --quiet \
-            --error-exitcode=1 \
-            --file-list=cppcheck-files.txt \
-            -I include \
-            -I build/ninja-debug/generated/include
+        run: bash scripts/static_analysis.sh cppcheck --require-tools

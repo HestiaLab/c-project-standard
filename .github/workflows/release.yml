@@ -70,20 +70,29 @@ jobs:
       - name: Collect package artifacts
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p dist
           shopt -s nullglob
-          # CPack artifacts (Linux/macOS)
+          # CPack artifacts (Linux/macOS) or MSI artifact (Windows).
+          # Missing artifacts are a hard failure: an incomplete release must
+          # never be published silently.
+          collected=0
           for f in build/ninja-release/CProjectStandard-*; do
-            [ -f "$f" ] && cp "$f" dist/
+            [ -f "$f" ] && { cp "$f" dist/; collected=$((collected + 1)); }
           done
-          # MSI artifact (Windows)
           if [ -d build/ninja-release/msi ]; then
-            cp build/ninja-release/msi/CProjectStandard-*.msi dist/ 2>/dev/null || true
+            for f in build/ninja-release/msi/CProjectStandard-*.msi; do
+              [ -f "$f" ] && { cp "$f" dist/; collected=$((collected + 1)); }
+            done
           fi
           shopt -u nullglob
-          # Generate SHA256 checksums
-          cd dist && sha256sum -- * > SHA256SUMS 2>/dev/null || true
-          cd "$OLDPWD"
+          if [ "$collected" -eq 0 ]; then
+            echo "ERROR: no package artifacts found under build/ninja-release/ (expected CProjectStandard-* or msi/CProjectStandard-*.msi)" >&2
+            ls -R build/ninja-release || true
+            exit 1
+          fi
+          # Generate SHA256 checksums; failure here must fail the job.
+          (cd dist && sha256sum -- * > SHA256SUMS)
           ls dist/
 
       - name: Upload package artifacts
@@ -91,7 +100,7 @@ jobs:
         with:
           name: packages-${{ matrix.os }}
           path: dist/*
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # -----------------------------------------------------------------------
   # Source packages (via git archive — excludes .git, respects .gitattributes)
@@ -118,7 +127,7 @@ jobs:
         with:
           name: packages-source
           path: dist/*
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # -----------------------------------------------------------------------
   # Create GitHub Release

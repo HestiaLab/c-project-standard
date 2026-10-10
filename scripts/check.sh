@@ -61,35 +61,19 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-if [ "$SKIP_FORMAT" -eq 0 ] && command -v clang-format >/dev/null 2>&1; then
+if [ "$SKIP_FORMAT" -eq 0 ]; then
   if [ "$FIX_FORMAT" -ne 0 ]; then
-    find include src tests \( -path tests/vendor \) -prune -o -type f \( -name '*.c' -o -name '*.h' -o -name '*.cpp' \) -print0 \
-      | xargs -0 clang-format -i
+    sh "$SCRIPT_DIR/static_analysis.sh" format-check --fix
   else
-    find include src tests \( -path tests/vendor \) -prune -o -type f \( -name '*.c' -o -name '*.h' -o -name '*.cpp' \) -print0 \
-      | xargs -0 clang-format --dry-run --Werror
+    sh "$SCRIPT_DIR/static_analysis.sh" format-check
   fi
-elif [ "$SKIP_FORMAT" -eq 0 ]; then
-  echo "Skipping clang-format: command not found."
 fi
 
 cmake --preset "$PRESET"
 cmake --build --preset "$PRESET"
 
 if [ "$ENABLE_TIDY" -ne 0 ]; then
-  if command -v clang-tidy >/dev/null 2>&1; then
-    BUILD_DIR="build/$PRESET"
-    GENERATED_INCLUDE_DIR="$BUILD_DIR/generated/include"
-    if [ -f "$BUILD_DIR/compile_commands.json" ]; then
-      find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke -o -path tests/vendor \) -prune -o -type f -name '*.c' \
-        -exec clang-tidy --warnings-as-errors='*' -p "$BUILD_DIR" {} \;
-    else
-      find src tests \( -path tests/package_smoke -o -path tests/subproject_smoke -o -path tests/vendor \) -prune -o -type f -name '*.c' \
-        -exec clang-tidy --warnings-as-errors='*' --extra-arg=-std=c11 {} -- -Iinclude -I"$GENERATED_INCLUDE_DIR" \;
-    fi
-  else
-    echo "Skipping clang-tidy: command not found."
-  fi
+  sh "$SCRIPT_DIR/static_analysis.sh" tidy --build-dir "build/$PRESET"
 fi
 
 ctest --preset "$PRESET" --output-on-failure

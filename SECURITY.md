@@ -1,23 +1,20 @@
-# Security Policy
+# 安全策略
 
-## Reporting
+## 报告
 
-Report vulnerabilities privately to the project maintainer. Do not open public
-issues for exploitable security bugs until a fix is available.
+私下向项目维护者报告漏洞。在修复可用之前，不要为可利用的安全缺陷开公开 issue。
 
-## Supported Versions
+## 支持的版本
 
-The default policy is to support the current `main` branch unless the project
-publishes versioned releases with a separate support table.
+默认策略是支持当前 `main` 分支，除非项目发布带独立支持表的版本化 release。
 
-## Dependency Handling
+## 依赖处理
 
-- Prefer small, well-maintained dependencies.
-- Document dependency sources and update procedures.
-- Use Dependabot or an equivalent process for GitHub Actions updates.
-- Do not vendor large dependencies without maintainer approval.
-- Run relevant tests after dependency updates.
+- 优先选择小而维护良好的依赖。
+- 记录依赖来源与更新流程。
+- 使用 Dependabot 或等效流程更新 GitHub Actions。
+- 未经维护者批准，不要 vendor 大型依赖。
+- 依赖更新后运行相关测试。
 
-For GitHub Actions updates, validate the affected workflow in CI. For build or
-toolchain dependency changes, run the relevant preset and smoke tests described
-in `docs/en/guides/cmake.md`.
+GitHub Actions 更新时，在 CI 中验证受影响的工作流。构建或工具链依赖变更时，
+运行 `docs/guides/cmake.md` 中描述的相关 preset 与冒烟测试。

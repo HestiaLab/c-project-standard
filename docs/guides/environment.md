@@ -1,5 +1,3 @@
-<!-- 对应英文版：docs/en/guides/environment.md | 最后同步：2026-09-02 -->
-
 # 环境配置
 
 本项目在 Windows 10/11（64 位）上支持唯一一套开发环境：
@@ -117,5 +115,5 @@ where git
 
 - **构建和测试**：配置、构建、测试、预设和故障排除见 [cmake.md](cmake.md)。
 - **测试预期**：测试分层和静态分析见 [testing.md](testing.md)。
-- **贡献**：分支、提交和 PR 流程见 [../../../CONTRIBUTING.md](../../../CONTRIBUTING.md)。
-- **项目标准**：完整的工程标准见 [../../../C_PROJECT_STANDARD.md](../../../C_PROJECT_STANDARD.md)。
+- **贡献**：分支、提交和 PR 流程见 [../../CONTRIBUTING.md](../../CONTRIBUTING.md)。
+- **项目标准**：完整的工程标准见 [../../C_PROJECT_STANDARD.md](../../C_PROJECT_STANDARD.md)。

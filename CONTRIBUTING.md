@@ -1,12 +1,10 @@
-# Contributing
+# 贡献指南
 
-This project uses focused, reviewable changes.
+本仓库使用聚焦、可评审的变更。
 
-## Local Checks
+## 本地检查
 
-Before submitting, run the complete local check (format check + configure +
-build + test). The check commands do not rewrite source automatically; a format
-failure fails the check.
+提交前必须执行完整的本地检查（格式检查 + 配置 + 构建 + 测试）。检查命令不会自动改写源码，格式不符合时会失败。
 
 **Linux/macOS**
 
@@ -22,7 +20,7 @@ failure fails the check.
 ./scripts/check.ps1
 ```
 
-Run the full quality gate including clang-tidy before submitting:
+提交前运行包含 clang-tidy 的完整质量门禁：
 
 **Linux/macOS**
 
@@ -36,39 +34,29 @@ Run the full quality gate including clang-tidy before submitting:
 ./scripts/check.ps1 -EnableTidy
 ```
 
-To fix C formatting in place explicitly, run:
+需要显式修复 C 源码和头文件格式时，执行：
 
 ```sh
 ./scripts/check.sh --fix-format        # Linux/macOS
 ./scripts/check.ps1 -FixFormat         # Windows
 ```
 
-To check or format C files on their own, without configure/build/test, use the
-dedicated format script:
+只想单独检查或格式化 C 文件、不跑 configure/build/test 时，用专用的格式化脚本：
 
 ```powershell
-./scripts/format.ps1 -Check             # verify only; exits 2 on violations
-./scripts/format.ps1 -Format            # rewrite in place
+./scripts/format.ps1 -Check             # 仅检查；发现违规时退出码 2
+./scripts/format.ps1 -Format            # 就地改写
 ```
 
-`-SkipFormat` / `--skip-format` is for temporary diagnosis only and does not
-satisfy the pre-submit check. CI re-runs the full quality gate without skip
-flags. `clang-format` does not process Markdown; for documentation changes,
-review the prose, relative links, and `git diff --check` output instead.
-Vendored third-party code under `tests/vendor/` is excluded from format and
-static-analysis checks.
+`-SkipFormat` / `--skip-format` 仅用于临时诊断，不满足提交前检查要求。CI 会重新执行不带跳过参数的完整质量门禁。`clang-format` 不处理 Markdown；文档改动请检查排版、相对链接和 `git diff --check` 结果。`tests/vendor/` 下的第三方 vendored 代码不参与格式与静态分析检查。
 
-For a new checkout or a new machine, run bootstrap first. If you have not yet
-installed the required tools, see
-[docs/en/guides/environment.md](docs/en/guides/environment.md) for the Windows
-development environment setup.
+首次检出或换新机器时，先运行 bootstrap。如果尚未安装所需工具，参见 [docs/guides/environment.md](docs/guides/environment.md) 中的 Windows 开发环境配置说明。
 
-For a detailed explanation of configure, build, test, install, presets, and
-common CMake troubleshooting, see [docs/en/guides/cmake.md](docs/en/guides/cmake.md).
+关于配置、构建、测试、安装、预设和常见 CMake 故障的详细说明，参见 [docs/guides/cmake.md](docs/guides/cmake.md)。
 
-## Branches
+## 分支
 
-Use short branch names:
+使用短分支名：
 
 - `feature/<topic>`
 - `fix/<topic>`
@@ -76,9 +64,9 @@ Use short branch names:
 - `infra/<topic>`
 - `release/<version>`
 
-## Commits And PRs
+## 提交与 PR
 
-Use Conventional Commit style where practical:
+尽量使用 Conventional Commit 风格：
 
 ```text
 fix(parser): reject invalid delimiters
@@ -86,27 +74,22 @@ feat(cli): add version command
 refactor(build): share test target helper
 ```
 
-Before opening a PR:
+打开 PR 前：
 
-- Run the smallest local checks that cover the change.
-- Fill in the PR template sections that apply to the change.
-- Explain behavioral, compatibility, or release impact.
-- Add tests for behavior changes.
-- Link to updated docs when the change affects build, test, install, release,
-  security, or public API behavior.
-- Keep unrelated cleanup out of feature or fix PRs.
+- 运行覆盖本次改动的最小本地检查。
+- 填写 PR 模板中适用的章节。
+- 说明行为、兼容性或发布影响。
+- 为行为变更补充测试。
+- 改动影响构建、测试、安装、发布、安全或公共 API 时，链接相关文档。
+- 不把无关清理混入 feature / fix PR。
 
-Use the issue templates for bug reports, feature proposals, and infrastructure
-maintenance requests.
+使用 issue 模板提交 Bug 报告、功能提议和基础设施维护请求。
 
-## Architecture
+## 架构
 
-When modifying core documentation (build, testing, template), also update the
-corresponding Chinese translation under `docs/zh/` if the change affects
-user-visible instructions or policy. English guides live under `docs/en/`;
-Chinese mirrors live under `docs/zh/`.
+本仓库文档只维护一种语言：中文。上游派生项目如需要英文文档，请自行翻译，不要在本仓库重新引入双语镜像。
 
-- Keep public headers small and stable.
-- Keep implementation details out of `include/`.
-- Prefer explicit ownership and cleanup paths.
-- Avoid adding abstractions until repeated use justifies them.
+- 公共头保持小且稳定。
+- 实现细节不进入 `include/`。
+- 显式 ownership 与清理路径。
+- 抽象只在重复使用证明其价值后引入。
