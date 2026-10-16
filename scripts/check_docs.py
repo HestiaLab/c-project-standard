@@ -15,6 +15,15 @@ Sub-checks (``--mode``):
       to hyphens). Hand-typed anchors that do not match any heading fail.
     - Code fences (``` and ~~~) must be paired in every file.
 
+Scan surface
+------------
+Only files git would show for the repository (tracked ∪ untracked-not-ignored)
+are judged, with ``build/`` and ``.git/`` excluded. A locally ignored scratch
+directory must not be able to flip a verdict, or the same commit would answer
+differently on a developer machine and in a CI checkout. Outside a git work
+tree the plain on-disk walk is used, since there is no ignore semantics to
+honour.
+
 ``index`` (B3')
     - Bidirectional comparison between the documentation index in the root
       ``README.md`` (its docs/ links) and the set of ``docs/**/*.md`` files:
@@ -35,6 +44,7 @@ Exit code: 0 = clean; 1 = at least one violation, each printed as
 
 import argparse
 import re
+import subprocess
 import sys
 import urllib.parse
 from pathlib import Path
@@ -66,10 +76,40 @@ def _fail(location: str, message: str, problems: list[str]) -> None:
     problems.append(f"{location}: {message}")
 
 
+def git_live_paths(root: Path) -> set[str] | None:
+    """Repo-relative paths git would show: tracked ∪ untracked-not-ignored.
+
+    The gate judges the repository, not whatever happens to sit in the working
+    directory. Locally ignored scratch (``.hermes/``, ``dist/``) must not be
+    able to flip a verdict, otherwise the same commit answers differently on a
+    developer machine and in a CI checkout. Returns ``None`` outside a git work
+    tree, where there is no ignore semantics to honour and a plain on-disk walk
+    is the only available definition.
+    """
+    try:
+        inside = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"], cwd=root,
+            capture_output=True, encoding="utf-8", errors="replace", timeout=60)
+        if inside.returncode != 0 or inside.stdout.strip() != "true":
+            return None
+        listing = subprocess.run(
+            ["git", "ls-files", "-z", "--cached", "--others",
+             "--exclude-standard"], cwd=root,
+            capture_output=True, encoding="utf-8", errors="replace", timeout=300)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if listing.returncode != 0:
+        return None
+    return {entry for entry in listing.stdout.split("\0") if entry}
+
+
 def iter_markdown_files(root: Path):
+    live = git_live_paths(root)
     for path in sorted(root.rglob("*.md")):
         rel = path.relative_to(root)
         if any(part in _EXCLUDED_DIRS for part in rel.parts):
+            continue
+        if live is not None and rel.as_posix() not in live:
             continue
         yield path
 
@@ -188,7 +228,7 @@ def check_index(root: Path, problems: list[str]) -> None:
         _fail(str(root), "缺少文档索引 README.md", problems)
         return
 
-    actual = {path.resolve() for path in docs_root.rglob("*.md")}
+    actual = {path.resolve() for path in iter_markdown_files(docs_root)}
     if not actual:
         _fail(str(docs_root), "docs/ 下没有任何文档（扫描面为空）", problems)
         return

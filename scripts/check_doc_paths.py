@@ -28,6 +28,12 @@ mode would translate ``\\n`` to ``\\r\\n`` in stdin and make
 Git context is REQUIRED: in a non-git directory the gate reports 无法取证 and
 exits 1 — it never degrades to a silent skip (跳过 ≠ 通过).
 
+Scan surface: the Markdown files git would show for the repository (tracked ∪
+untracked-not-ignored, ``build/`` and ``.git/`` excluded). Ignored local
+scratch (``.hermes/``, ``dist/``) must not be able to flip a verdict, or the
+same commit would answer differently on a developer machine and in a CI
+checkout.
+
 Usage
 -----
     python3 scripts/check_doc_paths.py <repo_root>
@@ -69,6 +75,33 @@ _MIN_TOKENS = 10  # measured 48 on this template 2026-10-10, x ~0.2 margin
 
 def _fail(message: str, problems: list[str]) -> None:
     problems.append(message)
+
+
+def git_live_paths(root: Path) -> set[str] | None:
+    """Repo-relative paths git would show: tracked ∪ untracked-not-ignored.
+
+    The gate judges the repository, not whatever happens to sit in the working
+    directory. Locally ignored scratch (``.hermes/``, ``dist/``) must not be
+    able to flip a verdict, otherwise the same commit answers differently on a
+    developer machine and in a CI checkout. Returns ``None`` outside a git work
+    tree, where there is no ignore semantics to honour and a plain on-disk walk
+    is the only available definition.
+    """
+    try:
+        inside = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"], cwd=root,
+            capture_output=True, encoding="utf-8", errors="replace", timeout=60)
+        if inside.returncode != 0 or inside.stdout.strip() != "true":
+            return None
+        listing = subprocess.run(
+            ["git", "ls-files", "-z", "--cached", "--others",
+             "--exclude-standard"], cwd=root,
+            capture_output=True, encoding="utf-8", errors="replace", timeout=300)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if listing.returncode != 0:
+        return None
+    return {entry for entry in listing.stdout.split("\0") if entry}
 
 
 def git_bytes(repo: Path, *args: str, stdin: bytes | None = None) -> tuple[int, bytes]:
@@ -129,9 +162,12 @@ def strip_fenced(text: str) -> list[tuple[int, str]]:
 
 
 def iter_docs(root: Path):
+    live = git_live_paths(root)
     for path in sorted(root.rglob("*.md")):
         rel = path.relative_to(root)
         if any(part in _EXCLUDED_DIRS for part in rel.parts):
+            continue
+        if live is not None and rel.as_posix() not in live:
             continue
         yield path
 

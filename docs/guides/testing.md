@@ -62,6 +62,8 @@ CI 运行 clang-format、clang-tidy、cppcheck 和 YAML lint 检查。本地 cla
 
 除单元测试外，CTest 还注册了以下门禁。门禁的验收口径（扫描面下限、牙齿测试、空目录探针、四步注册）见 [C_PROJECT_STANDARD.md](../../C_PROJECT_STANDARD.md) 的「验证标准」一节。
 
+文档门禁的扫描面是 **git 视角的活文档**（tracked ∪ untracked 且未被 ignore，排除 `build/` 与版本库内部目录）：被忽略的本地草稿（`.hermes/`、`dist/`）不会影响判定，同一提交在开发机与 CI 检出上结论一致；非 git 工作副本退回盘上遍历。`cproject_gate_behaviors` 的 `TestDocGatesScanSurface` 锁定两个方向——忽略目录不进扫描面，活文档（含未入库但未被忽略的新文档）仍必须被判。
+
 | CTest 名称 | 脚本 | 守护什么 | 失败输出怎么读 |
 | --- | --- | --- | --- |
 | `cproject_decl_def_check` | `scripts/check_decl_def.py` | include/ 每个公共声明在 src/ 有定义；绝对扫描面下限 | `ERROR: 文件:行: public declaration without definition: 符号`；下限不足时首行 `FAIL: 解析失败：…仅 N 项（下限 M）` |

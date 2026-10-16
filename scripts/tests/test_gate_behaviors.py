@@ -364,5 +364,109 @@ class TestCpackConfigGate(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
 
 
+class TestDocGatesScanSurface(unittest.TestCase):
+    """The doc gates judge the repository, not the working directory.
+
+    A locally ignored scratch directory (``.hermes/``, ``dist/``) used to be
+    scanned like any other: a plan file referencing paths that never existed
+    in the repository turned both doc gates red on a developer machine while
+    CI - which has no such directory - stayed green. The scan surface is now
+    git's live set (tracked ∪ untracked-not-ignored). These tests pin that
+    down in both directions: ignored files must not flip a verdict, and live
+    files (tracked *or* untracked) must still be judged.
+    """
+
+    _MIN_TOKENS = 10  # scan-surface floor inside check_doc_paths.py
+
+    def setUp(self) -> None:
+        self.script_docs = _SCRIPTS_DIR / "check_docs.py"
+        self.script_paths = _SCRIPTS_DIR / "check_doc_paths.py"
+        for script in (self.script_docs, self.script_paths):
+            self.assertTrue(script.is_file(), f"missing gate script: {script}")
+        self.tmp = Path(tempfile.mkdtemp(prefix="gate-test-surface-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+        self.repo = self.tmp / "repo"
+        (self.repo / "docs").mkdir(parents=True)
+        (self.repo / ".gitignore").write_text(".scratch/\n", encoding="utf-8")
+        (self.repo / "README.md").write_text("# repo\n", encoding="utf-8")
+        (self.repo / "docs" / "a.md").write_text("# a\n", encoding="utf-8")
+
+        # Enough distinct, existing backtick tokens to clear the gate's
+        # scan-surface floor once the ignored junk is out of the surface.
+        token_lines = ["`.scratch/junk.md` is scratch"]
+        for index in range(self._MIN_TOKENS + 2):
+            name = f"docs/f{index:02d}.md"
+            (self.repo / name).write_text("# filler\n", encoding="utf-8")
+            token_lines.append(f"see `{name}`")
+        self.live_doc_text = "\n".join(token_lines) + "\n"
+        (self.repo / "docs" / "a.md").write_text(self.live_doc_text,
+                                                 encoding="utf-8")
+
+        # Ignored scratch: broken relative link + a token that resolves
+        # nowhere. Neither may reach the gates' verdicts.
+        scratch = self.repo / ".scratch"
+        scratch.mkdir()
+        (scratch / "junk.md").write_text(
+            "# junk\n\n[dead](no-such-target.md)\n\nsee `no/such/path`\n",
+            encoding="utf-8")
+
+        self.git = _GIT
+        if self.git is None:
+            self.skipTest("git not available")
+        for args in (("init", "-q", "."),
+                     ("config", "user.email", "probe@local"),
+                     ("config", "user.name", "probe")):
+            subprocess.run([self.git, *args], cwd=self.repo, check=True,
+                           capture_output=True)
+        subprocess.run(
+            [self.git, "-c", "commit.gpgsign=false", "add", "-A"],
+            cwd=self.repo, check=True, capture_output=True)
+        subprocess.run(
+            [self.git, "-c", "commit.gpgsign=false", "commit", "-q", "-m",
+             "init"],
+            cwd=self.repo, check=True, capture_output=True)
+
+    def _scratch_ignored(self) -> None:
+        result = subprocess.run(
+            [self.git, "check-ignore", "-q", ".scratch/junk.md"], cwd=self.repo,
+            capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, "fixture: .scratch/ must be ignored")
+
+    def test_ignored_docs_do_not_flip_verdicts(self) -> None:
+        self._scratch_ignored()
+        for script, args in ((self.script_docs, ("--mode", "links")),
+                             (self.script_paths, ())):
+            with self.subTest(script=script.name):
+                result = _run_script(script, str(self.repo), *args)
+                self.assertEqual(result.returncode, 0,
+                                 result.stdout + result.stderr)
+
+    def test_live_tracked_doc_is_still_judged(self) -> None:
+        self._scratch_ignored()
+        # ``docs/`` exists, so this token is judged (it is not skipped as an
+        # install/build-tree layout reference).
+        broken = self.live_doc_text + "\nsee `docs/gone.md`\n"
+        (self.repo / "docs" / "a.md").write_text(broken, encoding="utf-8")
+
+        result = _run_script(self.script_paths, str(self.repo))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        # The gate reports repo-relative paths with the platform separator.
+        reported = result.stderr.replace("\\", "/")
+        self.assertIn("docs/a.md", reported)
+        self.assertIn("docs/gone.md", reported)
+
+    def test_live_untracked_doc_is_still_judged(self) -> None:
+        """Untracked-but-not-ignored files are part of the surface too."""
+        self._scratch_ignored()
+        (self.repo / "docs" / "untracked.md").write_text(
+            "# untracked\n\n[dead](no-such-target.md)\n", encoding="utf-8")
+
+        result = _run_script(self.script_docs, str(self.repo), "--mode", "links")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("untracked.md", result.stderr)
+        self.assertIn("no-such-target.md", result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
