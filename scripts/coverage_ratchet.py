@@ -41,6 +41,23 @@ import sys
 import tempfile
 from pathlib import Path
 
+
+def _pin_utf8_console() -> None:
+    """Pin stdout/stderr to UTF-8 so Chinese verdicts stay readable.
+
+    A legacy console code page (Windows GBK/cp1252) either raises
+    UnicodeEncodeError on stdout or degrades stderr to literal escape
+    sequences, which turns a verdict into noise. The wizard CLI pins the
+    console the same way (``SetConsoleOutputCP(CP_UTF8)``).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_pin_utf8_console()
+
+
 _BASELINE_FILENAME = "coverage_baseline.txt"
 _GCOV_LINE_RE = re.compile(r"^\s*(#####|-|\d+[*!]?):")
 
@@ -80,7 +97,8 @@ def measure_coverage(build_dir: Path, repo_root: Path) -> tuple[int, int]:
             result = subprocess.run(
                 [gcov, "--preserve-paths", "--object-directory",
                  str(gcda.parent), str(gcda)],
-                capture_output=True, text=True, timeout=300, cwd=tmp,
+                capture_output=True, encoding="utf-8", errors="replace",
+                timeout=300, cwd=tmp,
             )
             if result.returncode != 0:
                 continue

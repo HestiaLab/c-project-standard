@@ -44,6 +44,23 @@ import re
 import sys
 from pathlib import Path
 
+
+def _pin_utf8_console() -> None:
+    """Pin stdout/stderr to UTF-8 so Chinese verdicts stay readable.
+
+    A legacy console code page (Windows GBK/cp1252) either raises
+    UnicodeEncodeError on stdout or degrades stderr to literal escape
+    sequences, which turns a verdict into noise. The wizard CLI pins the
+    console the same way (``SetConsoleOutputCP(CP_UTF8)``).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_pin_utf8_console()
+
+
 # C11 keywords (plus common macro builtins) that must never be treated as a
 # declared or defined function name, e.g. _Static_assert(sizeof(x) == 4, "...");
 # or a control-flow statement such as while (x) { ... } in an implementation.

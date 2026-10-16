@@ -39,6 +39,23 @@ import sys
 import urllib.parse
 from pathlib import Path
 
+
+def _pin_utf8_console() -> None:
+    """Pin stdout/stderr to UTF-8 so Chinese verdicts stay readable.
+
+    A legacy console code page (Windows GBK/cp1252) either raises
+    UnicodeEncodeError on stdout or degrades stderr to literal escape
+    sequences, which turns a verdict into noise. The wizard CLI pins the
+    console the same way (``SetConsoleOutputCP(CP_UTF8)``).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_pin_utf8_console()
+
+
 _EXCLUDED_DIRS = {"build", ".git"}
 _LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)")
 _FENCE_RE = re.compile(r"^\s*(```|~~~)")

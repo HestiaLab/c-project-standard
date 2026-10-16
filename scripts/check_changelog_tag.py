@@ -37,6 +37,23 @@ import subprocess
 import sys
 from pathlib import Path
 
+
+def _pin_utf8_console() -> None:
+    """Pin stdout/stderr to UTF-8 so Chinese verdicts stay readable.
+
+    A legacy console code page (Windows GBK/cp1252) either raises
+    UnicodeEncodeError on stdout or degrades stderr to literal escape
+    sequences, which turns a verdict into noise. The wizard CLI pins the
+    console the same way (``SetConsoleOutputCP(CP_UTF8)``).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_pin_utf8_console()
+
+
 _SECTION_RE = re.compile(r"^##\s+(?P<version>\d+\.\d+\.\d+)\s*(?:—|--|-)?\s*(?P<rest>.*)$")
 _ANY_H2_RE = re.compile(r"^##\s+(?P<text>.*)$")
 _TAG_RE = re.compile(r"^v(\d+\.\d+\.\d+)$")
@@ -47,8 +64,18 @@ def _fail(message: str, problems: list[str]) -> None:
 
 
 def run_git(repo: Path, *args: str) -> tuple[int, str, str]:
+    """Run git and decode its output explicitly as UTF-8.
+
+    ``git show <rev>:<path>`` returns the blob verbatim (unlike log output it
+    is not transcoded), and this repository is UTF-8 by ``.gitattributes``.
+    Letting subprocess guess the locale - GBK on a Chinese Windows host,
+    cp1252 on the runners - raises UnicodeDecodeError inside the reader
+    thread and leaves stdout as ``None``, i.e. the gate crashes instead of
+    returning a verdict.
+    """
     result = subprocess.run(
-        ["git", *args], cwd=repo, capture_output=True, text=True, timeout=120)
+        ["git", *args], cwd=repo, capture_output=True,
+        encoding="utf-8", errors="replace", timeout=120)
     return result.returncode, result.stdout, result.stderr
 
 

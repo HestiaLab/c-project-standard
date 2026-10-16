@@ -73,6 +73,8 @@ CI 运行 clang-format、clang-tidy、cppcheck 和 YAML lint 检查。本地 cla
 | `cproject_changelog_tag_check` | `scripts/check_changelog_tag.py` | CHANGELOG 段落形态、每个 tag 有同版本段落、已发布段落与 tag 处逐字一致 | `ERROR:` 指名版本与 tag；无 tag 段落打印 `SKIP:`（跳过 ≠ 通过）；非 git 或浅克隆上下文报 `FAIL: 无法取证` |
 | `cproject_cpack_config` | `scripts/check-cpack-config.py` | NSIS 启用时的发布敏感 CPack 设置 | 输出缺失/违规项名称 |
 
+门禁脚本的诊断输出固定为 UTF-8：Windows 控制台默认 GBK/cp1252，中文判定写到 stdout 会 `UnicodeEncodeError` 崩溃、写到 stderr 会退化成转义序列；脚本读取的 git 子进程输出同样显式按 UTF-8 解码（`git show` 回传 blob 原始字节）。`cproject_gate_behaviors` 用 `PYTHONIOENCODING=cp1252` 复现旧控制台，锁定判定不随宿主编码变化。口径见 [C_PROJECT_STANDARD.md](../../C_PROJECT_STANDARD.md) 的「验证标准」一节。
+
 依赖 git 取证或构建产物的门禁注册在 `cmake/Tests.cmake` 的 wizard markers 内：生成项目创建时不是 git 仓库、也没有向导 CLI，markers 内的测试会被自动注释掉。
 
 可选入口（默认不接入 CI 与 check.sh）：

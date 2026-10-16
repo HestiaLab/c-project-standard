@@ -31,6 +31,23 @@ import subprocess
 import sys
 from pathlib import Path
 
+
+def _pin_utf8_console() -> None:
+    """Pin stdout/stderr to UTF-8 so Chinese verdicts stay readable.
+
+    A legacy console code page (Windows GBK/cp1252) either raises
+    UnicodeEncodeError on stdout or degrades stderr to literal escape
+    sequences, which turns a verdict into noise. The wizard CLI pins the
+    console the same way (``SetConsoleOutputCP(CP_UTF8)``).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_pin_utf8_console()
+
+
 _VERSION_RE = re.compile(r"\b(\d+)\.(\d+)\.(\d+)\b")
 
 
@@ -83,7 +100,8 @@ def read_cli_version(exe: Path) -> str | None:
         result = subprocess.run(
             [str(exe), "--version"],
             capture_output=True,
-            text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=30,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:

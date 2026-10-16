@@ -186,6 +186,15 @@ src/<project>/feature_internal.h
 
 口径：这类门禁检测到 `git rev-parse --is-shallow-repository` 为真时报「无法取证」并 exit 1（不降级为跳过）；跑这些门禁的 CI job 必须 `fetch-depth: 0`。同一门禁在本地完整克隆与 CI 浅克隆下给出不同结论，本身就是缺陷，不是环境差异。
 
+### 门禁的文本编码口径唯一
+
+门禁的诊断输出与被读取的子进程文本必须显式按 UTF-8 处理，不得依赖宿主 locale 或控制台代码页：
+
+- 打印诊断前把 `sys.stdout` / `sys.stderr` 钉到 UTF-8。Windows 控制台默认 GBK（中文机器）或 cp1252（runner）：中文诊断写 stdout 会抛 `UnicodeEncodeError` 把门禁变成崩溃，写 stderr 会退化成转义序列把判定变成噪声。向导 CLI 用 `SetConsoleOutputCP(CP_UTF8)` 解决同一个问题，脚本按同一口径对齐。
+- 读取子进程输出时显式 `encoding="utf-8", errors="replace"`，不要用 `text=True` 让 subprocess 去猜 locale。`git show <rev>:<path>` 回传的是 blob 原始字节（UTF-8），按本地代码页解码会在读取线程里抛 `UnicodeDecodeError`，留下 `stdout=None` 让门禁崩在别的行上。
+
+判定口径：同一份代码在本地 GBK 控制台与 CI cp1252 runner 上必须给出同样的结论和同样可读的输出；编码差异不得改变任何门禁的通过/失败。`scripts/tests/test_gate_behaviors.py` 用 `PYTHONIOENCODING=cp1252` 复现旧控制台来锁定这条性质。
+
 ### 覆盖率基线的唯一平台口径
 
 覆盖率的阈值基线只能有唯一平台口径。同一份代码在不同编译器/平台/工具版本下的行覆盖数字并不可比；棘轮基线（`scripts/coverage_ratchet.py`，默认不接入 CI）记录的数字必须注明取数平台，且只允许该平台更新它。混入第二个平台的数字会让「只升不降」失去意义——这是教训记录，不配脚本。

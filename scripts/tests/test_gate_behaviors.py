@@ -13,6 +13,7 @@ Or via unittest discovery:
 """
 
 import importlib.util
+import os
 import shutil
 import subprocess
 import sys
@@ -26,11 +27,22 @@ _SCRIPTS_DIR = _REPO_ROOT / "scripts"
 _GIT = shutil.which("git")
 
 
-def _run_script(script: Path, *args: str) -> subprocess.CompletedProcess:
+def _run_script(script: Path, *args: str,
+                env: "dict[str, str] | None" = None) -> subprocess.CompletedProcess:
+    """Run a gate script as a subprocess and capture its verdict.
+
+    The scripts pin their streams to UTF-8, so decode as UTF-8 as well: the
+    parent locale is not a safe guess (it would turn Chinese verdicts into
+    mojibake on any host whose console code page is not UTF-8). ``env`` adds
+    overrides on top of the current environment.
+    """
+    child_env = None if env is None else {**os.environ, **env}
     return subprocess.run(
         [sys.executable, str(script), *args],
         capture_output=True,
-        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=child_env,
         timeout=120,
     )
 
@@ -272,6 +284,73 @@ class TestGitEvidenceGates(unittest.TestCase):
             result = _run_script(script, str(_REPO_ROOT))
             self.assertEqual(result.returncode, 0,
                              f"{script.name}: {result.stdout}{result.stderr}")
+
+
+class TestLegacyConsoleEncoding(unittest.TestCase):
+    """Gate verdicts must stay readable on a non-UTF-8 console.
+
+    Windows runners default to cp1252 (Chinese Windows desktops to GBK).
+    Before the scripts pinned their streams to UTF-8, a Chinese verdict sent
+    to stdout raised UnicodeEncodeError (the gate crashed) and the same
+    verdict sent to stderr degraded to literal escape sequences (the output
+    became unreadable). PYTHONIOENCODING recreates that console here, so the
+    regression is caught on any platform.
+    """
+
+    _LEGACY_CONSOLE = {"PYTHONIOENCODING": "cp1252"}
+
+    def setUp(self) -> None:
+        self.tmp = Path(tempfile.mkdtemp(prefix="gate-test-console-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self.empty = self.tmp / "empty"
+        self.empty.mkdir()
+
+    def test_stdout_verdicts_survive_legacy_console(self) -> None:
+        """A passing gate prints its Chinese verdict to stdout."""
+        tree = self.tmp / "docs-tree"
+        tree.mkdir()
+        (tree / "README.md").write_text("# doc\n", encoding="utf-8")
+
+        result = _run_script(_SCRIPTS_DIR / "check_docs.py", str(tree),
+                             "--mode", "links", env=self._LEGACY_CONSOLE)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("门禁通过", result.stdout)
+
+    def test_stderr_verdicts_survive_legacy_console(self) -> None:
+        """Every gate that prints a Chinese failure verdict to stderr."""
+        # Non-git tree: the two git-evidence gates must refuse to certify.
+        non_git = self.tmp / "non-git"
+        non_git.mkdir()
+        (non_git / "README.md").write_text("# doc\n", encoding="utf-8")
+        (non_git / "CHANGELOG.md").write_text(
+            "# 更新日志\n\n## 1.0.0 — 2026-01-01\n\n- x\n", encoding="utf-8")
+
+        version_tree = self.tmp / "version-tree"
+        version_tree.mkdir()
+        (version_tree / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.21)\n"
+            "project(Probe\n    VERSION 1.2.3\n    LANGUAGES C\n)\n",
+            encoding="utf-8")
+
+        cases = (
+            ("check_decl_def.py", (str(self.empty),), "解析失败"),
+            ("check_doc_paths.py", (str(non_git),), "无法取证"),
+            ("check_changelog_tag.py", (str(non_git),), "无法取证"),
+            ("check_version_consistency.py",
+             (str(version_tree),
+              "--build-dir", str(self.tmp / "missing-build"),
+              "--exe", str(self.tmp / "missing-exe")), "构建目录不存在"),
+            ("coverage_ratchet.py",
+             (str(self.tmp / "missing-build"), "--repo-root", str(self.empty)),
+             "构建目录不存在"),
+        )
+        for name, args, expected in cases:
+            with self.subTest(script=name):
+                result = _run_script(_SCRIPTS_DIR / name, *args,
+                                     env=self._LEGACY_CONSOLE)
+                self.assertEqual(result.returncode, 1,
+                                 result.stdout + result.stderr)
+                self.assertIn(expected, result.stderr, result.stderr)
 
 
 class TestCpackConfigGate(unittest.TestCase):
