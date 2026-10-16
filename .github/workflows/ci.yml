@@ -25,6 +25,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Full history and tags: the documentation gates judge backtick
+          # paths against the git view (tracked ∪ ignored ∪ history union)
+          # and freeze released CHANGELOG sections against their tags. A
+          # shallow clone would make both verdicts unreliable.
+          fetch-depth: 0
 
       - name: Set up Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
@@ -57,6 +63,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Documentation gates judge backtick paths against git history and
+          # freeze released CHANGELOG sections against tags; a shallow clone
+          # would make both verdicts unreliable.
+          fetch-depth: 0
 
       - name: Set up Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
@@ -79,6 +90,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Documentation gates judge backtick paths against git history and
+          # freeze released CHANGELOG sections against tags; a shallow clone
+          # would make both verdicts unreliable.
+          fetch-depth: 0
 
       - name: Set up Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6

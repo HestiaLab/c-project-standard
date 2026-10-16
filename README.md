@@ -1,26 +1,24 @@
 # C Project Standard
 
-> [中文版](README.zh.md)
+用一套可靠的工程基础开始你的下一个 C 库或 CLI 工具 — CMake、C11、CTest、
+跨平台 CI，以及清晰的贡献者文档，全部集成在一个模板中。
 
-Start your next C library or CLI tool with a solid foundation — CMake, C11,
-CTest, cross-platform CI, and clear contributor docs, all in one template.
-
-## Layout
+## 目录结构
 
 ```text
-include/        Public headers
-src/            Implementation files
-tests/          CTest test programs
-cmake/          CMake modules
-scripts/        Bootstrap, check, rename, and release scripts
-docs/           Project documentation
-docs/en/guides/    Topic guides
-.github/        CI workflows and repository templates
+include/        公共头文件
+src/            实现代码
+tests/          CTest 测试
+cmake/          CMake 模块
+scripts/        引导、检查、重命名和发布脚本
+docs/           项目文档
+docs/guides/    主题指南
+.github/        CI 工作流和仓库模板
 ```
 
-## Use This Template
+## 使用此模板
 
-1. **Build and run the setup wizard:**
+1. **构建并运行初始化向导：**
 
    ```sh
    cmake --preset ninja-debug
@@ -28,49 +26,48 @@ docs/en/guides/    Topic guides
    ./build/ninja-debug/bin/cproject
    ```
 
-   The default `cproject` command starts an interactive wizard that creates a
-   new project from this template. It asks for project name, output directory,
-   metadata, feature selection, and then initializes the generated copy.
+   默认 `cproject` 命令会进入交互式向导，从此模板创建一个新的项目副本，
+   并引导你完成项目名称、输出目录、描述、特性选择、重命名和清理。
 
-   To skip interaction:
+   跳过交互：
 
    ```sh
    ./build/ninja-debug/bin/cproject new MyLib --yes
    ```
 
-   Preview without changes:
+   预览变更（不实际修改）：
 
    ```sh
    ./build/ninja-debug/bin/cproject new MyLib --dry-run --yes
    ```
 
-   To intentionally initialize the current template directory in place, use:
+   如需有意在当前模板目录中原地初始化：
 
    ```sh
    ./build/ninja-debug/bin/cproject init --in-place MyLib --yes
    ```
 
-2. **Replace** the example source and tests with your real modules.
+2. **替换** 示例代码和测试为你的真实模块。
 
-3. **Keep** public APIs in `include/`, private helpers in `src/`.
+3. **保持** 公共 API 在 `include/` 中，私有辅助在 `src/` 中。
 
-4. **Wire** version metadata to the CMake `project(... VERSION ...)` value.
+4. **关联** 版本元数据到 CMake 的 `project(... VERSION ...)` 值。
 
-5. **Update** docs when build, test, release, or API rules change.
+5. **更新** 文档当构建、测试、发布或 API 规则变化时。
 
-See [docs/en/guides/template.md](docs/en/guides/template.md) for the full rename
-checklist, including how to trim optional pieces.
+详见 [docs/guides/template.md](docs/guides/template.md) 获取完整的重命名清单
+和裁剪指南。
 
-## Quick Start
+## 快速开始
 
-**Required tools:** CMake 3.21+, a C11 compiler (MSVC, GCC, Clang, or
-AppleClang), and Ninja for the default presets.
+**所需工具：** CMake 3.21+、C11 编译器（MSVC、GCC、Clang 或 AppleClang）、
+以及默认预设所需的 Ninja。
 
-On Windows, run Ninja presets from a Developer PowerShell, Developer Command
-Prompt, or VS Code CMake kit that initializes MSVC. For step-by-step platform
-instructions, see [docs/en/guides/environment.md](docs/en/guides/environment.md).
+Windows 上请在 Developer PowerShell、Developer Command Prompt 或初始化了
+MSVC 的 VS Code CMake kit 中运行 Ninja 预设。各平台详细安装说明见
+[docs/guides/environment.md](docs/guides/environment.md)。
 
-**First-time setup:**
+**首次设置：**
 
 Windows PowerShell
 ```powershell
@@ -82,10 +79,10 @@ Linux/macOS
 ./scripts/bootstrap.sh
 ```
 
-The bootstrap script checks required tools and runs configure so editors can
-load `build/ninja-debug/compile_commands.json`.
+引导脚本会检查必要工具并运行 configure，以便编辑器加载
+`build/ninja-debug/compile_commands.json`。
 
-**Daily check:**
+**日常检查：**
 
 Windows PowerShell
 ```powershell
@@ -97,41 +94,66 @@ Linux/macOS
 ./scripts/check.sh
 ```
 
-For a fuller explanation of configure, build, test, install, presets, and
-common errors, see [docs/en/guides/cmake.md](docs/en/guides/cmake.md).
+关于 configure、build、test、install、preset 和常见错误的详细说明见
+[docs/guides/cmake.md](docs/guides/cmake.md)。
 
-## What's Included
+## 包含内容
 
-- CMake modules split by responsibility (compiler options, dependencies,
-  sources, tests, packaging).
-- C11 as the target-level language baseline.
-- Cross-platform support for MSVC, GCC, Clang, and AppleClang.
-- Presets for debug, release, shared-library, sanitizer, and coverage builds.
-- CTest-based unit tests using the vendored Unity framework (MIT).
-- Installable CMake package config with `find_package` smoke tests.
-- `add_subdirectory()` smoke tests for subproject consumers.
-- GitHub Actions for build, test, and static analysis.
-- PR, issue, and Dependabot templates.
-- VS Code recommendations, CMake tasks, and clangd defaults.
-- An example library and executable showing the expected layout.
+- 按职责拆分的 CMake 模块（编译器选项、依赖、源码、测试、打包）。
+- C11 作为目标级别语言基线。
+- 跨平台支持 MSVC、GCC、Clang 和 AppleClang。
+- debug、release、shared-library、sanitizer 和 coverage 构建预设。
+- 基于 CTest 的单元测试，使用 vendored Unity 框架（MIT）。
+- 可安装的 CMake 包配置，含 `find_package` 冒烟测试。
+- `add_subdirectory()` 冒烟测试（子项目消费者）。
+- GitHub Actions 用于构建、测试和静态分析。
+- PR、issue 和 Dependabot 模板。
+- VS Code 推荐、CMake 任务和 clangd 默认配置。
+- 展示预期布局的示例库和可执行文件。
 
-## Package Consumption
+## 包消费
 
 ```cmake
 find_package(CProjectStandard CONFIG REQUIRED)
 target_link_libraries(app PRIVATE CProjectStandard::cproject_core)
 ```
 
-The `tests/package_smoke/` project validates installed C and C++ consumers.
-Direct source-tree consumption through `add_subdirectory()` is validated by
-`tests/subproject_smoke/`.
+`tests/package_smoke/` 项目验证已安装的 C 和 C++ 消费者。
+通过 `add_subdirectory()` 直接消费源码树由 `tests/subproject_smoke/` 验证。
 
-See [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md) for the full guidance.
+完整指导详见 [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md)。
 
-## Documentation
+## 文档
 
-See [docs/README.md](docs/README.md) for the complete documentation index.
+本仓库文档只维护一种语言：中文。
 
-## License
+### 指南
+
+| 文档 | 说明 |
+|---|---|
+| [docs/guides/environment.md](docs/guides/environment.md) | 平台环境与工具安装 |
+| [docs/guides/cmake.md](docs/guides/cmake.md) | CMake 预设、工作流与故障排除 |
+| [docs/guides/coding-style.md](docs/guides/coding-style.md) | 命名、头文件、格式与 API 文档约定 |
+| [docs/guides/testing.md](docs/guides/testing.md) | 测试分层、静态分析与冒烟测试 |
+| [docs/guides/template.md](docs/guides/template.md) | 模板重命名与裁剪指南 |
+| [docs/guides/release.md](docs/guides/release.md) | 发布准备 |
+
+### 架构决策
+
+| 文档 | 说明 |
+|---|---|
+| [docs/adr/README.md](docs/adr/README.md) | 架构决策记录（ADR）说明 |
+| [docs/adr/0001-c11-cmake-toolchain-policy.md](docs/adr/0001-c11-cmake-toolchain-policy.md) | C11 与 CMake 工具链策略 |
+
+### 根级文档
+
+| 文档 | 说明 |
+|---|---|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | 分支、提交与 PR 工作流 |
+| [SECURITY.md](SECURITY.md) | 漏洞报告与依赖处理 |
+| [AGENTS.md](AGENTS.md) | AI 代理入口 |
+| [C_PROJECT_STANDARD.md](C_PROJECT_STANDARD.md) | 可复用的 C 项目工程标准 |
+
+## 许可证
 
 MIT

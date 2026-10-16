@@ -1,31 +1,31 @@
 ---
-name: Feature request
-about: Propose a user-facing capability
+name: 功能请求
+about: 提议一个面向用户的能力
 title: "feat: "
 labels: enhancement
 assignees: ""
 ---
 
-## Problem
+## 问题
 
-Describe the user or maintainer problem this would solve.
+描述这将解决的用户或维护者问题。
 
-## Proposal
+## 提议
 
-Describe the behavior or API you want.
+描述你期望的行为或 API。
 
-## Scope
+## 范围
 
-Describe what is included and what is intentionally out of scope.
+描述包含什么、有意排除什么。
 
-## Acceptance Criteria
+## 验收标准
 
 - TODO
 
-## Alternatives
+## 备选方案
 
-Describe alternatives considered or why this should not stay out of scope.
+描述考虑过的备选方案，或为什么这不应该留在范围之外。
 
-## Compatibility
+## 兼容性
 
-Describe expected API, build, packaging, or documentation impact.
+描述预期的 API、构建、打包或文档影响。

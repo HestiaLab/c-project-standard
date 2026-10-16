@@ -1,23 +1,23 @@
-## Summary
+## 摘要
 
-- What changed:
-- Why:
+- 改了什么：
+- 为什么：
 
-## Validation
+## 验证
 
-- [ ] `./scripts/check.sh` or `./scripts/check.ps1`
-- [ ] Additional relevant preset, smoke, or manual checks:
-- [ ] Not run; reason:
+- [ ] `./scripts/check.sh` 或 `./scripts/check.ps1`
+- [ ] 其他相关的 preset、冒烟或人工检查：
+- [ ] 未运行；原因：
 
-See `docs/en/guides/testing.md` for change-specific validation guidance.
+针对具体改动的验证指导见 `docs/guides/testing.md`。
 
-## Impact
+## 影响
 
-- Public API impact:
-- Build, CI, packaging, or release impact:
-- Documentation impact:
+- 公共 API 影响：
+- 构建、CI、打包或发布影响：
+- 文档影响：
 
-## AI Assistance
+## AI 辅助
 
-- [ ] AI assistance was used and disclosed, including docs read and validation run.
-- [ ] No meaningful AI assistance was used.
+- [ ] 使用了 AI 辅助并已披露，包括已读文档和已运行的验证。
+- [ ] 未使用实质性的 AI 辅助。

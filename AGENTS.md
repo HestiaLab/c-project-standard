@@ -1,41 +1,40 @@
 # AGENTS.md
 
-Repository-specific instructions for AI agents working on this template and
-projects scaffolded from it.
+面向在本模板及其派生项目中工作的 AI 代理的仓库专用说明。
 
-## Required Reading
+## 必读文档
 
-Before changing files, read:
+修改文件之前，先阅读：
 
 - `CONTRIBUTING.md`
-- `docs/en/guides/testing.md`
+- `docs/guides/testing.md`
 
-For architecture-sensitive changes, also read:
+涉及架构的改动，还需阅读：
 
-- `docs/en/adr/README.md`
-- Relevant ADR files under `docs/en/adr/`
+- `docs/adr/README.md`
+- `docs/adr/` 下的相关 ADR 文件
 
-For build, CI, packaging, release, dependency, or security work, also read:
+涉及构建、CI、打包、发布、依赖或安全的工作，还需阅读：
 
-- `docs/en/guides/cmake.md`
-- `docs/en/guides/release.md`
+- `docs/guides/cmake.md`
+- `docs/guides/release.md`
 - `SECURITY.md`
 
-## Project Shape
+## 项目形状
 
-This is a C11 project template using CMake and CTest.
+这是一个使用 CMake 和 CTest 的 C11 项目模板。
 
 ```text
-include/        Public headers
-src/            Implementation
-tests/          CTest tests
-cmake/          Build modules
-scripts/        Local bootstrap and check wrappers
-docs/           Contributor documentation
-docs/en/guides/  Topic guides
+include/        公共头文件
+src/            实现
+tests/          CTest 测试
+cmake/          构建模块
+scripts/        本地引导与检查脚本
+docs/           贡献者文档
+docs/guides/    主题指南
 ```
 
-## Build And Verification
+## 构建与验证
 
 ```sh
 cmake --preset ninja-debug
@@ -43,80 +42,76 @@ cmake --build --preset ninja-debug
 ctest --preset ninja-debug --output-on-failure
 ```
 
-The build produces `build/ninja-debug/bin/cproject` — this is the
-**interactive project setup wizard**. Running `cproject` creates a new project
-from this template; use `new MyProject --yes` for non-interactive creation or
-`new MyProject --dry-run --yes` to preview. Use `init --in-place` only when you
-intentionally want to mutate the current template directory.
+构建产物 `build/ninja-debug/bin/cproject` 是**交互式项目初始化向导**。
+运行 `cproject` 会从此模板创建一个新项目；用 `new MyProject --yes` 做非交互
+创建，用 `new MyProject --dry-run --yes` 预览。只有当你确实想改动当前模板
+目录本身时才使用 `init --in-place`。
 
-On Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 ./scripts/check.ps1
 ```
 
-On Linux/macOS:
+Linux/macOS：
 
 ```sh
 ./scripts/check.sh
 ```
 
-## Ownership Rules
+## 所有权规则
 
-- Public APIs belong in `include/`.
-- Private implementation helpers belong in `src/`.
-- Tests should cover behavior, not accidental implementation details.
-- Keep CMake target dependencies narrow.
-- Do not add new global state without a documented reason.
-- Do not weaken warnings, tests, or CI to make a change pass.
+- 公共 API 属于 `include/`。
+- 私有实现辅助属于 `src/`。
+- 测试应覆盖行为，而不是偶然的实现细节。
+- 保持 CMake 目标依赖最小化。
+- 没有书面理由，不新增全局状态。
+- 不为让改动通过而放宽警告、测试或 CI。
 
-## AI Agent Policy
+## AI 代理策略
 
-AI agents may help with development when their changes are scoped, reviewed,
-and verified like any other contribution.
+当 AI 代理的改动与其他贡献一样被限定范围、评审和验证时，可以帮助开发。
 
-### Appropriate Uses
+### 允许的用途
 
-- Focused bug fixes.
-- Test additions.
-- Documentation updates.
-- Build and CI maintenance.
-- Mechanical refactors that preserve behavior.
+- 聚焦的 bug 修复。
+- 测试补充。
+- 文档更新。
+- 构建与 CI 维护。
+- 保持行为的机械式重构。
 
-### Restricted Uses
+### 受限的用途
 
-AI agents should not independently:
+AI 代理不应独立地：
 
-- Redesign core architecture without maintainer direction.
-- Weaken tests, warnings, static analysis, or CI.
-- Add large dependencies or generated code without approval.
-- Publish releases, rotate credentials, or change repository permissions.
+- 在没有维护者指导的情况下重新设计核心架构。
+- 削弱测试、警告、静态分析或 CI。
+- 未经批准添加大型依赖或生成代码。
+- 发布版本、轮换凭据或更改仓库权限。
 
-### Disclosure
+### 披露
 
-Pull requests should disclose meaningful AI assistance: list the required docs
-read, summarize what the agent did, and record the human verification performed.
+Pull request 应披露实质性的 AI 辅助：列出已读的必读文档、概述代理做了什么、
+记录执行了哪些人工验证。
 
-### Playbooks
+### 操作手册
 
-**General workflow:** Read AGENTS.md and relevant docs, inspect the smallest
-relevant file set, make focused changes, run checks, summarize.
+**通用工作流：** 阅读 AGENTS.md 与相关文档，检查最小的相关文件集合，做聚焦的
+改动，运行检查，写总结。
 
-**Bug fix:** Reproduce or identify the failing behaviour, add a regression test
-when practical, fix the smallest owning module, run targeted and broader checks.
+**Bug 修复：** 复现或定位失败行为，在可行时补回归测试，修复最小的归属模块，
+运行针对性与更大范围的检查。
 
-**Refactor:** Define behaviour that must remain unchanged, stay within module
-boundaries, avoid mixing feature behaviour with refactor work, run tests
-covering touched modules.
+**重构：** 定义必须保持不变的行为，停留在模块边界内，避免把功能行为与重构
+工作混在一起，运行覆盖所触及模块的测试。
 
-**CI or build fix:** Inspect the failing check and logs, reproduce locally when
-practical, fix the project cause rather than masking the check, keep scripts
-and presets aligned.
+**CI 或构建修复：** 检查失败的检查项与日志，在可行时本地复现，修复项目本身
+的原因而不是掩盖检查，保持脚本与 preset 一致。
 
-For CMake, package, install, or subproject work, use `docs/en/guides/cmake.md`
-to select the relevant smoke checks.
+CMake、包、安装或子项目相关的工作，用 `docs/guides/cmake.md` 选择相关的
+冒烟检查。
 
-## Documentation
+## 文档
 
-Update local docs when build commands, CMake usage, dependencies, testing policy,
-release policy, security policy, or public API expectations change.
+当构建命令、CMake 用法、依赖、测试策略、发布策略、安全策略或公共 API 预期
+发生变化时，更新本地文档。

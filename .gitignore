@@ -18,5 +18,7 @@ compile_commands.json
 Testing/
 .wix/
 .hermes/
+__pycache__/
+*.py[cod]
 Okk/
 TestProj/

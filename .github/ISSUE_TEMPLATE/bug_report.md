@@ -1,41 +1,41 @@
 ---
-name: Bug report
-about: Report a reproducible defect
+name: Bug 报告
+about: 报告一个可复现的缺陷
 title: "bug: "
 labels: bug
 assignees: ""
 ---
 
-## Summary
+## 摘要
 
-Describe the defect.
+描述该缺陷。
 
-## Reproduction
+## 复现
 
 1. TODO
 
-## Command
+## 命令
 
 ```sh
 TODO
 ```
 
-## Actual Behavior
+## 实际行为
 
-Describe what happened.
+描述发生了什么。
 
-## Expected Behavior
+## 预期行为
 
-Describe what should happen instead.
+描述本应发生什么。
 
-## Environment
+## 环境
 
-- OS:
-- Compiler:
-- CMake version:
-- Generator or preset:
-- Project commit:
+- 操作系统：
+- 编译器：
+- CMake 版本：
+- Generator 或 preset：
+- 项目 commit：
 
-## Additional Context
+## 补充信息
 
-Add logs, failing tests, or related links.
+附上日志、失败的测试或相关链接。

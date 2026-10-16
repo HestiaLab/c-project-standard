@@ -625,7 +625,7 @@ static const StripItem FEAT_STRIPS[FEAT_COUNT][4] = {
         },
     [FEAT_AI_AGENT] =
         {
-            {"AI agent policy doc", "docs/en/guides/ai-agent.md"},
+            {"AI agent policy doc", "AGENTS.md"},
             {NULL, NULL},
         },
     [FEAT_CLI] = {{NULL, NULL}},

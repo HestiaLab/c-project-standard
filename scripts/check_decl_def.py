@@ -24,7 +24,7 @@ before matching:
   function name that appears inside a comment or ``"Use cproject_version()"``
   string is not mistaken for a declaration;
 - all-uppercase identifiers are blanked out. By this project's naming convention
-  (documented in ``docs/en/guides/coding-style.md``) functions and variables are
+  (documented in ``docs/guides/coding-style.md``) functions and variables are
   snake_case and macros/constants are UPPER_SNAKE_CASE, so an all-uppercase name
   such as ``CPROJECT_DEPRECATED(...)`` is a macro, not a declared function;
 - C11 keywords (plus a few common macro builtins) are skipped.
@@ -39,9 +39,27 @@ declarations. A declaration is matched to any definition of the same name in
 ``src/**/*.c``; signature equivalence is the compiler's job, not this gate's.
 """
 
+import argparse
 import re
 import sys
 from pathlib import Path
+
+
+def _pin_utf8_console() -> None:
+    """Pin stdout/stderr to UTF-8 so Chinese verdicts stay readable.
+
+    A legacy console code page (Windows GBK/cp1252) either raises
+    UnicodeEncodeError on stdout or degrades stderr to literal escape
+    sequences, which turns a verdict into noise. The wizard CLI pins the
+    console the same way (``SetConsoleOutputCP(CP_UTF8)``).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_pin_utf8_console()
+
 
 # C11 keywords (plus common macro builtins) that must never be treated as a
 # declared or defined function name, e.g. _Static_assert(sizeof(x) == 4, "...");
@@ -64,6 +82,21 @@ _DECL_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\([^;{}]*\)\s*;")
 _DEF_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\([^;{}]*\)\s*\{")
 # An all-uppercase identifier: by convention this is a macro or constant.
 _MACRO_RE = re.compile(r"\b[A-Z][A-Z0-9_]*\b")
+
+# Scan-surface floors — two tiers (see main() for the CLI overrides).
+#
+# Absolute floors are the defaults. They hold in this template AND in projects
+# generated from it, whose scan surface is far smaller (the wizard leaves a
+# stub src/ behind). They make "parsed 0 items and printed OK" impossible.
+_ABS_MIN_DECLARATIONS = 1
+_ABS_MIN_DEFINITIONS = 1
+#
+# Template floors are passed explicitly by the CTest registration inside the
+# wizard markers in cmake/Tests.cmake (so generated projects do not inherit
+# them): measured 2026-10-10 as 4 unique public declarations in
+# include/**/*.h and 58 unique definitions in src/**/*.c (including the
+# wizard's static functions), floored at baseline x 0.8 -> 3 / 46. They catch
+# regex or layout drift in the template itself.
 
 
 def _blank_span(chars: list[str], start: int, end: int) -> None:
@@ -144,9 +177,39 @@ def collect_definitions(root: Path) -> set[str]:
 
 
 def main(argv: list[str]) -> int:
-    root = Path(argv[1] if len(argv) > 1 else ".")
+    parser = argparse.ArgumentParser(
+        description="Every public declaration in include/ must have a "
+                    "definition in src/.")
+    parser.add_argument("repo_root", type=Path, nargs="?", default=Path("."))
+    parser.add_argument("--min-declarations", type=int,
+                        default=_ABS_MIN_DECLARATIONS,
+                        help="scan-surface floor for include/ declarations")
+    parser.add_argument("--min-definitions", type=int,
+                        default=_ABS_MIN_DEFINITIONS,
+                        help="scan-surface floor for src/ definitions")
+    args = parser.parse_args(argv[1:])
+
+    root: Path = args.repo_root
+    min_declarations: int = args.min_declarations
+    min_definitions: int = args.min_definitions
     declarations = collect_declarations(root)
     definitions = collect_definitions(root)
+
+    # Scan-surface floors: a parse that finds far fewer items than the floor
+    # means the scan itself broke (wrong path, renamed layout, or a regex that
+    # stopped matching), not that the project legitimately shrank. A
+    # structural deletion that legitimately lowers a count must lower the
+    # matching floor in the same change, with the reason recorded.
+    if len(declarations) < min_declarations:
+        print(f"FAIL: 解析失败：include/ 公共声明仅 {len(declarations)} 项"
+              f"（下限 {min_declarations}）——检查被扫描路径或写法是否变化",
+              file=sys.stderr)
+        return 1
+    if len(definitions) < min_definitions:
+        print(f"FAIL: 解析失败：src/ 函数定义仅 {len(definitions)} 项"
+              f"（下限 {min_definitions}）——检查被扫描路径或写法是否变化",
+              file=sys.stderr)
+        return 1
 
     missing = [(name, headers) for name, headers in declarations.items()
                if name not in definitions]

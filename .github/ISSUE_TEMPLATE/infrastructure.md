@@ -1,36 +1,36 @@
 ---
-name: Infrastructure request
-about: Propose build, CI, packaging, testing, or tooling maintenance
+name: 基础设施请求
+about: 提议构建、CI、打包、测试或工具链维护
 title: "infra: "
 labels: infrastructure
 assignees: ""
 ---
 
-## Scope
+## 范围
 
-Describe the build, CI, packaging, testing, or tooling change.
+描述构建、CI、打包、测试或工具链的改动。
 
-## Affected Area
+## 受影响区域
 
-- [ ] Build
+- [ ] 构建
 - [ ] CI
-- [ ] Packaging
-- [ ] Testing
-- [ ] Documentation
-- [ ] Dependencies
+- [ ] 打包
+- [ ] 测试
+- [ ] 文档
+- [ ] 依赖
 
-## Motivation
+## 动机
 
-Describe the maintenance risk, workflow gap, or template quality issue.
+描述维护风险、工作流缺口或模板质量问题。
 
-## Validation
+## 验证
 
-List the checks that should prove the change works.
+列出应能证明改动有效的检查。
 
-## Risk Or Rollback
+## 风险与回滚
 
-Describe the risk, compatibility concern, or rollback path.
+描述风险、兼容性顾虑或回滚路径。
 
-## Compatibility
+## 兼容性
 
-Describe any impact on supported platforms, local tools, or downstream users.
+描述对受支持平台、本地工具或下游用户的任何影响。

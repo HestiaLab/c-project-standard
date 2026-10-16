@@ -1,5 +1,3 @@
-<!-- 对应英文版：docs/en/guides/release.md | 最后同步：2026-09-02 -->
-
 # 发布
 
 本模板提供多平台打包，以及一个为 Linux、macOS 和 Windows 生成安装包的 GitHub Actions 工作流。
