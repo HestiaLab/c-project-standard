@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21...3.31)
 
 # CPROJECT_PROJECT_METADATA_BEGIN
 project(CProjectStandard
-    VERSION 0.2.0
+    VERSION 0.2.1
     DESCRIPTION "A compact C11 project template and engineering standard"
     LANGUAGES C
 )
