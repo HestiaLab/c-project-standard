@@ -13,6 +13,10 @@
 #else
 #include <unistd.h>
 #endif
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#include <stdint.h>
+#endif
 
 #define WIZARD_EXIT_OK 0
 #define WIZARD_EXIT_RUNTIME 1
@@ -397,6 +401,25 @@ static int is_template_root(const char *root) {
            has_file_under(root, "include/cproject/example.h");
 }
 
+static int actual_executable_path(char *out, size_t size) {
+#ifdef _WIN32
+    typedef unsigned long path_length_t;
+    __declspec(dllimport) path_length_t __stdcall GetModuleFileNameA(void *module, char *filename,
+                                                                     path_length_t length);
+    path_length_t length = GetModuleFileNameA(NULL, out, (path_length_t)size);
+    return (length == 0 || length >= (path_length_t)size) ? -1 : 0;
+#elif defined(__APPLE__)
+    uint32_t required = (uint32_t)size;
+    return _NSGetExecutablePath(out, &required) == 0 ? 0 : -1;
+#else
+    ssize_t length = readlink("/proc/self/exe", out, size - 1);
+    if (length <= 0 || (size_t)length >= size)
+        return -1;
+    out[length] = '\0';
+    return 0;
+#endif
+}
+
 static char *executable_dir(const char *argv0) {
     const char *slash = strrchr(argv0, '/');
     size_t length;
@@ -459,7 +482,12 @@ static int resolve_template_root(const char *argv0, const char *explicit_root, c
         }
     }
     {
-        char *directory = executable_dir(argv0);
+        char actual_path[WIZARD_MAX_PATH];
+        char *directory = NULL;
+        if (actual_executable_path(actual_path, sizeof(actual_path)) == 0)
+            directory = executable_dir(actual_path);
+        if (!directory)
+            directory = executable_dir(argv0);
         if (directory) {
             char candidate[WIZARD_MAX_PATH];
             if (wizard_join_path(candidate, sizeof(candidate), directory,
@@ -845,8 +873,9 @@ int wizard_cli_main(int argc, char **argv) {
                         "init --in-place requires --yes when stdin is not interactive.");
     } else if (!resolve_template_root(argv0, state.options.template_root, template_root,
                                       sizeof(template_root))) {
-        return fail(&state, WIZARD_EXIT_RUNTIME,
-                    "找不到模板根目录。请使用 --template-root <dir>。");
+        return fail(
+            &state, WIZARD_EXIT_RUNTIME,
+            "找不到模板根目录。请使用 --template-root <dir>（Windows 路径含空格时请加引号）。");
     }
 
     if (interactive) {

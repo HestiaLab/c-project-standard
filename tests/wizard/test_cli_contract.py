@@ -198,6 +198,28 @@ class Contract:
             assert "Project" in result.stdout
             assert "项目" not in result.stdout
 
+    def test_path_invocation_resolves_template(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="cproject-cli-path-") as tmp:
+            output = Path(tmp) / "output"
+            env = {**os.environ, "PATH": str(self.exe.parent) + os.pathsep + os.environ.get("PATH", "")}
+            command = ["cproject.exe" if os.name == "nt" else "cproject",
+                       "new", "PathProbe", "--output", str(output), "--yes", "--json"]
+            options = {"executable": str(self.exe)} if os.name == "nt" else {}
+            result = subprocess.run(
+                command,
+                cwd=tmp,
+                capture_output=True,
+                encoding="utf-8",
+                errors="replace",
+                env=env,
+                timeout=120,
+                **options,
+            )
+            assert result.returncode == 0, (result.stdout, result.stderr)
+            payload = parse_json(result)
+            assert Path(payload["template"]).resolve() == self.template_root
+            assert (output / "PathProbe" / "CMakeLists.txt").is_file()
+
     def test_git_init_without_git_is_a_runtime_error(self) -> None:
         # The test environment always has git, so this only asserts the flag
         # is accepted and reports a planned action in dry-run mode.
