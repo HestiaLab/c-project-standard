@@ -17,11 +17,15 @@ static int is_separator(char c) {
 }
 
 static char ascii_upper(char c) {
-    return (c >= 'a' && c <= 'z') ? (char)(c - 'a' + 'A') : c;
+    if (c >= 'a' && c <= 'z')
+        return (char)(c - 'a' + 'A');
+    return c;
 }
 
 static char ascii_lower(char c) {
-    return (c >= 'A' && c <= 'Z') ? (char)(c - 'A' + 'a') : c;
+    if (c >= 'A' && c <= 'Z')
+        return (char)(c - 'A' + 'a');
+    return c;
 }
 
 static void set_error(char *err, size_t err_size, const char *message) {

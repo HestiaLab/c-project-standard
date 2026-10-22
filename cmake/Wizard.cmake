@@ -11,5 +11,8 @@ target_include_directories(cproject_wizard PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/wizard
 )
 target_link_libraries(cproject_wizard PUBLIC cproject_core)
+if(NOT WIN32)
+    target_compile_definitions(cproject_wizard PRIVATE _POSIX_C_SOURCE=200809L)
+endif()
 cproject_target_defaults(cproject_wizard)
 target_link_libraries(cproject PRIVATE cproject_wizard)
