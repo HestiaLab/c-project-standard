@@ -70,6 +70,12 @@ def _repo_is_full_git_clone() -> bool:
         cwd=_REPO_ROOT, capture_output=True, text=True)
     if inside.returncode != 0 or inside.stdout.strip() != "true":
         return False
+    head = subprocess.run(
+        [_GIT, "rev-parse", "--verify", "HEAD"],
+        cwd=_REPO_ROOT, capture_output=True, text=True)
+    if head.returncode != 0:
+        # A freshly generated project may have `git init` but no commit yet.
+        return False
     shallow = subprocess.run(
         [_GIT, "rev-parse", "--is-shallow-repository"],
         cwd=_REPO_ROOT, capture_output=True, text=True)
@@ -195,6 +201,14 @@ class TestVersionConsistencyGate(unittest.TestCase):
         self.assertEqual(self.module.read_header_version(header, "SomeProj"),
                          "4.5.6")
 
+    def test_cli_version_accepts_v_prefix(self) -> None:
+        """Generated CLI stubs print ``MyLib v1.2.3``; the gate must extract
+        the version rather than the optional v prefix."""
+        match = self.module._VERSION_RE.search("MyLib v1.2.3\n")
+        self.assertIsNotNone(match)
+        assert match is not None
+        self.assertEqual(".".join(match.groups()), "1.2.3")
+
     def test_missing_inputs_exit_nonzero(self) -> None:
         """Pointing the gate at an empty tree must fail, not pass vacuously."""
         empty = self.tmp / "empty"
@@ -220,8 +234,10 @@ class TestGitEvidenceGates(unittest.TestCase):
     def setUp(self) -> None:
         self.doc_paths = _SCRIPTS_DIR / "check_doc_paths.py"
         self.changelog_tag = _SCRIPTS_DIR / "check_changelog_tag.py"
-        for script in (self.doc_paths, self.changelog_tag):
-            self.assertTrue(script.is_file(), f"missing gate script: {script}")
+        missing = [script.name for script in (self.doc_paths, self.changelog_tag)
+                   if not script.is_file()]
+        if missing:
+            self.skipTest(f"template-only git gates not shipped: {', '.join(missing)}")
         self.tmp = Path(tempfile.mkdtemp(prefix="gate-test-gitevidence-"))
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
 
@@ -332,10 +348,8 @@ class TestLegacyConsoleEncoding(unittest.TestCase):
             "project(Probe\n    VERSION 1.2.3\n    LANGUAGES C\n)\n",
             encoding="utf-8")
 
-        cases = (
+        cases = [
             ("check_decl_def.py", (str(self.empty),), "解析失败"),
-            ("check_doc_paths.py", (str(non_git),), "无法取证"),
-            ("check_changelog_tag.py", (str(non_git),), "无法取证"),
             ("check_version_consistency.py",
              (str(version_tree),
               "--build-dir", str(self.tmp / "missing-build"),
@@ -343,7 +357,10 @@ class TestLegacyConsoleEncoding(unittest.TestCase):
             ("coverage_ratchet.py",
              (str(self.tmp / "missing-build"), "--repo-root", str(self.empty)),
              "构建目录不存在"),
-        )
+        ]
+        for optional in ("check_doc_paths.py", "check_changelog_tag.py"):
+            if (_SCRIPTS_DIR / optional).is_file():
+                cases.append((optional, (str(non_git),), "无法取证"))
         for name, args, expected in cases:
             with self.subTest(script=name):
                 result = _run_script(_SCRIPTS_DIR / name, *args,
@@ -358,7 +375,8 @@ class TestCpackConfigGate(unittest.TestCase):
 
     def test_missing_config_fails(self) -> None:
         script = _SCRIPTS_DIR / "check-cpack-config.py"
-        self.assertTrue(script.is_file(), f"missing gate script: {script}")
+        if not script.is_file():
+            self.skipTest("packaging feature disabled in this project")
         with tempfile.TemporaryDirectory(prefix="gate-test-cpack-") as tmp:
             result = _run_script(script, str(Path(tmp) / "CPackConfig.cmake"))
             self.assertEqual(result.returncode, 1)
@@ -382,7 +400,8 @@ class TestDocGatesScanSurface(unittest.TestCase):
         self.script_docs = _SCRIPTS_DIR / "check_docs.py"
         self.script_paths = _SCRIPTS_DIR / "check_doc_paths.py"
         for script in (self.script_docs, self.script_paths):
-            self.assertTrue(script.is_file(), f"missing gate script: {script}")
+            if not script.is_file():
+                self.skipTest(f"template-only git gate not shipped: {script.name}")
         self.tmp = Path(tempfile.mkdtemp(prefix="gate-test-surface-"))
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
 

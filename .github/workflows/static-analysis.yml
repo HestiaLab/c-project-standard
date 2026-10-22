@@ -23,7 +23,12 @@ jobs:
           sudo apt-get install -y cppcheck clang-format clang-tidy ninja-build yamllint
 
       - name: YAML lint
-        run: yamllint .github .yamllint.yml
+        run: |
+          if [ -d templates ]; then
+            yamllint .github .yamllint.yml templates
+          else
+            yamllint .github .yamllint.yml
+          fi
 
       - name: Format check
         # Invoked via bash: scripts/ files are committed without the

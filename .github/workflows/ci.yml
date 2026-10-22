@@ -207,3 +207,86 @@ jobs:
 
       - name: Test subproject smoke
         run: ctest --test-dir build/subproject-smoke -C Debug --output-on-failure
+
+  generated-projects:
+    name: Generated projects (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure template
+        run: cmake --preset ninja-debug
+
+      - name: Build wizard
+        run: cmake --build --preset ninja-debug
+
+      - name: Generate, build, and test default/minimal projects
+        shell: bash
+        run: |
+          PYTHON=python3
+          EXE=build/ninja-debug/bin/cproject
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            PYTHON=python
+            EXE=build/ninja-debug/bin/cproject.exe
+          fi
+          "$PYTHON" tests/wizard/test_generated_matrix.py \
+            --exe "$EXE" --template-root .
+
+      - name: Verify install payload and installed wizard
+        shell: bash
+        run: |
+          PYTHON=python3
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            PYTHON=python
+          fi
+          "$PYTHON" tests/wizard/test_install_payload.py \
+            --build-dir build/ninja-debug --template-root .
+
+  msi-smoke:
+    name: MSI smoke (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install WiX
+        shell: bash
+        run: |
+          dotnet tool install --global wix --version 6.0.2
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          wix extension add --global WixToolset.UI.wixext/6.0.2
+          wix extension add --global WixToolset.Util.wixext/6.0.2
+
+      - name: Configure release build
+        run: cmake --preset ninja-release
+
+      - name: Build MSI
+        run: cmake --build --preset ninja-release --target msi
+
+      - name: Install MSI and generate a project
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem -Path build/ninja-release/msi -Filter *.msi |
+            Select-Object -First 1
+          if (-not $msi) {
+            throw "MSI not found under build/ninja-release/msi"
+          }
+          ./scripts/msi-smoke.ps1 -MsiPath $msi.FullName

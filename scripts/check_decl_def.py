@@ -30,7 +30,7 @@ before matching:
 - C11 keywords (plus a few common macro builtins) are skipped.
 
 This makes the gate independent of the project's exact prefix, so it keeps
-working after ``scripts/rename-project.*`` renames the template.
+working in the template and in generated projects with different names.
 
 ``typedef``s, macros, and ``extern`` variable declarations are ignored because
 they do not match the ``name(...)`` shape. ``static inline`` functions defined

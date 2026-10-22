@@ -20,5 +20,7 @@ Testing/
 .hermes/
 __pycache__/
 *.py[cod]
+*-cppcheck-build-dir/
+.static-analysis-files.txt
 Okk/
 TestProj/

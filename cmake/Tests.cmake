@@ -90,6 +90,33 @@ cproject_add_test(cproject_scalar_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_scalar.c
 )
 
+# Generic version gate: CMake project VERSION, generated header, CHANGELOG,
+# and the CLI when the project has one. Generated projects inherit this.
+set(CPROJECT_VERSION_GATE_ARGS
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_version_consistency.py
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    --build-dir ${CMAKE_BINARY_DIR}
+)
+if(TARGET cproject)
+    list(APPEND CPROJECT_VERSION_GATE_ARGS --exe $<TARGET_FILE:cproject>)
+endif()
+add_test(NAME cproject_version_consistency
+    COMMAND ${Python3_EXECUTABLE} ${CPROJECT_VERSION_GATE_ARGS}
+)
+set_tests_properties(cproject_version_consistency PROPERTIES LABELS "architecture")
+if(TARGET cproject)
+    set_tests_properties(cproject_version_consistency PROPERTIES DEPENDS cproject)
+endif()
+
+# Generic documentation gate: links, anchors, fences, and README index coverage.
+# The generated README index and docs set are produced by the wizard together.
+add_test(NAME cproject_docs_check
+    COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_docs.py
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        --mode all)
+set_tests_properties(cproject_docs_check PROPERTIES LABELS "documentation")
+
 # CPROJECT_WIZARD_TESTS_BEGIN
 if(TARGET cproject)
     add_test(NAME cproject_help COMMAND $<TARGET_FILE:cproject> --help)
@@ -114,28 +141,32 @@ if(TARGET cproject)
     )
     set_tests_properties(cproject_new_dry_run PROPERTIES
         LABELS "smoke"
-        PASS_REGULAR_EXPRESSION "dry-run"
+        PASS_REGULAR_EXPRESSION "Dry run"
     )
 
-    # Version consistency: CMakeLists project VERSION, generated header,
-    # CLI --version, and CHANGELOG newest section must all agree.
-    add_test(NAME cproject_version_consistency
+    add_test(NAME cproject_cli_contract
         COMMAND ${Python3_EXECUTABLE}
-            ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_version_consistency.py
-            ${CMAKE_CURRENT_SOURCE_DIR}
-            --build-dir ${CMAKE_BINARY_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/wizard/test_cli_contract.py
             --exe $<TARGET_FILE:cproject>
+            --template-root ${CMAKE_CURRENT_SOURCE_DIR}
     )
-    set_tests_properties(cproject_version_consistency PROPERTIES
-        LABELS "architecture"
+    set_tests_properties(cproject_cli_contract PROPERTIES
+        LABELS "smoke"
         DEPENDS cproject
     )
 
-    # Template-only strict scan-surface floors (baseline x 0.8, measured
-    # 2026-10-10). Registered inside the wizard markers on purpose: the wizard
-    # comments this block out in generated projects, whose scan surface is
-    # legitimately much smaller. Generated projects keep the generic
-    # cproject_decl_def_check registration above with absolute floors.
+    if(TARGET cproject_wizard)
+        cproject_add_test(cproject_wizard_config_tests
+            SOURCES
+                ${CMAKE_CURRENT_SOURCE_DIR}/tests/wizard/test_wizard_config.c
+            LIBS
+                cproject_wizard
+        )
+    endif()
+
+    # Template-only strict scan-surface floors (baseline x 0.8). Generated
+    # projects have a legitimately smaller surface, so the absolute-floor
+    # registration above is their guard.
     add_test(NAME cproject_decl_def_floor
         COMMAND ${Python3_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_decl_def.py
@@ -145,22 +176,9 @@ if(TARGET cproject)
     )
     set_tests_properties(cproject_decl_def_floor PROPERTIES LABELS "architecture")
 
-    # Documentation gate (template-maintenance): relative links/anchors
-    # reachable (URL-decoded), code fences paired, and the README.md doc
-    # index covers every docs/**/*.md file both ways. Registered inside the
-    # markers because the wizard strips files the template index still
-    # references; generated projects manage their own doc set.
-    add_test(NAME cproject_docs_check
-        COMMAND ${Python3_EXECUTABLE}
-            ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_docs.py
-            ${CMAKE_CURRENT_SOURCE_DIR}
-            --mode all)
-    set_tests_properties(cproject_docs_check PROPERTIES LABELS "documentation")
-
     # Backtick path reachability (git view) and CHANGELOG<->tag consistency.
-    # Both require git evidence and fail with 无法取证 outside a git working
-    # copy, so they live inside the wizard markers: generated projects are
-    # not git repos at creation time.
+    # Both require full git evidence and fail with 无法取证 outside a git
+    # working copy, so they stay template-only.
     add_test(NAME cproject_doc_paths_check
         COMMAND ${Python3_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_doc_paths.py
@@ -175,10 +193,11 @@ if(TARGET cproject)
 endif()
 # CPROJECT_WIZARD_TESTS_END
 
-# CPack config validation is only meaningful on non-Windows platforms where
-# we still use CPack for packaging (DEB/RPM/TGZ on Linux, productbuild/TGZ
-# on macOS). On Windows the packaging is done via WiX 6 MSI.
-if(NOT WIN32)
+# CPack config validation applies to generated projects with the installable
+# feature and to the template's Linux/macOS packaging path. Windows template
+# packaging uses WiX and does not produce CPackConfig.cmake.
+# CPROJECT_FEATURE_INSTALLABLE_BEGIN
+if(CPROJECT_INSTALL AND NOT (WIN32 AND CPROJECT_TEMPLATE))
     find_package(Python3 COMPONENTS Interpreter REQUIRED)
     add_test(NAME cproject_cpack_config
         COMMAND ${Python3_EXECUTABLE}
@@ -186,6 +205,7 @@ if(NOT WIN32)
             ${CMAKE_CURRENT_BINARY_DIR}/CPackConfig.cmake
     )
 endif()
+# CPROJECT_FEATURE_INSTALLABLE_END
 
 add_custom_target(cproject_tests
     DEPENDS

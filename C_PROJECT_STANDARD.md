@@ -9,7 +9,9 @@
 - [CMake 标准](#cmake-标准)
 - [测试标准](#测试标准)
 - [头文件边界标准](#头文件边界标准)
+<!-- CPROJECT_FEATURE_CI_BEGIN -->
 - [CI 标准](#ci-标准)
+<!-- CPROJECT_FEATURE_CI_END -->
 - [验证标准](#验证标准)
 - [仓库维护标准](#仓库维护标准)
 - [文档标准](#文档标准)
@@ -47,10 +49,12 @@ docs/adr/            架构决策记录（中文）
 - `cmake/Dependencies.cmake` 负责第三方依赖。
 - `cmake/Sources.cmake` 负责源码清单。
 - `cmake/Tests.cmake` 负责测试目标。
+<!-- CPROJECT_FEATURE_INSTALLABLE_BEGIN -->
 - `cmake/Packaging.cmake` 负责安装与打包规则。
 
 可安装的库应生成 CMake 包配置文件，让下游项目能使用
 `find_package(<Project> CONFIG REQUIRED)`。
+<!-- CPROJECT_FEATURE_INSTALLABLE_END -->
 
 除非项目有理由只发布静态或只发布共享制品，库应支持 `BUILD_SHARED_LIBS`。
 公共头文件应暴露一个小的导出宏，并通过 `extern "C"` guard 可供 C++ 调用方
@@ -106,7 +110,9 @@ docs/adr/            架构决策记录（中文）
 - 优先为每个模块或子系统提供聚焦的测试可执行文件。
 - 除非细节是有书面记录的内部契约，否则不测试实现细节。
 - Bug 修复应包含回归测试，除非该行为只能人工观察。
+<!-- CPROJECT_FEATURE_INSTALLABLE_BEGIN -->
 - 可安装的库应包含一个包冒烟测试，用 `find_package` 构建一个小的下游项目。
+<!-- CPROJECT_FEATURE_INSTALLABLE_END -->
 
 ## 头文件边界标准
 
@@ -128,6 +134,7 @@ src/<project>/feature_internal.h
 - 公共类型应稳定且有文档。
 - 内部头文件可以暴露实现状态，但必须与公共消费者隔离。
 
+<!-- CPROJECT_FEATURE_CI_BEGIN -->
 ## CI 标准
 
 每个项目应有：
@@ -141,6 +148,7 @@ src/<project>/feature_internal.h
 - 工作流与自动化文件的 YAML lint。
 - 提供覆盖率 preset 的项目做覆盖率 preset 验证。
 - 可安装库在各平台上的包冒烟测试。
+<!-- CPROJECT_FEATURE_CI_END -->
 
 ## 验证标准
 
@@ -152,7 +160,9 @@ src/<project>/feature_internal.h
 
 理由：「解析到 0 项却打印 OK」是最危险的假绿——扫描路径写错、目录改名、正则失配都会让门禁静默变成空操作。下限取实测基线 × 0.8（在注释里写明口径与日期）；结构性删除确实会降低计数时，必须在同一笔改动里下调下限并写明原因。
 
-模板与生成项目的扫描面天然不同（wizard 生成项目只留桩代码），因此下限分两档：脚本默认是**绝对下限**（≥1，模板与生成项目都适用），模板自身的**严格下限**（基线 × 0.8）由 CTest 注册时显式传入，并放在 wizard markers 内，生成项目不继承。
+模板与生成项目的扫描面天然不同（生成项目只留桩代码），因此下限分两档：
+脚本默认是**绝对下限**（≥1，模板与生成项目都适用），模板自身的**严格下限**
+（基线 × 0.8）由模板专属 CTest 注册显式传入，生成项目不继承。
 
 扫描面本身也必须与工作目录解耦：判定对象是 **git 视角的活文件**（tracked ∪ untracked 且未被 ignore），被忽略的本地草稿（`.hermes/`、`dist/`、`Okk/`）不得影响结论。理由同上——扫描面取自工作目录时，同一提交在开发机（有草稿）与 CI 检出（无草稿）会给出不同结论，这属于环境依赖缺陷，不是本地噪声。非 git 工作副本下没有 ignore 语义可用，退回盘上遍历，并在脚本的扫描面对齐一节写明。
 
@@ -165,7 +175,9 @@ src/<project>/feature_internal.h
 3. 回滚破坏。
 4. 确认复绿。
 
-同时每条门禁必须通过**空目录探针**：把扫描面指向空目录，必须非 0 退出并打印指名诊断。`scripts/gate_floor_probe.sh` 把全部 `scripts/check_*.py` 逐个空跑，任何一条 exit 0 即判 VACUOUS-PASS。
+同时每条门禁必须通过**空目录探针**：把扫描面指向空目录，必须非 0 退出并打印
+指名诊断。模板仓库的维护者脚本会把全部扫描型门禁逐个空跑，任何一条 exit 0
+即判 VACUOUS-PASS。
 
 门禁脚本自身要有单元测试（`scripts/tests/`，unittest，纯标准库），断言的正是「能失败」这个性质。
 
@@ -177,9 +189,12 @@ src/<project>/feature_internal.h
 
 ### 新增门禁的四步注册
 
-1. 脚本放 `scripts/check_*.py`（纯标准库、跨平台、`pathlib` 路径、不硬编码项目名——改名安全靠 `scripts/rename-project.*` 之后仍能用）。
-2. 在 `cmake/Tests.cmake` 注册为 CTest：依赖构建产物的放 wizard markers 内（生成项目自动注释掉）；依赖 git 的同样放 markers 内（生成项目创建时不是 git 仓库），且**非 git 上下文必须报「无法取证」exit 1，不降级为跳过**（跳过 ≠ 通过）。
-3. 补牙齿测试与空目录探针证据（进 `scripts/tests/test_gate_behaviors.py` 或交付记录）。
+1. 脚本放 `scripts/check_*.py`（纯标准库、跨平台、`pathlib` 路径、不硬编码项目名）。
+2. 在 `cmake/Tests.cmake` 注册为 CTest。依赖构建产物、git 历史或模板专属
+   扫描面的门禁放在生成器会删除的模板标记块内；通用门禁放在标记外，并保证
+   生成项目同样能运行。
+3. 补牙齿测试与空目录探针证据（进 `scripts/tests/test_gate_behaviors.py`
+   或交付记录）。
 4. 在本节与 `docs/guides/testing.md` 登记该门禁守护什么、失败时怎么读输出。
 
 ### git 视角门禁需要完整历史
@@ -203,8 +218,8 @@ src/<project>/feature_internal.h
 
 ## 仓库维护标准
 
-当仓库预期接受外部或 AI 辅助的贡献时，模板应包含轻量的 PR 和 issue 模板。
-GitHub Actions 依赖应由 Dependabot 或等效的书面更新流程覆盖。
+当仓库预期接受外部或 AI 辅助的贡献时，应包含轻量的 PR 和 issue 模板。
+启用 GitHub Actions 时，依赖应由 Dependabot 或等效的书面更新流程覆盖。
 
 ## 文档标准
 
@@ -218,10 +233,11 @@ GitHub Actions 依赖应由 Dependabot 或等效的书面更新流程覆盖。
 - `docs/guides/cmake.md` 说明 CMake 工作流、preset、包消费与故障排除。
 - `docs/guides/coding-style.md` 说明命名、头文件、格式与 API 文档约定。
 - `docs/guides/testing.md` 说明测试分层与预期。
-- `docs/guides/release.md` 说明发布步骤。
-- `docs/guides/template.md` 说明重命名与裁剪。
 - `docs/adr/README.md` 说明架构决策。
+- 模板维护文档由上游模板仓库单独维护，不进入生成项目。
+<!-- CPROJECT_FEATURE_AI_AGENT_BEGIN -->
 - `AGENTS.md` 是 AI 代理说明。
+<!-- CPROJECT_FEATURE_AI_AGENT_END -->
 
 文档只维护一种语言：中文。上游派生项目如需要英文文档，请自行翻译，不要在
 本仓库重新引入双语镜像。

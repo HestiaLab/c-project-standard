@@ -17,8 +17,13 @@
 涉及构建、CI、打包、发布、依赖或安全的工作，还需阅读：
 
 - `docs/guides/cmake.md`
-- `docs/guides/release.md`
+- `docs/maintainer/release.md`
 - `SECURITY.md`
+
+修改生成器、载荷或模板维护流程时，还需阅读：
+
+- `docs/maintainer/template.md`
+- `docs/maintainer/testing.md`
 
 ## 项目形状
 
@@ -26,12 +31,12 @@
 
 ```text
 include/        公共头文件
-src/            实现
+src/            实现；src/wizard/ 仅属于模板
 tests/          CTest 测试
 cmake/          构建模块
-scripts/        本地引导与检查脚本
-docs/           贡献者文档
-docs/guides/    主题指南
+scripts/        本地引导、检查与模板维护脚本
+docs/guides/    生成项目共享指南
+docs/maintainer/ 模板维护文档（不进入生成物）
 ```
 
 ## 构建与验证

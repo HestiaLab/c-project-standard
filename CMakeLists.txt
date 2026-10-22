@@ -1,10 +1,18 @@
 cmake_minimum_required(VERSION 3.21...3.31)
 
+# CPROJECT_PROJECT_METADATA_BEGIN
 project(CProjectStandard
-    VERSION 0.1.0
+    VERSION 0.2.0
     DESCRIPTION "A compact C11 project template and engineering standard"
     LANGUAGES C
 )
+set(CPROJECT_PROJECT_AUTHOR "CProjectStandard contributors")
+set(CPROJECT_PROJECT_LICENSE "MIT")
+# CPROJECT_PROJECT_METADATA_END
+
+# CPROJECT_TEMPLATE_BUILD_BEGIN
+set(CPROJECT_TEMPLATE ON)
+# CPROJECT_TEMPLATE_BUILD_END
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -27,9 +35,13 @@ set(CMAKE_C_EXTENSIONS OFF)
 option(CPROJECT_ENABLE_ASAN "Enable AddressSanitizer where supported" OFF)
 option(CPROJECT_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer where supported" OFF)
 option(CPROJECT_ENABLE_COVERAGE "Enable coverage flags where supported" OFF)
+# CPROJECT_FEATURE_CLI_BEGIN
 option(CPROJECT_BUILD_EXAMPLE "Build the example executable" ${CPROJECT_IS_TOP_LEVEL_DEFAULT})
+# CPROJECT_FEATURE_CLI_END
 option(CPROJECT_BUILD_TESTING "Build CTest tests" ${CPROJECT_IS_TOP_LEVEL_DEFAULT})
+# CPROJECT_FEATURE_INSTALLABLE_BEGIN
 option(CPROJECT_INSTALL "Generate install rules" ${CPROJECT_IS_TOP_LEVEL_DEFAULT})
+# CPROJECT_FEATURE_INSTALLABLE_END
 
 set(CPROJECT_GENERATED_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/include")
 configure_file(
@@ -66,6 +78,7 @@ target_include_directories(cproject_core
 )
 cproject_target_defaults(cproject_core)
 
+# CPROJECT_FEATURE_CLI_BEGIN
 if(CPROJECT_BUILD_EXAMPLE)
     # Windows version-info resource
     if(WIN32)
@@ -89,19 +102,30 @@ if(CPROJECT_BUILD_EXAMPLE)
     set_target_properties(cproject PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
+    # CPROJECT_TEMPLATE_ONLY_BEGIN
+    if(CPROJECT_TEMPLATE)
+        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Wizard.cmake")
+    endif()
+    # CPROJECT_TEMPLATE_ONLY_END
 endif()
+# CPROJECT_FEATURE_CLI_END
 
 if(CPROJECT_BUILD_TESTING)
     enable_testing()
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Tests.cmake")
 endif()
 
+# CPROJECT_FEATURE_INSTALLABLE_BEGIN
 if(CPROJECT_INSTALL)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-        # Windows uses a WiX-based MSI installer (see cmake/PackagingMSI.cmake).
+    # CPROJECT_TEMPLATE_ONLY_BEGIN
+    if(CPROJECT_TEMPLATE AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        # The template itself ships a WiX-based MSI installer.
         include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PackagingMSI.cmake")
     else()
-        # Linux/macOS continue to use CPack (see cmake/Packaging.cmake).
+    # CPROJECT_TEMPLATE_ONLY_END
         include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Packaging.cmake")
+    # CPROJECT_TEMPLATE_ONLY_BEGIN
     endif()
+    # CPROJECT_TEMPLATE_ONLY_END
 endif()
+# CPROJECT_FEATURE_INSTALLABLE_END

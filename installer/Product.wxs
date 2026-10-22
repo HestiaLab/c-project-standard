@@ -71,9 +71,14 @@
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLDIR" Name="CProjectStandard">
         <Directory Id="INSTALLDIR_bin" Name="bin" />
-        <Directory Id="INSTALLDIR_lib" Name="lib" />
-        <Directory Id="INSTALLDIR_lib_cmake" Name="cmake" />
-        <Directory Id="INSTALLDIR_include" Name="include" />
+        <Directory Id="INSTALLDIR_lib" Name="lib">
+          <Directory Id="INSTALLDIR_lib_cmake" Name="cmake">
+            <Directory Id="INSTALLDIR_lib_cmake_CProjectStandard" Name="CProjectStandard" />
+          </Directory>
+        </Directory>
+        <Directory Id="INSTALLDIR_include" Name="include">
+          <Directory Id="INSTALLDIR_include_cproject" Name="cproject" />
+        </Directory>
         <Directory Id="INSTALLDIR_share" Name="share">
           <Directory Id="INSTALLDIR_share_cproject" Name="c-project-standard" />
         </Directory>
@@ -94,6 +99,7 @@
              ConfigurableDirectory="INSTALLDIR">
       <ComponentGroupRef Id="FilesComponents" />
       <ComponentGroupRef Id="LibComponents" />
+      <ComponentGroupRef Id="LibCMakeComponents" />
       <ComponentGroupRef Id="IncludeComponents" />
       <ComponentGroupRef Id="DocComponents" />
       <ComponentGroupRef Id="TemplateTreeComponents" />

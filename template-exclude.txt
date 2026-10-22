@@ -1,0 +1,24 @@
+# Template-only paths.
+#
+# One repository-relative path per line. A directory entry excludes the whole
+# subtree. Both the wizard's copy_tree() and CMake's install(DIRECTORY) rules
+# consume this file, so generated projects and staged installs cannot drift.
+.github/workflows/ci.yml
+.github/workflows/release.yml
+CHANGELOG.md
+LICENSE
+src/main.c
+installer/
+cmake/GenerateWiXTemplateTree.cmake
+cmake/PackagingMSI.cmake
+cmake/Wizard.cmake
+src/wizard/
+tests/wizard/
+docs/maintainer/
+scripts/check_changelog_tag.py
+scripts/check_doc_paths.py
+scripts/package.ps1
+scripts/publish.ps1
+scripts/gate_floor_probe.sh
+scripts/msi-smoke.ps1
+res/run-wizard.bat

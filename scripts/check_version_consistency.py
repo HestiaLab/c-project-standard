@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Check that the project version agrees across its four sources of truth.
+"""Check that the project version agrees across its sources of truth.
 
 Sources compared:
 
 1. ``CMakeLists.txt`` — the ``project(... VERSION x.y.z ...)`` declaration.
 2. The generated version header — ``<UPPER>_VERSION_STRING "x.y.z"`` produced
    by CMake ``configure_file`` into the build tree.
-3. The built CLI — ``<exe> --version`` output.
+3. The built CLI — ``<exe> --version`` output, when a CLI target exists.
 4. ``CHANGELOG.md`` — the newest ``## x.y.z`` section heading.
+
+Generated projects without the ``cli`` feature omit ``--exe``; the comparison
+then covers CMake, the generated header, and CHANGELOG.
 
 Documentation under ``docs/`` is deliberately NOT scanned: guides contain
 example ``project(... VERSION ...)`` snippets that would produce false
@@ -16,13 +19,9 @@ positives.
 Usage
 -----
     python3 scripts/check_version_consistency.py <repo_root> \
-        --build-dir <build_dir> --exe <path-to-cli-executable>
+        --build-dir <build_dir> [--exe <path-to-cli-executable>]
 
-The project name is parsed from ``CMakeLists.txt``; nothing about a specific
-project name or prefix is hard-coded, so the gate keeps working after
-``scripts/rename-project.*``.
-
-Exit code: 0 = all four sources agree; 1 = any mismatch or parse failure.
+Exit code: 0 = all available sources agree; 1 = any mismatch or parse failure.
 """
 
 import argparse
@@ -48,7 +47,7 @@ def _pin_utf8_console() -> None:
 _pin_utf8_console()
 
 
-_VERSION_RE = re.compile(r"\b(\d+)\.(\d+)\.(\d+)\b")
+_VERSION_RE = re.compile(r"\bv?(\d+)\.(\d+)\.(\d+)\b")
 
 
 def _fail(message: str) -> None:
@@ -109,7 +108,7 @@ def read_cli_version(exe: Path) -> str | None:
         return None
     output = result.stdout + result.stderr
     match = _VERSION_RE.search(output)
-    return match.group(0) if match else None
+    return ".".join(match.groups()) if match else None
 
 
 def read_changelog_version(changelog: Path) -> str | None:
@@ -120,12 +119,12 @@ def read_changelog_version(changelog: Path) -> str | None:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
-        description="Check that the project version agrees across its four sources of truth.")
+        description="Check that the project version agrees across its available sources of truth.")
     parser.add_argument("repo_root", type=Path)
     parser.add_argument("--build-dir", type=Path, required=True,
                         help="CMake build tree containing the generated header")
-    parser.add_argument("--exe", type=Path, required=True,
-                        help="built CLI executable to query with --version")
+    parser.add_argument("--exe", type=Path,
+                        help="optional built CLI executable to query with --version")
     args = parser.parse_args(argv[1:])
 
     root: Path = args.repo_root
@@ -155,13 +154,14 @@ def main(argv: list[str]) -> int:
         if header_version is None:
             problems.append(f"{header}: 未找到 <UPPER>_VERSION_STRING")
 
-    if not args.exe.is_file():
-        problems.append(f"可执行文件不存在: {args.exe}")
-        cli_version = None
-    else:
-        cli_version = read_cli_version(args.exe)
-        if cli_version is None:
-            problems.append(f"{args.exe} --version: 输出中没有 x.y.z 版本号")
+    cli_version = None
+    if args.exe is not None:
+        if not args.exe.is_file():
+            problems.append(f"可执行文件不存在: {args.exe}")
+        else:
+            cli_version = read_cli_version(args.exe)
+            if cli_version is None:
+                problems.append(f"{args.exe} --version: 输出中没有 x.y.z 版本号")
 
     if not changelog.is_file():
         problems.append(f"缺少 {changelog}")
@@ -175,9 +175,10 @@ def main(argv: list[str]) -> int:
         "CMakeLists.txt project VERSION": cmake_version,
         f"generated header ({header.name if header else '?'}): "
         "<UPPER>_VERSION_STRING": header_version,
-        f"{args.exe.name} --version": cli_version,
         "CHANGELOG.md newest section": changelog_version,
     }
+    if args.exe is not None:
+        sources[f"{args.exe.name} --version"] = cli_version
 
     for problem in problems:
         _fail(problem)
@@ -191,7 +192,8 @@ def main(argv: list[str]) -> int:
         return 1
 
     print(f"OK: version {distinct[0]} consistent across "
-          f"CMakeLists.txt, generated header, CLI --version, and CHANGELOG.md")
+          f"CMakeLists.txt, generated header, "
+          f"{'CLI --version, ' if args.exe is not None else ''}and CHANGELOG.md")
     return 0
 
 

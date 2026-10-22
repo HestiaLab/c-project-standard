@@ -1,10 +1,11 @@
 # 环境配置
 
-本项目在 Windows 10/11（64 位）上支持唯一一套开发环境：
+本页覆盖 Windows 10/11（64 位）上的推荐开发环境：
 
 > **VS Code + MSYS2 UCRT64（GCC、GDB、Ninja、clangd）+ 原生 CMake + Git**
 
-所有构建工具统一由 MSYS2 UCRT64 提供，GCC、GDB、Ninja、clangd 只有一个来源。CMake 使用 Windows 原生版本，Git 使用 Git for Windows。
+Linux 与 macOS 使用系统包管理器安装 CMake、Ninja 与 GCC/Clang 即可；CI 的
+三平台矩阵会覆盖这些路径。本页的 UCRT64 组合用于 Windows 本地开发。
 
 ## 需求
 
@@ -114,6 +115,9 @@ where git
 ## 下一步
 
 - **构建和测试**：配置、构建、测试、预设和故障排除见 [cmake.md](cmake.md)。
-- **测试预期**：测试分层和静态分析见 [testing.md](testing.md)。
+- **测试预期**：测试分层、静态分析和质量门禁见 [testing.md](testing.md)。
+- **编码规范**：命名、头文件与 API 文档约定见
+  [coding-style.md](coding-style.md)。
 - **贡献**：分支、提交和 PR 流程见 [../../CONTRIBUTING.md](../../CONTRIBUTING.md)。
-- **项目标准**：完整的工程标准见 [../../C_PROJECT_STANDARD.md](../../C_PROJECT_STANDARD.md)。
+- **项目标准**：完整的工程标准见
+  [../../C_PROJECT_STANDARD.md](../../C_PROJECT_STANDARD.md)。
