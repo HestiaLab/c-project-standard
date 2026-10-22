@@ -8,7 +8,7 @@ MSI、维护者脚本或本页的发布工作流。
 | 平台 | 生成器 | 制品 |
 | --- | --- | --- |
 | Linux | CPack DEB/RPM/TGZ | `.deb`、`.rpm`、`.tar.gz` |
-| macOS | CPack productbuild/TGZ | `.pkg`、`.tar.gz` |
+| macOS | CPack TGZ；发布工作流 pkgbuild/productbuild | `.pkg`、`.tar.gz` |
 | Windows | WiX 6 MSI | `.msi` |
 
 ## 本地构建

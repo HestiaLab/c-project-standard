@@ -71,6 +71,30 @@ jobs:
         working-directory: build/ninja-release
         run: cpack
 
+      - name: Build macOS pkg
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_TAG#v}"
+          STAGE="$RUNNER_TEMP/cproject-pkg-root"
+          COMPONENT="$RUNNER_TEMP/CProjectStandard-component.pkg"
+          PKG="build/ninja-release/CProjectStandard-${VERSION}-Darwin.pkg"
+          rm -rf "$STAGE" "$COMPONENT" "$PKG"
+          cmake --install build/ninja-release --config Release --prefix "$STAGE"
+          pkgbuild --root "$STAGE" \
+            --identifier "com.cprojectstandard.package" \
+            --version "$VERSION" \
+            --install-location "/usr/local" \
+            "$COMPONENT"
+          productbuild --package "$COMPONENT" \
+            --identifier "com.cprojectstandard.package" \
+            --version "$VERSION" \
+            "$PKG"
+          pkgutil --payload-files "$PKG" > "$RUNNER_TEMP/pkg-files.txt"
+          grep -q "bin/cproject" "$RUNNER_TEMP/pkg-files.txt"
+          grep -q "share/c-project-standard/CMakeLists.txt" "$RUNNER_TEMP/pkg-files.txt"
+
       - name: Collect package artifacts
         shell: bash
         run: |
@@ -95,7 +119,6 @@ jobs:
             ls -R build/ninja-release || true
             exit 1
           fi
-          (cd dist && sha256sum -- * > SHA256SUMS)
           ls dist/
 
       - name: Upload package artifacts
@@ -154,6 +177,13 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+
+      - name: Generate checksums
+        run: |
+          set -euo pipefail
+          rm -f dist/SHA256SUMS
+          (cd dist && sha256sum -- * > SHA256SUMS)
+          cat dist/SHA256SUMS
 
       - name: Generate release notes
         id: release_notes

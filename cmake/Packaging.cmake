@@ -13,8 +13,10 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
 set(CPACK_PACKAGE_VENDOR "${CPROJECT_PROJECT_AUTHOR}")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CPACK_GENERATOR "productbuild;TGZ")
-    set(CPACK_PRODUCTBUILD_IDENTIFIER "com.${CPROJECT_PROJECT_ID}.package")
+    # CPack's productbuild generator can emit an empty distribution on current
+    # CMake versions. The release workflow wraps the staged install into a
+    # pkgbuild/productbuild package instead; local cpack produces the TGZ.
+    set(CPACK_GENERATOR "TGZ")
 else()
     find_program(CPACK_DEB_EXECUTABLE dpkg)
     find_program(CPACK_RPM_EXECUTABLE rpmbuild)
